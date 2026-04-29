@@ -3,1282 +3,1243 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rokt One Platform — Campaigns</title>
+<title>Rokt One Platform — Asset Groups</title>
 <style>
+/* ── DESIGN TOKENS (from real OP CSS vars) ── */
 :root{
-  --rokt:#9B1756;--rokt-d:#7a1244;--rokt-l:#fdf0f7;--rokt-m:#e8d5e1;
-  --green:#16a34a;--green-l:#f0fdf4;--amber:#d97706;--amber-l:#fffbeb;
-  --red:#dc2626;--red-l:#fef2f2;--blue:#2563eb;--blue-l:#eff6ff;
-  --g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;--g300:#d1d5db;--g400:#9ca3af;
-  --g500:#6b7280;--g600:#4b5563;--g700:#374151;--g800:#1f2937;--g900:#111827;
-  --sidebar:220px;--topbar:52px;
+  --primary:#c20075;--primary-fg:#fff;
+  --bg:oklch(0.97 0 0);        /* muted / page bg */
+  --card:#fff;
+  --border:oklch(0.922 0 0);   /* #ebebeb */
+  --sidebar-bg:oklch(0.935 0 0); /* ~#ededed */
+  --sidebar-border:oklch(0.87 0 0);
+  --sidebar-accent:oklch(0.98 0 0);
+  --foreground:oklch(0.145 0 0); /* near-black */
+  --muted-fg:oklch(0.556 0 0);   /* gray text */
+  --radius:0.625rem;
+  /* semantic shorthands */
+  --green:#16a34a;--green-l:#f0fdf4;
+  --amber:#d97706;--amber-l:#fffbeb;
+  --red:#dc2626;--red-l:#fef2f2;
+  --blue:#2563eb;--blue-l:#eff6ff;
+  --g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;--g300:#d1d5db;
+  --g400:#9ca3af;--g500:#6b7280;--g600:#4b5563;--g700:#374151;
+  --g800:#1f2937;--g900:#111827;
+  --rokt-l:#fdf0f7;--rokt-m:#e8d5e1;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--g50);color:var(--g800);font-size:14px;line-height:1.5;display:flex;min-height:100vh;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--foreground);font-size:14px;line-height:1.5;height:100vh;overflow:hidden;}
+
+/* ══════════════════════════════════════════
+   LAYOUT — sidebar-first (matches RootLayout)
+══════════════════════════════════════════ */
+.app{display:flex;height:100vh;width:100%;}
 
 /* ── SIDEBAR ── */
-.sidebar{width:var(--sidebar);min-width:var(--sidebar);background:var(--g900);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:200;}
-.sidebar-logo{padding:18px 20px 14px;border-bottom:1px solid rgba(255,255,255,.08);}
-.sidebar-logo span{color:white;font-weight:800;font-size:18px;letter-spacing:-.5px;}
-.sidebar-logo .env-tag{display:block;font-size:10px;color:rgba(255,255,255,.3);font-weight:400;letter-spacing:.5px;margin-top:1px;}
-.sidebar-account{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px;cursor:pointer;}
-.sidebar-account:hover{background:rgba(255,255,255,.04);}
-.sa-avatar{width:30px;height:30px;border-radius:50%;background:var(--rokt);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0;}
-.sa-info{flex:1;overflow:hidden;}
-.sa-name{font-size:12px;font-weight:600;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.sa-company{font-size:11px;color:rgba(255,255,255,.4);}
-.sa-chevron{color:rgba(255,255,255,.3);font-size:11px;}
-.sidebar-section{padding:16px 0 8px;}
-.sidebar-section-label{padding:0 16px 6px;font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.8px;}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;transition:all .15s;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;border-left:3px solid transparent;text-decoration:none;}
-.nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85);}
-.nav-item.active{background:rgba(155,23,86,.25);color:white;border-left-color:var(--rokt);}
-.nav-item .ni-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;}
-.nav-item .ni-badge{margin-left:auto;background:var(--rokt);color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;}
-.nav-item .ni-new{margin-left:auto;background:var(--green);color:white;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;letter-spacing:.3px;}
-.sidebar-bottom{margin-top:auto;border-top:1px solid rgba(255,255,255,.08);padding:8px 0;}
+.sidebar{
+  width:240px;flex-shrink:0;
+  background:var(--sidebar-bg);
+  border-right:1px solid var(--sidebar-border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
 
-/* ── MAIN ── */
-.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh;}
-.topbar{height:var(--topbar);background:white;border-bottom:1px solid var(--g200);padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.topbar-left{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--g500);}
-.topbar-left a{color:var(--g500);text-decoration:none;cursor:pointer;}
-.topbar-left a:hover{color:var(--rokt);}
-.topbar-left .cur{color:var(--g800);font-weight:600;}
-.topbar-left .sep{color:var(--g300);}
-.topbar-right{display:flex;align-items:center;gap:12px;}
-.topbar-btn{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--g200);background:white;color:var(--g700);display:flex;align-items:center;gap:6px;transition:all .15s;}
-.topbar-btn:hover{background:var(--g50);}
-.topbar-btn.primary{background:var(--rokt);color:white;border-color:var(--rokt);}
-.topbar-btn.primary:hover{background:var(--rokt-d);}
-.content{flex:1;padding:28px;padding-bottom:80px;}
+/* Sidebar header — product picker */
+.sb-header{padding:12px 10px 8px;border-bottom:1px solid var(--sidebar-border);}
+.sb-product-btn{
+  width:100%;display:flex;align-items:center;gap:8px;
+  padding:6px 8px;border-radius:calc(var(--radius) - 2px);
+  cursor:pointer;border:none;background:transparent;text-align:left;
+  font-size:13px;font-weight:500;color:var(--foreground);transition:background .15s;
+}
+.sb-product-btn:hover{background:var(--sidebar-accent);}
+.sb-product-icon{
+  width:20px;height:20px;border-radius:4px;
+  background:var(--primary);display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.sb-product-icon svg{width:12px;height:12px;fill:white;}
+.sb-product-label{flex:1;font-weight:600;}
+.sb-chevron-ud{color:var(--muted-fg);font-size:10px;margin-left:auto;}
 
-/* ── VIEWS ── */
-.view{display:none;}.view.active{display:block;}
+/* Sidebar content — nav */
+.sb-content{flex:1;overflow-y:auto;padding:6px 6px 0;}
+.sb-group{margin-bottom:4px;}
 
-/* ── WIZARD STEPS ── */
-.wizard-steps{display:flex;align-items:center;gap:0;margin-bottom:28px;background:white;border:1px solid var(--g200);border-radius:10px;padding:4px;overflow-x:auto;}
-.wstep{display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:7px;font-size:13px;color:var(--g400);cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
-.wstep.done{color:var(--green);}
-.wstep.active{background:var(--rokt);color:white;font-weight:600;}
-.wstep.active .wsn{background:white;color:var(--rokt);}
-.wstep.done .wsn{background:var(--green);color:white;}
-.wsn{width:22px;height:22px;border-radius:50%;background:var(--g200);color:var(--g500);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.wstep-arr{color:var(--g300);padding:0 2px;font-size:12px;}
+/* Top-level nav item */
+.sb-item{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 10px;border-radius:calc(var(--radius) - 2px);
+  cursor:pointer;font-size:13px;font-weight:500;color:var(--foreground);
+  transition:background .15s;user-select:none;position:relative;
+}
+.sb-item:hover{background:var(--sidebar-accent);}
+.sb-item.active{background:var(--sidebar-accent);font-weight:600;}
+.sb-item .sb-icon{width:16px;height:16px;flex-shrink:0;color:var(--muted-fg);}
+.sb-item.active .sb-icon{color:var(--primary);}
+.sb-item .sb-arrow{margin-left:auto;font-size:10px;color:var(--muted-fg);transition:transform .2s;}
+.sb-item.expanded .sb-arrow{transform:rotate(90deg);}
 
-/* ── SHARED COMPONENTS ── */
-.card{background:white;border:1px solid var(--g200);border-radius:10px;padding:24px;margin-bottom:20px;}
-.card-title{font-size:16px;font-weight:700;color:var(--g900);margin-bottom:4px;}
-.card-sub{font-size:13px;color:var(--g500);margin-bottom:20px;}
-.section-divider{font-size:11px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--g100);}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
-.form-field{margin-bottom:0;}
-.form-field label{display:block;font-size:12px;font-weight:600;color:var(--g700);margin-bottom:4px;}
-.form-field input,.form-field select,.form-field textarea{width:100%;padding:8px 12px;border:1px solid var(--g200);border-radius:6px;font-size:13px;color:var(--g800);font-family:inherit;transition:border-color .15s;}
-.form-field input:focus,.form-field select:focus,.form-field textarea:focus{outline:none;border-color:var(--rokt);box-shadow:0 0 0 3px rgba(155,23,86,.08);}
-.req{color:var(--red);}
-.hint{font-size:11px;color:var(--g400);margin-top:3px;}
-.btn{padding:8px 16px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
-.btn-primary{background:var(--rokt);color:white;border-color:var(--rokt);}
-.btn-primary:hover{background:var(--rokt-d);}
-.btn-outline{background:white;color:var(--g700);border-color:var(--g200);}
-.btn-outline:hover{background:var(--g50);border-color:var(--g300);}
-.btn-ghost{background:none;border:none;color:var(--g500);cursor:pointer;padding:8px;font-size:13px;}
-.btn-sm{padding:5px 11px;font-size:12px;}
-.badge{padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+/* Sub-items */
+.sb-sub{overflow:hidden;margin-left:24px;border-left:1px solid var(--sidebar-border);padding-left:2px;}
+.sb-sub.collapsed{display:none;}
+.sb-sub-item{
+  display:block;padding:6px 12px;border-radius:calc(var(--radius) - 2px);
+  font-size:13px;color:var(--muted-fg);cursor:pointer;transition:all .15s;
+}
+.sb-sub-item:hover{background:var(--sidebar-accent);color:var(--foreground);}
+.sb-sub-item.active{background:var(--sidebar-accent);color:var(--primary);font-weight:600;}
+
+/* Sidebar footer — account picker */
+.sb-footer{padding:8px 6px 10px;border-top:1px solid var(--sidebar-border);}
+.sb-account-btn{
+  width:100%;display:flex;align-items:center;gap:8px;
+  padding:6px 8px;border-radius:calc(var(--radius) - 2px);
+  cursor:pointer;border:none;background:transparent;text-align:left;transition:background .15s;
+}
+.sb-account-btn:hover{background:var(--sidebar-accent);}
+.sb-avatar{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--primary);color:white;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;
+}
+.sb-account-info{flex:1;}
+.sb-account-name{font-size:12px;font-weight:600;color:var(--foreground);}
+.sb-account-role{font-size:11px;color:var(--muted-fg);}
+
+/* ── MAIN INSET (SidebarInset) ── */
+.main-inset{
+  flex:1;min-width:0;
+  background:var(--bg);
+  overflow-y:auto;
+  position:relative;
+}
+.main-inset-inner{padding:32px;}/* p-8 */
+
+/* ══════════════════════════════════════════
+   PAGE LAYOUT (DataPageLayout)
+══════════════════════════════════════════ */
+.data-page{display:flex;flex-direction:column;gap:16px;height:calc(100vh - 64px);}
+
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-shrink:0;}
+.page-header h1{font-size:18px;font-weight:600;color:var(--foreground);}
+.page-header .ph-sub{font-size:13px;color:var(--muted-fg);margin-top:2px;}
+.page-header-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+
+/* Date tab picker (matches real DateTabPicker) */
+.date-tabs{display:flex;align-items:center;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);overflow:hidden;}
+.date-tab{padding:5px 11px;font-size:12px;font-weight:500;color:var(--muted-fg);cursor:pointer;border:none;background:transparent;transition:all .15s;}
+.date-tab:hover{background:var(--g100);color:var(--foreground);}
+.date-tab.active{background:var(--g100);color:var(--foreground);font-weight:600;}
+.date-tab-cal{padding:5px 10px;border-left:1px solid var(--border);font-size:12px;color:var(--muted-fg);cursor:pointer;background:transparent;border-radius:0;}
+.date-tab-cal:hover{background:var(--g100);}
+
+/* ── TOOLBAR SECTION ── */
+.toolbar{display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;}
+.btn{padding:7px 14px;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;border:1px solid;transition:all .15s;display:inline-flex;align-items:center;gap:6px;font-family:inherit;}
+.btn-primary{background:var(--primary);color:white;border-color:var(--primary);}
+.btn-primary:hover{background:#a0005f;}
+.btn-secondary{background:var(--card);color:var(--g700);border-color:var(--border);}
+.btn-secondary:hover{background:var(--g50);}
+.btn-ghost{background:none;border:none;color:var(--muted-fg);cursor:pointer;font-size:13px;padding:7px 10px;font-family:inherit;transition:color .15s;}
+.btn-ghost:hover{color:var(--foreground);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn-icon{width:32px;height:32px;padding:0;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);color:var(--muted-fg);cursor:pointer;transition:all .15s;font-size:14px;}
+.btn-icon:hover{background:var(--g50);border-color:var(--g300);}
+.toolbar-search{display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:var(--radius);padding:5px 10px;background:var(--card);}
+.toolbar-search input{border:none;outline:none;font-size:13px;color:var(--foreground);background:transparent;width:200px;font-family:inherit;}
+.toolbar-search input::placeholder{color:var(--muted-fg);}
+.filter-chip{display:inline-flex;align-items:center;gap:5px;background:var(--g100);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--g700);cursor:pointer;}
+.filter-chip strong{font-weight:600;}
+.chip-x{color:var(--g400);font-size:13px;cursor:pointer;}
+.chip-x:hover{color:var(--g700);}
+.add-filter{font-size:12px;color:var(--muted-fg);cursor:pointer;padding:4px 6px;border-radius:4px;}
+.add-filter:hover{color:var(--primary);background:var(--rokt-l);}
+.toolbar-spacer{flex:1;}
+
+/* ── DATA TABLE CARD ── */
+.table-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;flex:1;min-height:0;}
+.tbl-scroll{overflow-y:auto;flex:1;}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl thead{position:sticky;top:0;z-index:10;}
+.tbl th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--muted-fg);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);background:var(--card);white-space:nowrap;cursor:pointer;}
+.tbl th:hover{color:var(--g600);}
+.tbl td{padding:14px 14px;border-bottom:1px solid var(--g100);color:var(--g700);vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tbody tr:hover td{background:var(--g50);}
+.tbl tr{cursor:pointer;}
+.cell-name{font-weight:600;color:var(--foreground);}
+.cell-sub{font-size:11px;color:var(--muted-fg);margin-top:2px;}
+.num-cell{text-align:right;font-variant-numeric:tabular-nums;}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
 .badge-green{background:var(--green-l);color:var(--green);}
 .badge-amber{background:var(--amber-l);color:var(--amber);}
-.badge-blue{background:var(--blue-l);color:var(--blue);}
 .badge-gray{background:var(--g100);color:var(--g500);}
+.badge-blue{background:var(--blue-l);color:var(--blue);}
+.badge-rokt{background:var(--rokt-l);color:var(--primary);}
+.badge-dot{width:6px;height:6px;border-radius:50%;display:inline-block;}
+.badge-dot-green{background:var(--green);}
+.badge-dot-amber{background:var(--amber);}
+.badge-dot-gray{background:var(--g400);}
+.row-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s;}
+tr:hover .row-actions{opacity:1;}
+.row-btn{padding:3px 9px;border:1px solid var(--border);border-radius:5px;background:var(--card);font-size:11px;font-weight:500;cursor:pointer;color:var(--g600);}
+.row-btn:hover{background:var(--g50);}
 
-/* ── CAMPAIGNS LIST ── */
-.page-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
-.page-hdr h1{font-size:22px;font-weight:700;color:var(--g900);}
-.page-hdr p{font-size:13px;color:var(--g500);margin-top:2px;}
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
-.stat-card{background:white;border:1px solid var(--g200);border-radius:10px;padding:18px 20px;}
-.stat-card .sv{font-size:26px;font-weight:800;color:var(--g900);}
-.stat-card .sl{font-size:12px;color:var(--g500);margin-top:2px;}
-.stat-card .sd{font-size:11px;color:var(--green);margin-top:4px;}
-.table-wrap{background:white;border:1px solid var(--g200);border-radius:10px;overflow:hidden;}
-.tbl-toolbar{padding:12px 16px;border-bottom:1px solid var(--g200);display:flex;gap:10px;align-items:center;}
-.tbl-search{padding:7px 12px;border:1px solid var(--g200);border-radius:6px;font-size:13px;width:240px;color:var(--g800);}
-.tbl-search:focus{outline:none;border-color:var(--rokt);}
-table.main-tbl{width:100%;border-collapse:collapse;font-size:13px;}
-table.main-tbl th{padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--g200);background:var(--g50);white-space:nowrap;}
-table.main-tbl td{padding:13px 16px;border-bottom:1px solid var(--g100);color:var(--g700);vertical-align:middle;}
-table.main-tbl tr:last-child td{border-bottom:none;}
-table.main-tbl tr:hover td{background:var(--g50);}
-.campaign-name{font-weight:600;color:var(--g900);cursor:pointer;}
-.campaign-name:hover{color:var(--rokt);}
-.campaign-name .cn-sub{font-size:11px;color:var(--g400);font-weight:400;margin-top:1px;}
-.progress-bar-sm{background:var(--g100);border-radius:100px;height:5px;width:100px;overflow:hidden;margin-top:4px;}
-.progress-fill{background:var(--rokt);height:100%;border-radius:100px;}
-.tbl-actions{display:flex;gap:6px;opacity:0;}
-tr:hover .tbl-actions{opacity:1;}
+/* ── VIEWS ── */
+.view{display:none;}.view.active{display:flex;flex-direction:column;gap:16px;flex:1;}
 
-/* ── CREATIVE CHOICE PAGE ── */
-.choice-heading{text-align:center;max-width:640px;margin:0 auto 32px;}
-.choice-heading h2{font-size:22px;font-weight:700;color:var(--g900);margin-bottom:8px;}
-.choice-heading p{font-size:14px;color:var(--g500);line-height:1.7;}
-.creative-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px;margin:0 auto;}
-.choice-card{background:white;border:2px solid var(--g200);border-radius:12px;padding:28px;cursor:pointer;transition:all .2s;position:relative;}
-.choice-card:hover{border-color:var(--rokt);box-shadow:0 8px 24px rgba(155,23,86,.12);transform:translateY(-2px);}
-.choice-card.new-badge::after{content:'NEW';position:absolute;top:16px;right:16px;background:var(--rokt);color:white;font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;letter-spacing:.5px;}
-.choice-card-icon{font-size:32px;margin-bottom:14px;}
-.choice-card h3{font-size:17px;font-weight:700;margin-bottom:6px;}
-.choice-card>p{font-size:13px;color:var(--g500);margin-bottom:16px;line-height:1.6;}
-.choice-card ul{list-style:none;margin-bottom:20px;}
-.choice-card ul li{font-size:13px;color:var(--g600);padding:3px 0;display:flex;align-items:flex-start;gap:7px;}
-.choice-card ul li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px;}
-.choice-card .card-cta-btn{width:100%;padding:10px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;border:2px solid var(--rokt);color:var(--rokt);background:white;}
-.choice-card:hover .card-cta-btn,.choice-card.highlighted .card-cta-btn{background:var(--rokt);color:white;}
-.choice-stat{margin-top:12px;padding:10px;background:var(--rokt-l);border-radius:6px;font-size:12px;color:var(--rokt);font-weight:500;text-align:center;}
-.existing-formats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
-.ef-chip{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;background:var(--g100);color:var(--g600);}
-.ef-chip.active-fmt{background:var(--blue-l);color:var(--blue);}
+/* ── BREADCRUMB / PAGE HEADER for sub-views ── */
+.back-link{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--muted-fg);cursor:pointer;margin-bottom:8px;}
+.back-link:hover{color:var(--primary);}
 
-/* ── MANUAL CREATIVE FORM ── */
-.two-col{display:grid;grid-template-columns:1fr 360px;gap:22px;}
-.form-section-card{background:white;border:1px solid var(--g200);border-radius:10px;overflow:hidden;margin-bottom:0;}
-.fsc-hdr{padding:14px 20px;background:var(--g50);border-bottom:1px solid var(--g100);cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
-.fsc-hdr:hover{background:var(--g100);}
-.fsc-title{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;}
-.fsc-num{width:22px;height:22px;border-radius:50%;background:var(--rokt);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.fsc-body{padding:20px;}
-.fsc-body.collapsed{display:none;}
-.format-selector{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
-.fmt-btn{padding:8px 16px;border-radius:6px;border:2px solid var(--g200);background:white;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;color:var(--g600);}
+/* ── WIZARD ── */
+.wizard-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.wizard-steps-row{display:flex;align-items:center;padding:12px 20px;border-bottom:1px solid var(--g100);background:var(--g50);overflow-x:auto;gap:4px;}
+.wstep{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;font-size:12px;color:var(--g400);white-space:nowrap;flex-shrink:0;}
+.wstep.done{color:var(--green);}
+.wstep.active{color:var(--primary);font-weight:600;}
+.wstep .wsn{width:20px;height:20px;border-radius:50%;background:var(--g200);color:var(--g500);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.wstep.done .wsn{background:var(--green);color:white;}
+.wstep.active .wsn{background:var(--primary);color:white;}
+.wstep-sep{color:var(--g300);font-size:11px;}
+.wizard-body{padding:24px;}
+.wizard-footer{padding:12px 24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--g50);}
+
+/* ── FORM ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-field{margin-bottom:14px;}
+.form-field:last-child{margin-bottom:0;}
+.form-field label{display:block;font-size:12px;font-weight:500;color:var(--g700);margin-bottom:5px;}
+.form-field input,.form-field select,.form-field textarea{width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--foreground);font-family:inherit;transition:border-color .15s;background:var(--card);}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(194,0,117,.1);}
+.req{color:var(--red);}
+.char-count{font-size:11px;color:var(--muted-fg);text-align:right;margin-top:2px;}
+.col-2{grid-column:span 2;}
+.section-label{font-size:11px;font-weight:600;color:var(--muted-fg);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--g100);}
+
+/* ── CREATIVE CHOICE ── */
+.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.choice-card{border:2px solid var(--border);border-radius:var(--radius);padding:24px;cursor:pointer;transition:all .2s;position:relative;background:var(--card);}
+.choice-card:hover{border-color:var(--primary);box-shadow:0 4px 16px rgba(194,0,117,.1);}
+.cc-new-tag{position:absolute;top:12px;right:12px;background:var(--primary);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.5px;text-transform:uppercase;}
+.cc-icon{font-size:26px;margin-bottom:10px;}
+.cc-title{font-size:15px;font-weight:600;color:var(--foreground);margin-bottom:4px;}
+.cc-desc{font-size:13px;color:var(--muted-fg);margin-bottom:12px;line-height:1.6;}
+.cc-stat{padding:8px 12px;background:var(--rokt-l);border-radius:6px;font-size:12px;color:var(--primary);font-weight:500;text-align:center;margin-bottom:12px;}
+.cc-features{list-style:none;margin-bottom:14px;}
+.cc-features li{font-size:12px;color:var(--g600);padding:3px 0;display:flex;align-items:flex-start;gap:6px;line-height:1.5;}
+.cc-features li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;}
+.cc-formats{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;}
+.cc-fmt-chip{padding:2px 8px;border-radius:20px;font-size:11px;background:var(--g100);color:var(--g600);}
+.cc-fmt-chip.active{background:var(--blue-l);color:var(--blue);}
+.cc-select-btn{width:100%;padding:8px;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;border:2px solid var(--primary);color:var(--primary);background:transparent;transition:all .15s;font-family:inherit;}
+.choice-card:hover .cc-select-btn{background:var(--primary);color:white;}
+
+/* ── FORMAT SELECTOR (manual) ── */
+.fmt-selector{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.fmt-btn{padding:7px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;color:var(--g600);background:var(--card);font-family:inherit;}
 .fmt-btn:hover{border-color:var(--g300);}
-.fmt-btn.selected{border-color:var(--rokt);background:var(--rokt-l);color:var(--rokt);}
-.format-desc{font-size:12px;color:var(--g500);margin-bottom:16px;}
-.asset-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;}
-.asset-row input,.asset-row textarea{flex:1;padding:8px 12px;border:1px solid var(--g200);border-radius:6px;font-size:13px;color:var(--g800);font-family:inherit;}
-.asset-row input:focus,.asset-row textarea:focus{outline:none;border-color:var(--rokt);}
-.rm-btn{width:30px;height:30px;border:none;background:none;cursor:pointer;color:var(--g400);font-size:16px;border-radius:4px;flex-shrink:0;margin-top:4px;}
+.fmt-btn.sel{border-color:var(--primary);background:var(--rokt-l);color:var(--primary);}
+.fmt-note{font-size:12px;color:var(--muted-fg);margin-bottom:14px;padding:9px 12px;background:var(--g50);border-radius:6px;border:1px solid var(--g200);}
+
+/* ── ASSET ROWS ── */
+.asset-rows{margin-bottom:10px;}
+.asset-row{display:flex;gap:8px;margin-bottom:6px;align-items:flex-start;}
+.asset-row input,.asset-row textarea{flex:1;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--foreground);font-family:inherit;transition:border-color .15s;}
+.asset-row input:focus,.asset-row textarea:focus{outline:none;border-color:var(--primary);}
+.perf-pill{padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;flex-shrink:0;margin-top:8px;}
+.perf-best{background:var(--green-l);color:var(--green);}
+.perf-good{background:var(--blue-l);color:var(--blue);}
+.perf-low{background:var(--red-l);color:var(--red);}
+.perf-pend{background:var(--g100);color:var(--g400);}
+.rm-btn{width:28px;height:28px;border:none;background:none;cursor:pointer;color:var(--g300);font-size:16px;border-radius:4px;flex-shrink:0;margin-top:6px;}
 .rm-btn:hover{background:var(--g100);color:var(--red);}
-.add-btn{font-size:12px;color:var(--rokt);font-weight:500;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:4px;padding:3px 0;}
-.add-btn:hover{text-decoration:underline;}
-.img-upload{border:2px dashed var(--g200);border-radius:8px;padding:28px;text-align:center;cursor:pointer;transition:all .15s;}
-.img-upload:hover{border-color:var(--rokt);background:var(--rokt-l);}
-.img-upload .iu-icon{font-size:28px;margin-bottom:8px;}
-.img-upload p{font-size:13px;color:var(--g500);}
-.img-upload .iu-specs{font-size:11px;color:var(--g400);margin-top:4px;}
-.side-panel{position:sticky;top:72px;}
-.panel-box{background:white;border:1px solid var(--g200);border-radius:10px;overflow:hidden;margin-bottom:14px;}
-.pb-hdr{padding:11px 14px;border-bottom:1px solid var(--g100);background:var(--g50);}
-.pb-hdr h4{font-size:11px;font-weight:700;color:var(--g600);text-transform:uppercase;letter-spacing:.5px;}
-.pb-body{padding:14px;}
-.prev-ad{background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:14px;}
-.prev-title{font-size:13px;font-weight:700;margin-bottom:3px;}
-.prev-body{font-size:11px;color:var(--g600);margin-bottom:7px;}
-.prev-cta{display:inline-block;background:var(--rokt);color:white;border-radius:5px;padding:5px 12px;font-size:11px;font-weight:700;}
-.prev-img-placeholder{background:var(--g200);border-radius:6px;height:60px;display:flex;align-items:center;justify-content:center;color:var(--g400);font-size:11px;margin-bottom:8px;}
-.prev-benefits{margin-bottom:7px;}
-.prev-benefit{font-size:11px;color:var(--green);display:flex;align-items:center;gap:5px;}
-.prev-benefit::before{content:'✓';font-weight:700;}
-.char-count{font-size:11px;color:var(--g400);text-align:right;margin-top:2px;}
-.benefit-chips,.tag-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
-.benefit-chip{display:inline-flex;align-items:center;gap:5px;background:var(--green-l);color:var(--green);border:1px solid #86efac;border-radius:20px;padding:3px 10px;font-size:12px;}
-.benefit-chip .rm{cursor:pointer;opacity:.7;}
-.tag-chip{display:inline-flex;align-items:center;gap:5px;background:var(--rokt-l);color:var(--rokt);border:1px solid var(--rokt-m);border-radius:20px;padding:3px 10px;font-size:12px;}
-.tag-chip .rm{cursor:pointer;opacity:.7;}
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;}
+.add-row-btn{font-size:12px;color:var(--primary);font-weight:500;cursor:pointer;background:none;border:none;font-family:inherit;padding:0;display:flex;align-items:center;gap:3px;}
+.add-row-btn:hover{text-decoration:underline;}
+
+/* ── CHIPS ── */
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
+.chip-green{display:inline-flex;align-items:center;gap:4px;background:var(--green-l);color:var(--green);border:1px solid #86efac;border-radius:20px;padding:3px 9px;font-size:12px;}
+.chip-rokt{display:inline-flex;align-items:center;gap:4px;background:var(--rokt-l);color:var(--primary);border:1px solid var(--rokt-m);border-radius:20px;padding:3px 9px;font-size:12px;}
+.chip-rm{cursor:pointer;opacity:.6;font-size:12px;line-height:1;}
+.chip-rm:hover{opacity:1;}
+
+/* ── IMAGE GRID ── */
+.img-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}
+.img-slot{aspect-ratio:1;border:2px dashed var(--border);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:10px;color:var(--muted-fg);text-align:center;gap:3px;background:var(--g50);transition:all .15s;}
+.img-slot:hover{border-color:var(--primary);color:var(--primary);background:var(--rokt-l);}
+.img-slot.filled{border-style:solid;border-color:var(--g300);background:var(--g100);color:var(--g600);}
+.img-type-label{font-weight:700;text-transform:uppercase;font-size:9px;}
+.img-upload-big{border:2px dashed var(--border);border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:all .15s;}
+.img-upload-big:hover{border-color:var(--primary);background:var(--rokt-l);}
+
+/* ── TOGGLE ── */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;}
 .tgl{position:relative;width:36px;height:20px;cursor:pointer;flex-shrink:0;}
 .tgl input{opacity:0;width:0;height:0;position:absolute;}
 .tgl-track{position:absolute;inset:0;background:var(--g300);border-radius:100px;transition:background .2s;}
-.tgl input:checked+.tgl-track{background:var(--rokt);}
-.tgl-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;background:white;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.tgl input:checked+.tgl-track{background:var(--primary);}
+.tgl-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;background:white;border-radius:50%;transition:transform .2s;box-shadow:0 1px 2px rgba(0,0,0,.2);}
 .tgl input:checked~.tgl-thumb{transform:translateX(16px);}
 
-/* ── ASSET GROUP EDITOR (in OP context) ── */
-.ag-editor-layout{display:grid;grid-template-columns:1fr 320px;gap:22px;}
-.elig-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--g100);font-size:13px;}
+/* ── EDITOR LAYOUT ── */
+.editor-layout{display:grid;grid-template-columns:1fr 280px;gap:20px;align-items:start;}
+.right-panel{position:sticky;top:20px;}
+.panel-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:10px;}
+.panel-card-hdr{padding:9px 14px;background:var(--g50);border-bottom:1px solid var(--g100);}
+.panel-card-hdr h4{font-size:11px;font-weight:600;color:var(--muted-fg);text-transform:uppercase;letter-spacing:.5px;}
+.panel-card-body{padding:12px;}
+.elig-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--g100);font-size:13px;}
 .elig-row:last-child{border-bottom:none;}
-.elig-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.elig-fmt{font-weight:500;color:var(--g700);}
+.elig-status{display:flex;align-items:center;gap:5px;}
+.elig-dot{width:8px;height:8px;border-radius:50%;}
 .elig-dot.on{background:var(--green);}
 .elig-dot.off{background:var(--g300);}
-.elig-text.on{color:var(--green);font-size:12px;font-weight:500;}
-.elig-text.off{color:var(--g400);font-size:12px;}
-.combo-big{font-size:26px;font-weight:800;color:var(--rokt);}
-.combo-sub{font-size:12px;color:var(--g500);margin-top:2px;}
-.strength-track{background:var(--g100);border-radius:100px;height:7px;overflow:hidden;}
-.strength-fill{height:100%;border-radius:100px;}
-.strength-fill.good{background:var(--blue);width:72%;}
-.strength-fill.avg{background:var(--amber);width:42%;}
-.preview-tabs-row{display:flex;border-bottom:1px solid var(--g200);}
-.ptab{padding:8px 11px;font-size:12px;font-weight:500;color:var(--g500);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
-.ptab.active{color:var(--rokt);border-bottom-color:var(--rokt);}
-.ptab.locked{opacity:.35;cursor:not-allowed;}
-.perf-badge{padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;flex-shrink:0;margin-top:8px;}
-.perf-badge.best{background:var(--green-l);color:var(--green);}
-.perf-badge.good{background:var(--blue-l);color:var(--blue);}
-.perf-badge.low{background:var(--red-l);color:var(--red);}
-.perf-badge.pending{background:var(--g100);color:var(--g400);}
-.img-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
-.img-slot{aspect-ratio:1;border:2px dashed var(--g200);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:10px;color:var(--g400);text-align:center;gap:3px;background:var(--g50);transition:all .15s;}
-.img-slot:hover{border-color:var(--rokt);color:var(--rokt);background:var(--rokt-l);}
-.img-slot.filled{border-style:solid;border-color:var(--g300);background:var(--g100);color:var(--g600);}
-.img-type{font-weight:700;text-transform:uppercase;font-size:9px;}
-.reach-pct{font-size:26px;font-weight:800;color:var(--g900);}
-.fmt-chip{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;}
-.fmt-chip.on{background:var(--green-l);color:var(--green);}
-.fmt-chip.off{background:var(--g100);color:var(--g400);}
+.elig-txt-on{font-size:12px;color:var(--green);font-weight:500;}
+.elig-txt-off{font-size:12px;color:var(--muted-fg);}
+.big-num{font-size:26px;font-weight:700;color:var(--foreground);}
+.big-num-primary{color:var(--primary);}
+.big-sub{font-size:12px;color:var(--muted-fg);margin-top:2px;}
+.str-track{background:var(--g100);border-radius:100px;height:5px;overflow:hidden;}
+.str-fill{height:100%;border-radius:100px;}
+.prev-tabs{display:flex;border-bottom:1px solid var(--border);}
+.prev-tab{padding:6px 11px;font-size:12px;font-weight:500;color:var(--muted-fg);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
+.prev-tab.active{color:var(--primary);border-bottom-color:var(--primary);}
+.prev-tab.locked{opacity:.35;cursor:not-allowed;}
+.preview-ad{background:var(--g50);border:1px solid var(--border);border-radius:6px;padding:10px;margin:8px 0;}
+.pa-img{background:var(--g200);border-radius:4px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--muted-fg);font-size:11px;margin-bottom:7px;}
+.pa-title{font-size:13px;font-weight:600;margin-bottom:3px;}
+.pa-body{font-size:11px;color:var(--g600);margin-bottom:6px;}
+.pa-ben{font-size:11px;color:var(--green);display:flex;align-items:center;gap:4px;margin-bottom:2px;}
+.pa-ben::before{content:'✓';font-weight:700;}
+.pa-cta{display:inline-block;background:var(--primary);color:white;border-radius:5px;padding:4px 11px;font-size:11px;font-weight:600;}
+.pa-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
+.pa-tag{background:var(--rokt-l);color:var(--primary);border-radius:20px;padding:2px 6px;font-size:10px;}
+.combo-nav{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--muted-fg);margin-top:4px;}
+.cnav-btn{padding:2px 8px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--card);font-size:12px;font-family:inherit;}
+.cnav-btn:hover{background:var(--g50);}
+.lock-warn{background:var(--amber-l);border:1px solid #fcd34d;border-radius:6px;padding:9px 12px;font-size:12px;color:var(--amber);margin-bottom:8px;}
+.lock-switch{font-size:12px;color:var(--muted-fg);margin-top:6px;}
+.lock-switch a{color:var(--primary);cursor:pointer;font-weight:500;}
+.lock-switch a:hover{text-decoration:underline;}
 
-/* ── BOTTOM BAR ── */
-.bottom-bar{position:fixed;bottom:0;left:var(--sidebar);right:0;background:white;border-top:1px solid var(--g200);padding:12px 28px;display:flex;justify-content:space-between;align-items:center;z-index:150;}
-.bb-r{display:flex;gap:10px;align-items:center;}
+/* ── COLLAPSIBLE FORM SECTIONS ── */
+.form-section{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:10px;}
+.fs-hdr{padding:11px 14px;background:var(--g50);display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:background .15s;}
+.fs-hdr:hover{background:var(--g100);}
+.fs-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--foreground);}
+.fs-num{width:20px;height:20px;border-radius:50%;background:var(--primary);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.fs-status{font-size:11px;font-weight:600;}
+.fs-status.done{color:var(--green);}
+.fs-status.warn{color:var(--amber);}
+.fs-body{padding:14px;border-top:1px solid var(--g100);}
+.fs-body.collapsed{display:none;}
+.chevron{color:var(--muted-fg);font-size:11px;transition:transform .2s;}
+.chevron.open{transform:rotate(180deg);}
 
-/* ── CONTEXT BANNER ── */
-.context-banner{background:white;border:1px solid var(--g200);border-radius:10px;padding:14px 20px;margin-bottom:22px;display:flex;align-items:center;gap:16px;font-size:13px;}
-.cb-step{color:var(--g400);}
-.cb-step.done{color:var(--green);}
-.cb-step.active{color:var(--g800);font-weight:600;}
-.cb-sep{color:var(--g300);}
-
-/* UTILS */
+/* ── UTILS ── */
 .hidden{display:none!important;}
 .flex{display:flex;}.items-center{align-items:center;}.justify-between{justify-content:space-between;}
-.gap-8{gap:8px;}.gap-12{gap:12px;}.mt-4{margin-top:4px;}.mt-8{margin-top:8px;}.mt-16{margin-top:16px;}.mt-20{margin-top:20px;}.mb-8{margin-bottom:8px;}.mb-16{margin-bottom:16px;}
-.text-sm{font-size:12px;}.text-xs{font-size:11px;}.text-gray{color:var(--g500);}.fw-6{font-weight:600;}.fw-7{font-weight:700;}
-.col-span-2{grid-column:span 2;}
+.gap-8{gap:8px;}.gap-12{gap:12px;}
+.mt-8{margin-top:8px;}.mt-12{margin-top:12px;}.mt-16{margin-top:16px;}
+.mb-8{margin-bottom:8px;}.mb-12{margin-bottom:12px;}.mb-14{margin-bottom:14px;}
+.text-xs{font-size:11px;}.text-sm{font-size:12px;}.text-muted{color:var(--muted-fg);}
+.fw-5{font-weight:500;}.fw-6{font-weight:600;}
 </style>
 </head>
 <body>
+<div class="app">
 
-<!-- ══════════════ SIDEBAR ══════════════ -->
-<aside class="sidebar">
-  <div class="sidebar-logo">
-    <span>rokt</span>
-    <span class="env-tag">One Platform</span>
-  </div>
-  <div class="sidebar-account">
-    <div class="sa-avatar">MP</div>
-    <div class="sa-info">
-      <div class="sa-name">Marine Philipon</div>
-      <div class="sa-company">Acme Co.</div>
+  <!-- ══════════════ SIDEBAR ══════════════ -->
+  <aside class="sidebar">
+
+    <!-- Product picker -->
+    <div class="sb-header">
+      <button class="sb-product-btn">
+        <span class="sb-product-icon">
+          <!-- person-search icon (simplified) -->
+          <svg viewBox="0 0 16 16"><circle cx="6" cy="5" r="3" fill="white"/><path d="M1 14c0-3 2-5 5-5s5 2 5 5" fill="none" stroke="white" stroke-width="1.5"/><circle cx="12" cy="10" r="2.5" fill="none" stroke="white" stroke-width="1.2"/><line x1="14" y1="12" x2="15.5" y2="13.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </span>
+        <span class="sb-product-label">Rokt Ads</span>
+        <span class="sb-chevron-ud">⇅</span>
+      </button>
     </div>
-    <span class="sa-chevron">▾</span>
-  </div>
 
-  <div class="sidebar-section">
-    <div class="sidebar-section-label">Overview</div>
-    <div class="nav-item" onclick="showView('campaigns-list')">
-      <span class="ni-icon">📊</span> Dashboard
-    </div>
-  </div>
+    <!-- Nav content -->
+    <div class="sb-content">
 
-  <div class="sidebar-section">
-    <div class="sidebar-section-label">Advertising</div>
-    <div class="nav-item active" id="nav-campaigns" onclick="showView('campaigns-list')">
-      <span class="ni-icon">📢</span> Campaigns
-    </div>
-    <div class="nav-item" id="nav-creatives" onclick="showView('creatives-library')">
-      <span class="ni-icon">🎨</span> Creatives
-    </div>
-    <div class="nav-item" onclick="showView('audiences-stub')">
-      <span class="ni-icon">👥</span> Audiences
-    </div>
-    <div class="nav-item" onclick="showView('offers-stub')">
-      <span class="ni-icon">🏷</span> Offers
-    </div>
-  </div>
-
-  <div class="sidebar-section">
-    <div class="sidebar-section-label">Insights</div>
-    <div class="nav-item" onclick="showView('reporting-stub')">
-      <span class="ni-icon">📈</span> Reports
-    </div>
-    <div class="nav-item">
-      <span class="ni-icon">🔬</span> Experiments
-    </div>
-  </div>
-
-  <div class="sidebar-section">
-    <div class="sidebar-section-label">Account</div>
-    <div class="nav-item"><span class="ni-icon">👤</span> Profile</div>
-    <div class="nav-item"><span class="ni-icon">🔑</span> API Keys</div>
-  </div>
-
-  <div class="sidebar-bottom">
-    <div class="nav-item"><span class="ni-icon">⚙️</span> Settings</div>
-    <div class="nav-item"><span class="ni-icon">❓</span> Help & Docs</div>
-  </div>
-</aside>
-
-<!-- ══════════════ MAIN ══════════════ -->
-<div class="main">
-
-  <!-- TOPBAR -->
-  <div class="topbar">
-    <div class="topbar-left" id="topbar-bc">
-      <span class="cur">Campaigns</span>
-    </div>
-    <div class="topbar-right">
-      <button class="topbar-btn" onclick="showView('campaigns-list')">Acme Co. ▾</button>
-      <button class="topbar-btn primary" onclick="startCampaign()">+ New Campaign</button>
-    </div>
-  </div>
-
-  <div class="content">
-
-    <!-- ══════ CAMPAIGNS LIST ══════ -->
-    <div id="view-campaigns-list" class="view active">
-      <div class="page-hdr">
-        <div><h1>Campaigns</h1><p>Manage and monitor all your campaigns</p></div>
-        <button class="btn btn-primary" onclick="startCampaign()">+ New Campaign</button>
-      </div>
-
-      <div class="stats-row">
-        <div class="stat-card"><div class="sv">12</div><div class="sl">Active campaigns</div><div class="sd">↑ 3 this month</div></div>
-        <div class="stat-card"><div class="sv">4.1%</div><div class="sl">Avg CVR (Apr)</div><div class="sd">↑ 0.4% vs Mar</div></div>
-        <div class="stat-card"><div class="sv">$142K</div><div class="sl">Revenue (Apr)</div><div class="sd">↑ 18% vs Mar</div></div>
-        <div class="stat-card"><div class="sv">2</div><div class="sl">Asset Groups live <span class="badge badge-blue" style="vertical-align:middle;">NEW</span></div><div class="sd">↑ New this month</div></div>
-      </div>
-
-      <div class="table-wrap">
-        <div class="tbl-toolbar">
-          <input class="tbl-search" type="text" placeholder="🔍  Search campaigns…">
-          <button class="btn btn-outline btn-sm">All statuses ▾</button>
-          <button class="btn btn-outline btn-sm">Apr 2026 ▾</button>
-          <button class="btn btn-outline btn-sm" style="margin-left:auto;">⬇ Export</button>
+      <!-- Campaigns -->
+      <div class="sb-group">
+        <div class="sb-item active expanded" id="sb-campaigns" onclick="sbToggle('campaigns')">
+          <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 6.5H1.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5H3l.5 4h1L5 9.5l8 4V2z"/></svg>
+          <span>Campaigns</span>
+          <span class="sb-arrow">›</span>
         </div>
-        <table class="main-tbl">
-          <thead><tr>
-            <th>Campaign</th><th>Status</th><th>Type</th><th>CVR</th><th>Revenue</th><th>Budget</th><th>Pacing</th><th></th>
-          </tr></thead>
-          <tbody>
-            <tr onclick="showView('campaign-detail')" style="cursor:pointer;">
-              <td><div class="campaign-name">Acme Spring Sale 2026<div class="cn-sub">Ad Set: New Customer Acq. · 2 Asset Groups</div></div></td>
-              <td><span class="badge badge-green">Active</span></td>
-              <td><span class="badge badge-blue">⚡ Asset Groups</span></td>
-              <td>4.2%</td><td>$18,400</td><td>$50K/mo</td>
-              <td><div class="progress-bar-sm"><div class="progress-fill" style="width:72%"></div></div><div class="text-xs text-gray mt-4">$36K of $50K</div></td>
-              <td><div class="tbl-actions"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-outline btn-sm">Report</button></div></td>
-            </tr>
-            <tr>
-              <td><div class="campaign-name">Holiday Promo Dec 2025<div class="cn-sub">Ad Set: Lapsed Users · 3 creatives</div></div></td>
-              <td><span class="badge badge-amber">Paused</span></td>
-              <td><span class="badge badge-gray">Manual</span></td>
-              <td>3.8%</td><td>$31,200</td><td>$40K/mo</td>
-              <td><div class="progress-bar-sm"><div class="progress-fill" style="width:100%"></div></div><div class="text-xs text-gray mt-4">Completed</div></td>
-              <td><div class="tbl-actions"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-outline btn-sm">Report</button></div></td>
-            </tr>
-            <tr>
-              <td><div class="campaign-name">Brand Awareness Q1<div class="cn-sub">Ad Set: All segments · 1 creative</div></div></td>
-              <td><span class="badge badge-green">Active</span></td>
-              <td><span class="badge badge-gray">Manual</span></td>
-              <td>2.9%</td><td>$9,100</td><td>$20K/mo</td>
-              <td><div class="progress-bar-sm"><div class="progress-fill" style="width:45%"></div></div><div class="text-xs text-gray mt-4">$9K of $20K</div></td>
-              <td><div class="tbl-actions"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-outline btn-sm">Report</button></div></td>
-            </tr>
-            <tr>
-              <td><div class="campaign-name">Member Re-engagement<div class="cn-sub">Ad Set: Lapsed Members · 2 creatives</div></div></td>
-              <td><span class="badge badge-gray">Draft</span></td>
-              <td><span class="badge badge-gray">Manual</span></td>
-              <td>—</td><td>—</td><td>$15K/mo</td>
-              <td><div class="text-xs text-gray">Not started</div></td>
-              <td><div class="tbl-actions"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-outline btn-sm">Delete</button></div></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-
-    <!-- ══════ CAMPAIGN DETAIL ══════ -->
-    <div id="view-campaign-detail" class="view">
-      <div class="page-hdr">
-        <div>
-          <div class="text-sm text-gray mb-8" style="cursor:pointer;" onclick="showView('campaigns-list')">← Campaigns</div>
-          <h1>Acme Spring Sale 2026</h1>
-          <p>Apr 1–30, 2026 · $50K/mo budget · <span class="badge badge-green">Active</span></p>
-        </div>
-        <div class="flex gap-8">
-          <button class="btn btn-outline">Edit campaign</button>
-          <button class="btn btn-primary" onclick="startCampaign()">+ New Ad Set</button>
+        <div class="sb-sub" id="sub-campaigns">
+          <div class="sb-sub-item active" id="sbi-adsets" onclick="navTo('adsets')">Ad sets</div>
+          <div class="sb-sub-item" id="sbi-offers" onclick="navTo('offers')">Offers</div>
+          <div class="sb-sub-item" id="sbi-creatives" onclick="navTo('creatives')">Creatives</div>
         </div>
       </div>
 
-      <div class="card" style="margin-bottom:16px;">
-        <div class="section-divider">Ad Sets</div>
-        <table class="main-tbl">
-          <thead><tr><th>Ad Set</th><th>Creative type</th><th>Formats</th><th>CVR</th><th>Revenue</th><th></th></tr></thead>
-          <tbody>
-            <tr style="cursor:pointer;" onclick="showView('adset-detail')">
-              <td><div class="campaign-name">New Customer Acquisition<div class="cn-sub">⚡ Dynamic · 2 Asset Groups · 720 combinations</div></div></td>
-              <td><span class="badge badge-blue">⚡ Asset Group</span></td>
-              <td><span class="text-sm">5 / 7 formats</span></td>
-              <td>4.2%</td><td>$18,400</td>
-              <td><button class="btn btn-outline btn-sm">Manage creatives →</button></td>
-            </tr>
-            <tr>
-              <td><div class="campaign-name">Lapsed Users Win-back<div class="cn-sub">🎛 Manual · 2 creatives · Benefits format</div></div></td>
-              <td><span class="badge badge-gray">Manual</span></td>
-              <td><span class="text-sm">1 / 7 formats</span></td>
-              <td>3.1%</td><td>$6,200</td>
-              <td><button class="btn btn-outline btn-sm">Manage creatives →</button></td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Audiences -->
+      <div class="sb-group">
+        <div class="sb-item" id="sb-audiences" onclick="sbToggle('audiences')">
+          <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 13.5c0-2.5 2.2-4 5-4s5 1.5 5 4"/><circle cx="11.5" cy="5" r="2"/><path d="M14.5 13c0-2-1.5-3.5-3-3.5"/></svg>
+          <span>Audiences</span>
+          <span class="sb-arrow">›</span>
+        </div>
+        <div class="sb-sub collapsed" id="sub-audiences">
+          <div class="sb-sub-item" onclick="">Custom Audiences</div>
+        </div>
       </div>
+
+      <!-- Resources -->
+      <div class="sb-group">
+        <div class="sb-item" id="sb-resources" onclick="sbToggle('resources')">
+          <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+          <span>Resources</span>
+          <span class="sb-arrow">›</span>
+        </div>
+        <div class="sb-sub collapsed" id="sub-resources">
+          <div class="sb-sub-item" onclick="">Asset Library</div>
+          <div class="sb-sub-item" onclick="">Coupons</div>
+          <div class="sb-sub-item" onclick="">Nurture</div>
+        </div>
+      </div>
+
+      <!-- Experimentation -->
+      <div class="sb-group">
+        <div class="sb-item" id="sb-experimentation" onclick="">
+          <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2v6L2 13h12L11 8V2"/><line x1="4" y1="2" x2="12" y2="2"/></svg>
+          <span>Experimentation</span>
+        </div>
+      </div>
+
+      <!-- Insights -->
+      <div class="sb-group">
+        <div class="sb-item" id="sb-insights" onclick="">
+          <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="9" width="3" height="5" rx=".5"/><rect x="6" y="5" width="3" height="9" rx=".5"/><rect x="11" y="2" width="3" height="12" rx=".5"/></svg>
+          <span>Insights</span>
+        </div>
+      </div>
+
     </div>
 
-
-    <!-- ══════ ADSET DETAIL ══════ -->
-    <div id="view-adset-detail" class="view">
-      <div class="page-hdr">
-        <div>
-          <div class="text-sm text-gray mb-8" style="cursor:pointer;" onclick="showView('campaign-detail')">← Acme Spring Sale 2026</div>
-          <h1>New Customer Acquisition</h1>
-          <p>Ad Set · <span class="badge badge-blue">⚡ Dynamic mode</span></p>
+    <!-- Account picker -->
+    <div class="sb-footer">
+      <button class="sb-account-btn">
+        <div class="sb-avatar">MP</div>
+        <div class="sb-account-info">
+          <div class="sb-account-name">Acme Co.</div>
+          <div class="sb-account-role">marine@rokt.com</div>
         </div>
-        <div class="flex gap-8">
-          <button class="btn btn-outline" onclick="showView('creative-choice')">+ Add creative</button>
-          <button class="btn btn-primary" onclick="showView('ag-editor')">+ New Asset Group</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="section-divider">Asset Groups</div>
-        <div style="background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--g600);">
-          ℹ️ <strong>Dynamic mode</strong> — Rokt Brain assembles and optimises combinations across all eligible formats. <a onclick="showView('creative-choice')" style="color:var(--rokt);cursor:pointer;font-weight:500;">Want strict format control? Add a Manual Creative →</a>
-        </div>
-        <table class="main-tbl">
-          <thead><tr><th>Asset Group</th><th>Strength</th><th>Formats</th><th>Combinations</th><th>CVR</th><th>Revenue</th><th></th></tr></thead>
-          <tbody>
-            <tr style="cursor:pointer;" onclick="showView('ag-editor')">
-              <td><div class="campaign-name">Free Delivery — Spring Sale<div class="cn-sub">Offer: Free delivery on $50+ · /checkout/spring</div></div></td>
-              <td><span class="badge badge-blue">Good · 72%</span></td>
-              <td>5 / 7</td><td>720</td><td>4.8%</td><td>$14,200</td>
-              <td><div class="tbl-actions"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-outline btn-sm">Report</button></div></td>
-            </tr>
-            <tr style="cursor:pointer;" onclick="showView('ag-editor')">
-              <td><div class="campaign-name">20% Off First Order<div class="cn-sub">Offer: 20% first purchase · /landing/first-order</div></div></td>
-              <td><span class="badge badge-amber">Average · 42%</span></td>
-              <td>3 / 7</td><td>120</td><td>2.8%</td><td>$3,900</td>
-              <td><div class="tbl-actions"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-outline btn-sm">Report</button></div></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="card">
-        <div class="section-divider">Manual Creatives (this Ad Set)</div>
-        <div style="color:var(--g400);font-size:13px;text-align:center;padding:20px 0;">No manual creatives in this Ad Set · <a onclick="showView('manual-creative')" style="color:var(--rokt);cursor:pointer;">Add one for strict format control →</a></div>
-      </div>
+        <span class="sb-chevron-ud" style="font-size:10px;">⇅</span>
+      </button>
     </div>
 
+  </aside>
 
-    <!-- ══════ CAMPAIGN WIZARD: STEP 1 ══════ -->
-    <div id="view-campaign-step1" class="view">
-      <div class="page-hdr">
-        <div>
-          <div class="text-sm text-gray mb-8" style="cursor:pointer;" onclick="showView('campaigns-list')">← Campaigns</div>
-          <h1>New Campaign</h1>
-        </div>
-      </div>
-      <div class="wizard-steps">
-        <div class="wstep active"><span class="wsn">1</span> Campaign details</div>
-        <span class="wstep-arr">›</span>
-        <div class="wstep"><span class="wsn">2</span> Ad Set</div>
-        <span class="wstep-arr">›</span>
-        <div class="wstep"><span class="wsn">3</span> Creatives</div>
-        <span class="wstep-arr">›</span>
-        <div class="wstep"><span class="wsn">4</span> Review & launch</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Campaign details</div>
-        <div class="card-sub">Basic settings for your campaign</div>
-        <div class="form-grid">
-          <div class="form-field col-span-2"><label>Campaign name <span class="req">*</span></label><input type="text" placeholder="e.g. Acme Summer Sale 2026" value="Acme Spring Sale 2026"></div>
-          <div class="form-field"><label>Objective <span class="req">*</span></label><select><option>Conversion</option><option>Acquisition</option><option>Awareness</option></select></div>
-          <div class="form-field"><label>Advertiser <span class="req">*</span></label><select><option>Acme Co.</option></select></div>
-          <div class="form-field"><label>Start date <span class="req">*</span></label><input type="date" value="2026-05-01"></div>
-          <div class="form-field"><label>End date</label><input type="date" value="2026-05-31"></div>
-          <div class="form-field"><label>Monthly budget</label><input type="text" value="$50,000"></div>
-          <div class="form-field"><label>Pacing</label><select><option>Even</option><option>Accelerated</option></select></div>
-        </div>
-      </div>
-    </div>
+  <!-- ══════════════ MAIN INSET ══════════════ -->
+  <div class="main-inset" id="main-inset">
+    <div class="main-inset-inner">
 
-
-    <!-- ══════ CAMPAIGN WIZARD: STEP 2 ══════ -->
-    <div id="view-campaign-step2" class="view">
-      <div class="page-hdr">
-        <div>
-          <div class="text-sm text-gray mb-8" onclick="showView('campaign-step1')" style="cursor:pointer;">← Campaign details</div>
-          <h1>Ad Set Setup</h1>
-        </div>
-      </div>
-      <div class="wizard-steps">
-        <div class="wstep done" onclick="showView('campaign-step1')"><span class="wsn">✓</span> Campaign details</div>
-        <span class="wstep-arr">›</span>
-        <div class="wstep active"><span class="wsn">2</span> Ad Set</div>
-        <span class="wstep-arr">›</span>
-        <div class="wstep"><span class="wsn">3</span> Creatives</div>
-        <span class="wstep-arr">›</span>
-        <div class="wstep"><span class="wsn">4</span> Review & launch</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Ad Set details</div>
-        <div class="card-sub">Define targeting, bidding and audience for this strategy</div>
-        <div class="form-grid">
-          <div class="form-field col-span-2"><label>Ad Set name <span class="req">*</span></label><input type="text" value="New Customer Acquisition"></div>
-          <div class="form-field"><label>Audience segment</label><select><option>New customers</option><option>Lapsed users</option><option>All visitors</option></select></div>
-          <div class="form-field"><label>Bid strategy</label><select><option>Target CPA</option><option>Max conversions</option><option>Target ROAS</option></select></div>
-          <div class="form-field"><label>Target CPA</label><input type="text" placeholder="e.g. $12.00"></div>
-          <div class="form-field"><label>Daily budget cap</label><input type="text" placeholder="Optional"></div>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- ══════ CAMPAIGN WIZARD: STEP 3 — THE FORK ══════ -->
-    <div id="view-creative-choice" class="view">
-      <div class="page-hdr">
-        <div>
-          <div class="text-sm text-gray mb-8" onclick="showView('campaign-step2')" style="cursor:pointer;">← Ad Set</div>
-          <h1>Add a Creative</h1>
-        </div>
-      </div>
-      <div class="wizard-steps">
-        <div class="wstep done" onclick="showView('campaign-step1')"><span class="wsn">✓</span> Campaign details</div>
-        <span class="wstep-arr">›</span>
-        <div class="wstep done" onclick="showView('campaign-step2')"><span class="wsn">✓</span> Ad Set</div>
-        <span class="wstep-arr">›</span>
-        <div class="wstep active"><span class="wsn">3</span> Creatives</div>
-        <span class="wstep-arr">›</span>
-        <div class="wstep"><span class="wsn">4</span> Review & launch</div>
-      </div>
-
-      <div class="choice-heading">
-        <h2>How do you want to create this creative?</h2>
-        <p>Choose Dynamic Asset Groups to let Rokt Brain optimise combinations across all eligible formats automatically — or create a Manual Creative for full control over format and composition.</p>
-      </div>
-
-      <div class="creative-choice-grid">
-
-        <!-- OPTION 1: Asset Group -->
-        <div class="choice-card highlighted new-badge" onclick="showView('ag-editor')">
-          <div class="choice-card-icon">⚡</div>
-          <h3>Dynamic Asset Group</h3>
-          <p>Upload a pool of assets once. Brain assembles and tests all combinations across every eligible format at the impression level — no manual format wiring needed.</p>
-          <ul>
-            <li>Auto-eligible for all Rokt formats based on assets provided</li>
-            <li>Brain optimises headline + image + CTA combos per impression</li>
-            <li>Component-level reporting shows which assets drive results</li>
-            <li>New formats automatically inherit your existing assets</li>
-            <li>Best for scale, performance and ML-driven learning</li>
-          </ul>
-          <div class="choice-stat">19.5% median CVR uplift vs single-format creatives</div>
-          <button class="card-cta-btn" style="margin-top:16px;">Create Asset Group →</button>
-        </div>
-
-        <!-- OPTION 2: Manual -->
-        <div class="choice-card" onclick="showView('manual-creative')">
-          <div class="choice-card-icon">🎛</div>
-          <h3>Manual Creative</h3>
-          <p>Choose a specific format and control exactly how your ad renders. Creatives are locked to one format. Best for brand-sensitive campaigns or precision testing.</p>
-          <div class="existing-formats">
-            <span class="ef-chip active-fmt">Text</span>
-            <span class="ef-chip active-fmt">Benefits</span>
-            <span class="ef-chip active-fmt">Savings</span>
-            <span class="ef-chip active-fmt">Text Hero</span>
-            <span class="ef-chip">Image</span>
-            <span class="ef-chip">Compact</span>
-            <span class="ef-chip">Product Carousel</span>
+      <!-- ─── AD SETS VIEW ─── -->
+      <div id="view-adsets" class="view active">
+        <div class="page-header">
+          <div>
+            <h1>Ad sets</h1>
+            <div class="ph-sub">Acme Co. · All campaigns</div>
           </div>
-          <ul>
-            <li>Fixed format — exactly what you design is what renders</li>
-            <li>Full brand and copy control per format</li>
-            <li>Essential for regulated verticals</li>
-            <li>Useful for controlled A/B tests with direct attribution</li>
-            <li>Requires re-authoring for each format separately</li>
-          </ul>
-          <button class="card-cta-btn" style="margin-top:16px;">Create Manual Creative →</button>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- ══════ MANUAL CREATIVE FORM ══════ -->
-    <div id="view-manual-creative" class="view">
-      <div class="page-hdr">
-        <div>
-          <div class="text-sm text-gray mb-8" onclick="showView('creative-choice')" style="cursor:pointer;">← Choose creative type</div>
-          <h1>Manual Creative</h1>
-          <p>Fixed format · Full control</p>
-        </div>
-        <div class="flex gap-8">
-          <button class="btn btn-outline" onclick="showView('creative-choice')">Change type</button>
-        </div>
-      </div>
-      <div class="wizard-steps">
-        <div class="wstep done"><span class="wsn">✓</span> Campaign details</div>
-        <span class="wstep-arr">›</span>
-        <div class="wstep done"><span class="wsn">✓</span> Ad Set</div>
-        <span class="wstep-arr">›</span>
-        <div class="wstep active"><span class="wsn">3</span> Manual Creative</div>
-        <span class="wstep-arr">›</span>
-        <div class="wstep"><span class="wsn">4</span> Review & launch</div>
-      </div>
-
-      <div class="two-col">
-        <div>
-          <!-- Format selector -->
-          <div class="form-section-card" style="margin-bottom:16px;">
-            <div class="fsc-hdr" onclick="toggleFsc('fsc-fmt')">
-              <div class="fsc-title"><span class="fsc-num">1</span> Choose format</div>
-              <span style="color:var(--g400);font-size:12px;">▼</span>
-            </div>
-            <div class="fsc-body" id="fsc-fmt">
-              <div class="format-selector">
-                <button class="fmt-btn selected" onclick="selectFormat(this,'text')">📝 Text</button>
-                <button class="fmt-btn" onclick="selectFormat(this,'benefits')">✓ Benefits</button>
-                <button class="fmt-btn" onclick="selectFormat(this,'savings')">💰 Savings</button>
-                <button class="fmt-btn" onclick="selectFormat(this,'hero')">🖼 Text Hero</button>
-                <button class="fmt-btn" onclick="selectFormat(this,'image')">📷 Image</button>
-                <button class="fmt-btn" onclick="selectFormat(this,'compact')">▪ Compact</button>
-              </div>
-              <div class="format-desc" id="fmt-desc">Text format — title, body and CTA. Renders on all placements. No image required.</div>
+          <div class="page-header-right">
+            <div class="date-tabs">
+              <button class="date-tab">1d</button>
+              <button class="date-tab active">7d</button>
+              <button class="date-tab">30d</button>
+              <button class="date-tab-cal">📅 Apr 23 – Apr 29</button>
             </div>
           </div>
+        </div>
+        <div class="toolbar">
+          <button class="btn btn-primary btn-sm" onclick="goTo('wizard-step2')">+ New ad set</button>
+          <div class="toolbar-search">
+            <span style="color:var(--muted-fg);font-size:13px;">🔍</span>
+            <input type="text" placeholder="Search ad sets…">
+          </div>
+          <div class="filter-chip"><strong>Status</strong>&nbsp;Active <span class="chip-x" onclick="this.closest('.filter-chip').remove()">×</span></div>
+          <span class="add-filter">+ Filter</span>
+          <div class="toolbar-spacer"></div>
+          <div class="btn-icon" title="Columns">⊞</div>
+          <div class="btn-icon" title="Export">⬇</div>
+        </div>
+        <div class="table-card">
+          <div class="tbl-scroll">
+            <table class="tbl">
+              <thead><tr>
+                <th>Ad set</th><th>Campaign</th><th>Mode</th>
+                <th style="text-align:right;">CVR</th><th style="text-align:right;">Acquisitions</th><th style="text-align:right;">Gross cost</th><th></th>
+              </tr></thead>
+              <tbody>
+                <tr onclick="goTo('creative-choice')">
+                  <td><div class="cell-name">New Customer Acquisition</div><div class="cell-sub">⚡ Dynamic · 2 Asset Groups · 720 combos</div></td>
+                  <td>Acme Spring Sale 2026</td>
+                  <td><span class="badge badge-rokt">⚡ Asset Group</span></td>
+                  <td class="num-cell">4.2%</td><td class="num-cell">1,681</td><td class="num-cell">$36,200</td>
+                  <td><div class="row-actions"><button class="row-btn" onclick="event.stopPropagation();goTo('creative-choice')">+ Creative</button><button class="row-btn">Edit</button></div></td>
+                </tr>
+                <tr>
+                  <td><div class="cell-name">Lapsed Users Win-back</div><div class="cell-sub">🎛 Manual · Benefits format</div></td>
+                  <td>Acme Spring Sale 2026</td>
+                  <td><span class="badge badge-gray">🎛 Manual</span></td>
+                  <td class="num-cell">3.1%</td><td class="num-cell">436</td><td class="num-cell">$9,600</td>
+                  <td><div class="row-actions"><button class="row-btn">Edit</button></div></td>
+                </tr>
+                <tr>
+                  <td><div class="cell-name">Brand Awareness Q1</div><div class="cell-sub">🎛 Manual · Text format</div></td>
+                  <td>Brand Awareness Q1 2026</td>
+                  <td><span class="badge badge-gray">🎛 Manual</span></td>
+                  <td class="num-cell">2.9%</td><td class="num-cell">522</td><td class="num-cell">$9,100</td>
+                  <td><div class="row-actions"><button class="row-btn">Edit</button></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
-          <!-- Copy -->
-          <div class="form-section-card" style="margin-bottom:16px;">
-            <div class="fsc-hdr" onclick="toggleFsc('fsc-copy')">
-              <div class="fsc-title"><span class="fsc-num">2</span> Copy</div>
-              <span style="color:var(--g400);font-size:12px;">▼</span>
+      <!-- ─── OFFERS VIEW ─── -->
+      <div id="view-offers" class="view">
+        <div class="page-header">
+          <div><h1>Offers</h1><div class="ph-sub">Acme Co.</div></div>
+          <div class="page-header-right">
+            <button class="btn btn-primary btn-sm">+ New offer</button>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="tbl-scroll">
+            <table class="tbl">
+              <thead><tr><th>Offer</th><th>Type</th><th>Status</th><th style="text-align:right;">CVR</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><div class="cell-name">Free Delivery Q2 2026</div><div class="cell-sub">Free delivery on $50+</div></td><td>Delivery</td><td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td><td class="num-cell">4.1%</td><td><div class="row-actions"><button class="row-btn">Edit</button></div></td></tr>
+                <tr><td><div class="cell-name">20% Off First Order</div></td><td>Discount</td><td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td><td class="num-cell">2.8%</td><td><div class="row-actions"><button class="row-btn">Edit</button></div></td></tr>
+                <tr><td><div class="cell-name">Spring Coupon SPRING20</div></td><td>Coupon</td><td><span class="badge badge-amber"><span class="badge-dot badge-dot-amber"></span>Draft</span></td><td class="num-cell">—</td><td><div class="row-actions"><button class="row-btn">Edit</button></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── CREATIVES VIEW ─── -->
+      <div id="view-creatives" class="view">
+        <div class="page-header">
+          <div><h1>Creatives</h1><div class="ph-sub">Acme Co. · All ad sets</div></div>
+          <div class="page-header-right">
+            <div class="date-tabs">
+              <button class="date-tab">1d</button>
+              <button class="date-tab active">7d</button>
+              <button class="date-tab">30d</button>
+              <button class="date-tab-cal">📅 Apr 23 – Apr 29</button>
             </div>
-            <div class="fsc-body" id="fsc-copy">
-              <div class="form-field mb-16">
-                <label>Creative Title <span class="req">*</span> <span style="font-size:11px;color:var(--g400);">5–50 chars</span></label>
-                <input type="text" value="Free delivery on all orders" oninput="mcUpdatePreview()" maxlength="50">
-                <div class="char-count" id="mc-title-count">29 / 50</div>
+            <button class="btn btn-primary btn-sm" onclick="goTo('creative-choice')">+ New creative</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <div class="toolbar-search">
+            <span style="color:var(--muted-fg);font-size:13px;">🔍</span>
+            <input type="text" placeholder="Search creatives…">
+          </div>
+          <div class="filter-chip"><strong>Status</strong>&nbsp;All but Archived <span class="chip-x" onclick="this.closest('.filter-chip').remove()">×</span></div>
+          <span class="add-filter">+ Filter</span>
+          <div class="toolbar-spacer"></div>
+          <div class="btn-icon">⊞</div><div class="btn-icon">⬇</div>
+        </div>
+        <div class="table-card">
+          <div class="tbl-scroll">
+            <table class="tbl">
+              <thead><tr><th>Creative</th><th>Type</th><th>Format(s)</th><th>Strength</th><th>Status</th><th style="text-align:right;">CVR</th><th style="text-align:right;">Acquisitions</th><th></th></tr></thead>
+              <tbody>
+                <tr onclick="goTo('ag-editor')">
+                  <td><div class="cell-name">Free Delivery — Spring Sale</div><div class="cell-sub">⚡ Asset Group · 720 combinations · 5 formats</div></td>
+                  <td><span class="badge badge-rokt">⚡ Asset Group</span></td>
+                  <td style="font-size:12px;">Text, Hero, Benefits, Compact, Savings</td>
+                  <td><span class="badge badge-blue">Good · 72%</span></td>
+                  <td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td>
+                  <td class="num-cell">4.8%</td><td class="num-cell">1,024</td>
+                  <td><div class="row-actions"><button class="row-btn">Edit</button><button class="row-btn">Report</button></div></td>
+                </tr>
+                <tr onclick="goTo('ag-editor')">
+                  <td><div class="cell-name">20% Off First Order</div><div class="cell-sub">⚡ Asset Group · 120 combinations · 3 formats</div></td>
+                  <td><span class="badge badge-rokt">⚡ Asset Group</span></td>
+                  <td style="font-size:12px;">Text, Compact, Savings</td>
+                  <td><span class="badge badge-amber">Average · 42%</span></td>
+                  <td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td>
+                  <td class="num-cell">2.8%</td><td class="num-cell">657</td>
+                  <td><div class="row-actions"><button class="row-btn">Edit</button></div></td>
+                </tr>
+                <tr onclick="goTo('manual-creative')">
+                  <td><div class="cell-name">Holiday Promo — Benefits</div><div class="cell-sub">🎛 Manual · Benefits format only</div></td>
+                  <td><span class="badge badge-gray">🎛 Manual</span></td>
+                  <td style="font-size:12px;">Benefits</td><td>—</td>
+                  <td><span class="badge badge-amber"><span class="badge-dot badge-dot-amber"></span>Paused</span></td>
+                  <td class="num-cell">3.6%</td><td class="num-cell">436</td>
+                  <td><div class="row-actions"><button class="row-btn">Edit</button></div></td>
+                </tr>
+                <tr onclick="goTo('manual-creative')">
+                  <td><div class="cell-name">Brand Awareness — Text</div><div class="cell-sub">🎛 Manual · Text format only</div></td>
+                  <td><span class="badge badge-gray">🎛 Manual</span></td>
+                  <td style="font-size:12px;">Text</td><td>—</td>
+                  <td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td>
+                  <td class="num-cell">2.9%</td><td class="num-cell">522</td>
+                  <td><div class="row-actions"><button class="row-btn">Edit</button></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── WIZARD STEP 1: Campaign ─── -->
+      <div id="view-wizard-step1" class="view">
+        <div>
+          <div class="back-link" onclick="goBack()">← Ad sets</div>
+          <h1 style="font-size:18px;font-weight:600;">New Campaign</h1>
+        </div>
+        <div class="wizard-card">
+          <div class="wizard-steps-row">
+            <div class="wstep active"><span class="wsn">1</span>Campaign</div><span class="wstep-sep">›</span>
+            <div class="wstep"><span class="wsn">2</span>Ad set</div><span class="wstep-sep">›</span>
+            <div class="wstep"><span class="wsn">3</span>Creatives</div><span class="wstep-sep">›</span>
+            <div class="wstep"><span class="wsn">4</span>Review</div>
+          </div>
+          <div class="wizard-body">
+            <div class="section-label">Campaign details</div>
+            <div class="form-grid">
+              <div class="form-field col-2"><label>Campaign name <span class="req">*</span></label><input type="text" placeholder="e.g. Acme Summer Sale 2026"></div>
+              <div class="form-field"><label>Objective</label><select><option>Conversion</option><option>Acquisition</option></select></div>
+              <div class="form-field"><label>Advertiser</label><select><option>Acme Co.</option></select></div>
+              <div class="form-field"><label>Start date</label><input type="date" value="2026-05-01"></div>
+              <div class="form-field"><label>End date</label><input type="date" value="2026-05-31"></div>
+              <div class="form-field"><label>Monthly budget</label><input type="text" placeholder="e.g. $50,000"></div>
+              <div class="form-field"><label>Pacing</label><select><option>Even</option><option>Accelerated</option></select></div>
+            </div>
+          </div>
+          <div class="wizard-footer">
+            <button class="btn btn-ghost" onclick="goBack()">Cancel</button>
+            <div class="flex gap-8">
+              <button class="btn btn-secondary btn-sm">Save draft</button>
+              <button class="btn btn-primary btn-sm" onclick="goTo('wizard-step2')">Next: Ad set →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── WIZARD STEP 2: Ad Set ─── -->
+      <div id="view-wizard-step2" class="view">
+        <div>
+          <div class="back-link" onclick="goBack()">← Ad sets</div>
+          <h1 style="font-size:18px;font-weight:600;">New Ad Set</h1>
+        </div>
+        <div class="wizard-card">
+          <div class="wizard-steps-row">
+            <div class="wstep done" onclick="goTo('wizard-step1')"><span class="wsn">✓</span>Campaign</div><span class="wstep-sep">›</span>
+            <div class="wstep active"><span class="wsn">2</span>Ad set</div><span class="wstep-sep">›</span>
+            <div class="wstep"><span class="wsn">3</span>Creatives</div><span class="wstep-sep">›</span>
+            <div class="wstep"><span class="wsn">4</span>Review</div>
+          </div>
+          <div class="wizard-body">
+            <div class="section-label">Ad set details</div>
+            <div class="form-grid">
+              <div class="form-field col-2"><label>Ad set name <span class="req">*</span></label><input type="text" placeholder="e.g. New Customer Acquisition"></div>
+              <div class="form-field"><label>Campaign</label><select><option>Acme Spring Sale 2026</option><option>Brand Awareness Q1</option></select></div>
+              <div class="form-field"><label>Audience segment</label><select><option>New customers</option><option>Lapsed users</option></select></div>
+              <div class="form-field"><label>Bid strategy</label><select><option>Target CPA</option><option>Max conversions</option></select></div>
+              <div class="form-field"><label>Target CPA</label><input type="text" placeholder="e.g. $12.00"></div>
+            </div>
+          </div>
+          <div class="wizard-footer">
+            <button class="btn btn-ghost" onclick="goTo('wizard-step1')">← Back</button>
+            <div class="flex gap-8">
+              <button class="btn btn-secondary btn-sm">Save draft</button>
+              <button class="btn btn-primary btn-sm" onclick="goTo('creative-choice')">Next: Creatives →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── CREATIVE CHOICE — THE FORK ─── -->
+      <div id="view-creative-choice" class="view">
+        <div>
+          <div class="back-link" onclick="goBack()">← New Customer Acquisition</div>
+          <h1 style="font-size:18px;font-weight:600;">Add a creative</h1>
+        </div>
+        <div class="wizard-card">
+          <div class="wizard-steps-row">
+            <div class="wstep done"><span class="wsn">✓</span>Campaign</div><span class="wstep-sep">›</span>
+            <div class="wstep done"><span class="wsn">✓</span>Ad set</div><span class="wstep-sep">›</span>
+            <div class="wstep active"><span class="wsn">3</span>Creatives</div><span class="wstep-sep">›</span>
+            <div class="wstep"><span class="wsn">4</span>Review</div>
+          </div>
+          <div class="wizard-body">
+            <div style="max-width:580px;margin:0 auto 24px;text-align:center;">
+              <div style="font-size:16px;font-weight:600;margin-bottom:6px;">How do you want to create this creative?</div>
+              <div style="font-size:13px;color:var(--muted-fg);line-height:1.7;">Choose Dynamic Asset Groups to let Rokt Brain optimise across all eligible formats — or create a Manual Creative for full layout control.</div>
+            </div>
+            <div class="choice-grid">
+              <div class="choice-card" onclick="goTo('ag-editor')">
+                <div class="cc-new-tag">NEW</div>
+                <div class="cc-icon">⚡</div>
+                <div class="cc-title">Dynamic Asset Group</div>
+                <div class="cc-desc">Upload a pool of assets once. Brain assembles and tests all combinations across every eligible format at the impression level — no manual format wiring needed.</div>
+                <div class="cc-stat">Median <strong>19.5% CVR uplift</strong> vs single-format creatives in Rokt's network</div>
+                <ul class="cc-features">
+                  <li>Auto-eligible for all formats based on assets provided</li>
+                  <li>Brain picks best headline + image + CTA per impression</li>
+                  <li>Component-level reporting — see which assets drive results</li>
+                  <li>New formats automatically inherit existing assets</li>
+                </ul>
+                <button class="cc-select-btn">Create Asset Group →</button>
               </div>
-              <div class="form-field mb-16" id="mc-short-desc-wrap">
-                <label>Short Description <span style="font-size:11px;color:var(--g400);">max 50 chars</span></label>
-                <input type="text" value="Fast, free shipping on $50+" oninput="mcUpdatePreview()" maxlength="50">
-              </div>
-              <div class="form-field mb-16">
-                <label>Body Copy <span class="req">*</span> <span style="font-size:11px;color:var(--g400);">max 175 chars</span></label>
-                <textarea rows="3" oninput="mcUpdatePreview()">Get the products you love delivered fast with free standard shipping on all orders over $50. Limited time spring offer.</textarea>
-                <div class="char-count">118 / 175</div>
-              </div>
-              <!-- Benefits (shown for benefits format) -->
-              <div class="form-field mb-16 hidden" id="mc-benefits-wrap">
-                <label>Benefits <span class="req">*</span></label>
-                <div class="benefit-chips" id="mc-benefit-chips">
-                  <span class="benefit-chip">Free returns<span class="rm" onclick="this.closest('.benefit-chip').remove()">×</span></span>
-                  <span class="benefit-chip">Fast 2-day delivery<span class="rm" onclick="this.closest('.benefit-chip').remove()">×</span></span>
+              <div class="choice-card" onclick="goTo('manual-creative')">
+                <div class="cc-icon">🎛</div>
+                <div class="cc-title">Manual Creative</div>
+                <div class="cc-desc">Choose a specific format and control exactly how your ad renders. Fixed to one format. Best for regulated verticals, precise brand control, or A/B tests.</div>
+                <div style="font-size:11px;font-weight:600;color:var(--muted-fg);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Available formats</div>
+                <div class="cc-formats">
+                  <span class="cc-fmt-chip active">Text</span><span class="cc-fmt-chip active">Benefits</span>
+                  <span class="cc-fmt-chip active">Savings</span><span class="cc-fmt-chip active">Text Hero</span>
+                  <span class="cc-fmt-chip">Compact</span><span class="cc-fmt-chip">Image</span>
+                  <span class="cc-fmt-chip">Product Carousel</span>
                 </div>
-                <input type="text" placeholder="Add benefit, press Enter…" onkeydown="if(event.key==='Enter'){const v=this.value.trim();if(v){const c=document.createElement('span');c.className='benefit-chip';c.innerHTML=v+'<span class=\'rm\' onclick=\'this.closest(\'.benefit-chip\').remove()\'>×</span>';document.getElementById('mc-benefit-chips').appendChild(c);this.value='';}}">
-              </div>
-              <!-- Promo (shown for savings format) -->
-              <div class="form-field mb-16 hidden" id="mc-promo-wrap">
-                <label>Promotion / Discount <span class="req">*</span></label>
-                <input type="text" placeholder="e.g. 20% off, $10 off, Free shipping" oninput="mcUpdatePreview()">
-              </div>
-              <div class="form-field mb-16">
-                <label>Positive CTA <span class="req">*</span></label>
-                <input type="text" value="Shop now" oninput="mcUpdatePreview()">
-              </div>
-              <div class="form-field mb-16">
-                <label>Negative CTA <span style="font-size:11px;color:var(--g400);">optional</span></label>
-                <input type="text" placeholder="e.g. No thanks">
-              </div>
-              <div class="form-field mb-16">
-                <label>Destination URL <span class="req">*</span></label>
-                <input type="text" value="https://acme.com/checkout/spring">
-              </div>
-              <div class="form-field mb-16">
-                <label>Callout Tags <span style="font-size:11px;color:var(--g400);">optional</span></label>
-                <div class="tag-chips" id="mc-tag-chips">
-                  <span class="tag-chip">#FreeShipping<span class="rm" onclick="this.closest('.tag-chip').remove()">×</span></span>
-                </div>
-                <input type="text" placeholder="Type tag, press Enter…" onkeydown="if(event.key==='Enter'){const v=this.value.trim().replace(/^#/,'');if(v){const c=document.createElement('span');c.className='tag-chip';c.innerHTML='#'+v+'<span class=\'rm\' onclick=\'this.closest(\'.tag-chip\').remove()\'>×</span>';document.getElementById('mc-tag-chips').appendChild(c);this.value='';}}">
-              </div>
-              <div class="form-field">
-                <label>Disclaimer <span style="font-size:11px;color:var(--g400);">optional</span></label>
-                <input type="text" placeholder="e.g. T&Cs apply.">
+                <ul class="cc-features">
+                  <li>Fixed format — exactly what you design renders</li>
+                  <li>Full brand and copy control</li>
+                  <li>Essential for regulated verticals</li>
+                  <li>Each format requires a separate creative</li>
+                </ul>
+                <button class="cc-select-btn">Create Manual Creative →</button>
               </div>
             </div>
           </div>
-
-          <!-- Image (shown for hero/image formats) -->
-          <div class="form-section-card" style="margin-bottom:16px;" id="mc-image-section">
-            <div class="fsc-hdr" onclick="toggleFsc('fsc-img')">
-              <div class="fsc-title"><span class="fsc-num">3</span> Image <span style="font-size:11px;color:var(--g400);font-weight:400;"> — not required for Text format</span></div>
-              <span style="color:var(--g400);font-size:12px;">▼</span>
-            </div>
-            <div class="fsc-body collapsed" id="fsc-img">
-              <div class="img-upload" onclick="this.innerHTML='<div class=\'img-type\' style=\'font-size:14px;\'>✓</div><div style=\'font-size:13px;font-weight:600;\'>hero-image.jpg</div><div class=\'text-xs text-gray\'>1280×672 · 1.91:1</div>'">
-                <div class="iu-icon">📷</div>
-                <p>Click to upload image</p>
-                <div class="iu-specs">Recommended: 1280×672px (1.91:1) · JPG or PNG · max 5MB</div>
-              </div>
-              <div class="mt-16">
-                <div class="form-field"><label>Brand Logo <span style="font-size:11px;color:var(--g400);">optional</span></label>
-                <div class="img-upload" style="padding:16px;" onclick="this.innerHTML='✓ acme-logo.png'"><p>Upload logo (1:1 or 1.91:1)</p></div></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Offer & settings -->
-          <div class="form-section-card">
-            <div class="fsc-hdr" onclick="toggleFsc('fsc-settings')">
-              <div class="fsc-title"><span class="fsc-num">4</span> Offer & settings</div>
-              <span style="color:var(--g400);font-size:12px;">▼</span>
-            </div>
-            <div class="fsc-body collapsed" id="fsc-settings">
-              <div class="form-grid" style="margin-bottom:16px;">
-                <div class="form-field"><label>Linked Offer</label><select><option>Free Delivery Q2 2026</option><option>20% Off First Order</option><option>None</option></select></div>
-                <div class="form-field"><label>Brand Name <span class="req">*</span></label><input type="text" value="Acme Co."></div>
-                <div class="form-field"><label>Coupon Code</label><input type="text" placeholder="Optional"></div>
-                <div class="form-field"><label>Nurture Journey</label><select><option>None</option><option>Welcome Series</option></select></div>
-              </div>
-              <div class="toggle-row">
-                <span style="font-size:13px;color:var(--g700);">CCE Required</span>
-                <label class="tgl"><input type="checkbox"><span class="tgl-track"></span><span class="tgl-thumb"></span></label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- SIDE PANEL -->
-        <div class="side-panel">
-          <div class="panel-box">
-            <div class="pb-hdr"><h4>Preview — <span id="mc-fmt-label">Text</span></h4></div>
-            <div class="pb-body">
-              <div class="prev-ad" id="mc-prev-ad">
-                <div class="prev-title" id="mc-prev-title">Free delivery on all orders</div>
-                <div class="prev-body" id="mc-prev-body">Get the products you love delivered fast with free standard shipping.</div>
-                <div class="prev-cta" id="mc-prev-cta">Shop now</div>
-              </div>
-            </div>
-          </div>
-          <div class="panel-box">
-            <div class="pb-hdr"><h4>Format eligibility</h4></div>
-            <div class="pb-body">
-              <div style="background:var(--amber-l);border:1px solid #fcd34d;border-radius:6px;padding:10px 12px;font-size:12px;color:var(--amber);margin-bottom:10px;">
-                ⚠️ This creative is locked to <strong id="mc-fmt-locked">Text</strong> format. Only 1 of 7 formats will be served.
-              </div>
-              <div style="font-size:12px;color:var(--g500);line-height:1.8;">
-                Want multi-format coverage? <a onclick="showView('ag-editor')" style="color:var(--rokt);cursor:pointer;font-weight:600;">Switch to Asset Group →</a>
-              </div>
-            </div>
+          <div class="wizard-footer">
+            <button class="btn btn-ghost" onclick="goBack()">← Back</button>
+            <button class="btn btn-secondary btn-sm">Save draft</button>
           </div>
         </div>
       </div>
-    </div>
 
-
-    <!-- ══════ ASSET GROUP EDITOR ══════ -->
-    <div id="view-ag-editor" class="view">
-      <div class="page-hdr">
+      <!-- ─── MANUAL CREATIVE ─── -->
+      <div id="view-manual-creative" class="view">
         <div>
-          <div class="text-sm text-gray mb-8" onclick="showView('creative-choice')" style="cursor:pointer;">← Choose creative type</div>
-          <h1>Asset Group Editor</h1>
-          <p>Dynamic · All eligible formats · Rokt Brain optimises combinations</p>
+          <div class="back-link" onclick="goTo('creative-choice')">← Choose creative type</div>
+          <div class="flex justify-between items-center">
+            <div><h1 style="font-size:18px;font-weight:600;">Manual Creative</h1><div style="font-size:13px;color:var(--muted-fg);margin-top:2px;">🎛 Fixed format · Full brand control</div></div>
+            <button class="btn btn-secondary btn-sm" onclick="goTo('creative-choice')">Change type</button>
+          </div>
         </div>
-        <div class="flex gap-8">
-          <button class="btn btn-outline" onclick="showView('creative-choice')">Change type</button>
-        </div>
-      </div>
-      <div class="wizard-steps">
-        <div class="wstep done"><span class="wsn">✓</span> Campaign details</div>
-        <span class="wstep-arr">›</span>
-        <div class="wstep done"><span class="wsn">✓</span> Ad Set</div>
-        <span class="wstep-arr">›</span>
-        <div class="wstep active"><span class="wsn">3</span> Asset Group</div>
-        <span class="wstep-arr">›</span>
-        <div class="wstep"><span class="wsn">4</span> Review & launch</div>
-      </div>
-
-      <div class="ag-editor-layout">
-        <!-- LEFT FORM -->
-        <div>
-          <!-- REQUIRED -->
-          <div class="form-section-card" style="margin-bottom:16px;">
-            <div class="fsc-hdr" onclick="toggleFsc('ag-req')">
-              <div class="fsc-title"><span class="fsc-num">1</span> Required assets <span style="font-size:11px;color:var(--green);font-weight:400;"> — unlocks Text, Compact formats</span></div>
-              <div class="flex items-center gap-8"><span style="font-size:11px;color:var(--green);font-weight:600;">✓ Complete</span><span style="color:var(--g400);font-size:12px;">▼</span></div>
-            </div>
-            <div class="fsc-body" id="ag-req">
-              <div class="form-field mb-16">
-                <label>Titles <span class="req">*</span> <span style="font-size:11px;color:var(--g400);">5–50 chars · add up to 8 for more combinations</span></label>
-                <div id="ag-titles">
-                  <div class="asset-row"><input type="text" value="Free delivery on all orders" oninput="agUpdatePreview()"><span class="perf-badge best">●Best</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdatePreview()">×</button></div>
-                  <div class="asset-row"><input type="text" value="Shop the spring sale" oninput="agUpdatePreview()"><span class="perf-badge good">●Good</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdatePreview()">×</button></div>
-                  <div class="asset-row"><input type="text" value="20% off today only" oninput="agUpdatePreview()"><span class="perf-badge low">●Low</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdatePreview()">×</button></div>
-                  <div class="asset-row"><input type="text" value="Limited time — free shipping" oninput="agUpdatePreview()"><span class="perf-badge pending">●Pending</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdatePreview()">×</button></div>
-                </div>
-                <button class="add-btn" onclick="addAgRow('ag-titles','title')">+ Add title</button>
-              </div>
-              <div class="form-field mb-16">
-                <label>Descriptions <span class="req">*</span> <span style="font-size:11px;color:var(--g400);">max 175 chars</span></label>
-                <div id="ag-descs">
-                  <div class="asset-row"><textarea rows="2" oninput="agUpdatePreview()">Get the products you love delivered fast with free shipping.</textarea><span class="perf-badge best" style="margin-top:8px;">●Best</span><button class="rm-btn" style="margin-top:8px;" onclick="this.closest('.asset-row').remove();agUpdatePreview()">×</button></div>
-                  <div class="asset-row"><textarea rows="2" oninput="agUpdatePreview()">Shop thousands of products with free delivery this spring.</textarea><span class="perf-badge good" style="margin-top:8px;">●Good</span><button class="rm-btn" style="margin-top:8px;" onclick="this.closest('.asset-row').remove();agUpdatePreview()">×</button></div>
-                </div>
-                <button class="add-btn" onclick="addAgDescRow()">+ Add description</button>
-              </div>
-              <div class="form-grid">
-                <div class="form-field">
-                  <label>CTAs <span class="req">*</span></label>
-                  <div id="ag-ctas">
-                    <div class="asset-row"><input type="text" value="Shop now" oninput="agUpdatePreview()"><span class="perf-badge best">●Best</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdatePreview()">×</button></div>
-                    <div class="asset-row"><input type="text" value="Get offer" oninput="agUpdatePreview()"><span class="perf-badge good">●Good</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdatePreview()">×</button></div>
-                    <div class="asset-row"><input type="text" value="Claim deal" oninput="agUpdatePreview()"><span class="perf-badge pending">●Pending</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdatePreview()">×</button></div>
+        <div class="wizard-card">
+          <div class="wizard-steps-row">
+            <div class="wstep done"><span class="wsn">✓</span>Campaign</div><span class="wstep-sep">›</span>
+            <div class="wstep done"><span class="wsn">✓</span>Ad set</div><span class="wstep-sep">›</span>
+            <div class="wstep active"><span class="wsn">3</span>Manual Creative</div><span class="wstep-sep">›</span>
+            <div class="wstep"><span class="wsn">4</span>Review</div>
+          </div>
+          <div class="wizard-body">
+            <div class="editor-layout">
+              <div>
+                <div class="form-section">
+                  <div class="fs-hdr" onclick="toggleFs('mc-fmt')"><div class="fs-title"><span class="fs-num">1</span>Choose format</div><div class="flex items-center gap-8"><span class="fs-status done">✓ Text selected</span><span class="chevron open" id="ch-mc-fmt">▼</span></div></div>
+                  <div class="fs-body" id="mc-fmt">
+                    <div class="fmt-selector">
+                      <button class="fmt-btn sel" onclick="mcSelectFmt(this,'text')">📝 Text</button>
+                      <button class="fmt-btn" onclick="mcSelectFmt(this,'benefits')">✓ Benefits</button>
+                      <button class="fmt-btn" onclick="mcSelectFmt(this,'savings')">💰 Savings</button>
+                      <button class="fmt-btn" onclick="mcSelectFmt(this,'hero')">🖼 Text Hero</button>
+                      <button class="fmt-btn" onclick="mcSelectFmt(this,'compact')">▪ Compact</button>
+                    </div>
+                    <div class="fmt-note" id="mc-fmt-note">Text format — title, body and CTA. Renders on all placements. No image required. <strong>Fixed to this format only.</strong></div>
                   </div>
-                  <button class="add-btn" onclick="addAgRow('ag-ctas','cta')">+ Add CTA</button>
                 </div>
-                <div class="form-field">
-                  <label>Brand Name <span class="req">*</span></label>
-                  <input type="text" value="Acme Co.">
-                  <div class="mt-8"><label>Destination URL <span class="req">*</span></label><input type="text" value="https://acme.com/spring" style="margin-top:4px;"></div>
+                <div class="form-section mt-8">
+                  <div class="fs-hdr" onclick="toggleFs('mc-copy')"><div class="fs-title"><span class="fs-num">2</span>Copy</div><div class="flex items-center gap-8"><span class="fs-status done">✓ Complete</span><span class="chevron open" id="ch-mc-copy">▼</span></div></div>
+                  <div class="fs-body" id="mc-copy">
+                    <div class="form-field mb-14"><label>Title <span class="req">*</span></label><input type="text" value="Free delivery on all orders" oninput="mcUpdatePrev()"><div class="char-count">29 / 50</div></div>
+                    <div class="form-field mb-14"><label>Body copy <span class="req">*</span></label><textarea rows="3" oninput="mcUpdatePrev()">Get the products you love delivered fast with free standard shipping on all orders over $50.</textarea><div class="char-count">90 / 175</div></div>
+                    <div class="form-field mb-14 hidden" id="mc-ben-f"><label>Benefits <span class="req">*</span></label><div class="chips" id="mc-ben-chips"><span class="chip-green">Free returns<span class="chip-rm" onclick="this.parentElement.remove()">×</span></span><span class="chip-green">Fast 2-day delivery<span class="chip-rm" onclick="this.parentElement.remove()">×</span></span></div><input type="text" placeholder="Add benefit, press Enter…"></div>
+                    <div class="form-field mb-14 hidden" id="mc-promo-f"><label>Promotion <span class="req">*</span></label><input type="text" placeholder="e.g. 20% off, Free shipping"></div>
+                    <div class="form-grid">
+                      <div class="form-field"><label>CTA <span class="req">*</span></label><input type="text" value="Shop now" oninput="mcUpdatePrev()"></div>
+                      <div class="form-field"><label>Negative CTA</label><input type="text" placeholder="No thanks"></div>
+                      <div class="form-field col-2"><label>Destination URL <span class="req">*</span></label><input type="text" value="https://acme.com/checkout/spring"></div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- FORMAT EXPANDERS -->
-          <div class="form-section-card" style="margin-bottom:16px;">
-            <div class="fsc-hdr" onclick="toggleFsc('ag-exp')">
-              <div class="fsc-title"><span class="fsc-num">2</span> Format expanders <span style="font-size:11px;color:var(--amber);font-weight:400;"> — optional, each unlocks more formats</span></div>
-              <div class="flex items-center gap-8"><span style="font-size:11px;color:var(--amber);font-weight:600;">⚠ Partial</span><span style="color:var(--g400);font-size:12px;">▼</span></div>
-            </div>
-            <div class="fsc-body" id="ag-exp">
-              <div class="form-field mb-16">
-                <label>Benefits Copy <span style="font-size:11px;color:var(--green);font-weight:500;">→ unlocks Benefits + Benefits Hero</span></label>
-                <div class="benefit-chips" id="ag-ben-chips">
-                  <span class="benefit-chip">Free returns<span class="rm" onclick="this.closest('.benefit-chip').remove();agUpdateEligibility()">×</span></span>
-                  <span class="benefit-chip">Fast 2-day shipping<span class="rm" onclick="this.closest('.benefit-chip').remove();agUpdateEligibility()">×</span></span>
-                  <span class="benefit-chip">Secure checkout<span class="rm" onclick="this.closest('.benefit-chip').remove();agUpdateEligibility()">×</span></span>
+                <div class="form-section mt-8 hidden" id="mc-img-section">
+                  <div class="fs-hdr" onclick="toggleFs('mc-img')"><div class="fs-title"><span class="fs-num">3</span>Image</div><span class="chevron" id="ch-mc-img">▼</span></div>
+                  <div class="fs-body collapsed" id="mc-img"><div class="img-upload-big"><div style="font-size:22px;margin-bottom:6px;">📷</div><p style="font-size:13px;color:var(--muted-fg);">Click to upload · 1280×672px · JPG or PNG</p></div></div>
                 </div>
-                <input type="text" id="ag-ben-input" placeholder="Add benefit, press Enter…" onkeydown="agAddBenefit(event)" style="width:100%;padding:7px 12px;border:1px solid var(--g200);border-radius:6px;font-size:13px;">
-              </div>
-              <div class="form-field mb-16">
-                <label>Promotion / Discount <span style="font-size:11px;color:var(--green);font-weight:500;">→ unlocks Savings format</span></label>
-                <input type="text" id="ag-promo" placeholder="e.g. 20% off, Free shipping" oninput="agUpdateEligibility()">
-              </div>
-              <div class="form-field">
-                <label>Callout Tags <span style="font-size:11px;color:var(--g400);">optional</span></label>
-                <div class="tag-chips" id="ag-tag-chips">
-                  <span class="tag-chip">#FreeShipping<span class="rm" onclick="this.closest('.tag-chip').remove()">×</span></span>
-                  <span class="tag-chip">#SpringSale<span class="rm" onclick="this.closest('.tag-chip').remove()">×</span></span>
-                </div>
-                <input type="text" placeholder="Tag, Enter…" style="width:100%;padding:7px 12px;border:1px solid var(--g200);border-radius:6px;font-size:13px;" onkeydown="if(event.key==='Enter'&&this.value.trim()){const v=this.value.trim().replace(/^#/,'');const c=document.createElement('span');c.className='tag-chip';c.innerHTML='#'+v+'<span class=\'rm\' onclick=\'this.closest(\'.tag-chip\').remove()\'>×</span>';document.getElementById('ag-tag-chips').appendChild(c);this.value='';}">
-              </div>
-            </div>
-          </div>
-
-          <!-- VISUAL ASSETS -->
-          <div class="form-section-card" style="margin-bottom:16px;">
-            <div class="fsc-hdr" onclick="toggleFsc('ag-vis')">
-              <div class="fsc-title"><span class="fsc-num">3</span> Visual assets <span style="font-size:11px;color:var(--g400);font-weight:400;">— 1.91:1 unlocks Text Hero & Benefits Hero</span></div>
-              <div class="flex items-center gap-8"><span style="font-size:11px;color:var(--amber);font-weight:600;">⚠ Partial</span><span style="color:var(--g400);font-size:12px;">▼</span></div>
-            </div>
-            <div class="fsc-body collapsed" id="ag-vis">
-              <div class="form-field mb-16">
-                <label>Product Images</label>
-                <div class="img-grid">
-                  <div class="img-slot filled" onclick="this.style.outline=this.style.outline?'':'2px solid var(--rokt)'"><div class="img-type">1.91:1</div><div>lifestyle-1</div></div>
-                  <div class="img-slot filled" onclick="this.style.outline=this.style.outline?'':'2px solid var(--rokt)'"><div class="img-type">1.91:1</div><div>lifestyle-2</div></div>
-                  <div class="img-slot filled" onclick="this.style.outline=this.style.outline?'':'2px solid var(--rokt)'"><div class="img-type">1:1</div><div>product-sq</div></div>
-                  <div class="img-slot filled" onclick="this.style.outline=this.style.outline?'':'2px solid var(--rokt)'"><div class="img-type">1:1</div><div>brand-sq</div></div>
-                  <div class="img-slot" onclick="this.classList.add('filled');this.innerHTML='<div class=\'img-type\'>1.91:1</div><div>new.jpg</div>';agUpdateEligibility()"><div class="img-type">+ 1.91:1</div></div>
-                  <div class="img-slot" onclick="this.classList.add('filled');this.innerHTML='<div class=\'img-type\'>4:5</div><div>new.jpg</div>';agUpdateEligibility()"><div class="img-type">+ 4:5</div></div>
-                  <div class="img-slot" onclick="this.classList.add('filled');this.innerHTML='<div class=\'img-type\'>1:1</div><div>new.jpg</div>';agUpdateEligibility()"><div class="img-type">+ 1:1</div></div>
-                  <div class="img-slot"><div class="img-type">+ Add</div></div>
+                <div class="form-section mt-8">
+                  <div class="fs-hdr" onclick="toggleFs('mc-offer')"><div class="fs-title"><span class="fs-num" id="mc-offer-num">3</span>Offer & settings</div><span class="chevron" id="ch-mc-offer">▼</span></div>
+                  <div class="fs-body collapsed" id="mc-offer">
+                    <div class="form-grid mb-14">
+                      <div class="form-field"><label>Linked offer</label><select><option>Free Delivery Q2 2026</option><option>20% Off First Order</option></select></div>
+                      <div class="form-field"><label>Brand name <span class="req">*</span></label><input type="text" value="Acme Co."></div>
+                    </div>
+                    <div class="toggle-row"><span style="font-size:13px;">CCE Required</span><label class="tgl"><input type="checkbox"><span class="tgl-track"></span><span class="tgl-thumb"></span></label></div>
+                  </div>
                 </div>
               </div>
-              <div class="form-field">
-                <label>Logo</label>
-                <div class="img-grid" style="grid-template-columns:repeat(3,1fr);">
-                  <div class="img-slot filled"><div class="img-type">Logo 1:1</div><div>acme-logo</div></div>
-                  <div class="img-slot"><div class="img-type">+ 1.91:1</div></div>
-                  <div class="img-slot"><div class="img-type">+ Icon</div></div>
+              <div class="right-panel">
+                <div class="panel-card">
+                  <div class="panel-card-hdr"><h4>Preview — <span id="mc-prev-label">Text</span></h4></div>
+                  <div class="panel-card-body">
+                    <div class="preview-ad" id="mc-prev-ad">
+                      <div class="pa-title">Free delivery on all orders</div>
+                      <div class="pa-body">Get the products you love delivered fast.</div>
+                      <div class="pa-cta">Shop now</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="panel-card">
+                  <div class="panel-card-hdr"><h4>Format eligibility</h4></div>
+                  <div class="panel-card-body">
+                    <div class="lock-warn">⚠️ Locked to <strong id="mc-locked-fmt">Text</strong>. Only 1 of 7 formats will be served.</div>
+                    <div class="lock-switch">Want multi-format? <a onclick="goTo('ag-editor')">Switch to Asset Group →</a></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- OFFER -->
-          <div class="form-section-card">
-            <div class="fsc-hdr" onclick="toggleFsc('ag-offer')">
-              <div class="fsc-title"><span class="fsc-num">4</span> Offer & distribution</div>
-              <div class="flex items-center gap-8"><span style="font-size:11px;color:var(--green);font-weight:600;">✓ Complete</span><span style="color:var(--g400);font-size:12px;">▼</span></div>
-            </div>
-            <div class="fsc-body collapsed" id="ag-offer">
-              <div class="form-grid">
-                <div class="form-field"><label>Linked Offer</label><select><option>Free Delivery Q2 2026</option><option>20% Off</option></select></div>
-                <div class="form-field"><label>Coupon Code</label><input type="text" placeholder="Optional"></div>
-                <div class="form-field"><label>Brand Domains</label><input type="text" placeholder="acme.com"></div>
-                <div class="form-field"><label>Nurture Journey</label><select><option>None</option><option>Welcome Series</option></select></div>
-              </div>
-              <div class="toggle-row mt-8"><span style="font-size:13px;color:var(--g700);">CCE Required</span><label class="tgl"><input type="checkbox"><span class="tgl-track"></span><span class="tgl-thumb"></span></label></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- RIGHT PANEL -->
-        <div class="side-panel">
-          <!-- Format eligibility -->
-          <div class="panel-box">
-            <div class="pb-hdr"><h4>Format eligibility</h4></div>
-            <div class="pb-body" id="ag-elig-panel">
-              <div class="elig-row"><span style="font-weight:500;font-size:13px;">Text</span><div class="flex items-center gap-8"><span class="elig-dot on"></span><span class="elig-text on">Eligible</span></div></div>
-              <div class="elig-row"><span style="font-weight:500;font-size:13px;">Text Hero</span><div class="flex items-center gap-8"><span class="elig-dot on"></span><span class="elig-text on">Eligible</span></div></div>
-              <div class="elig-row"><span style="font-weight:500;font-size:13px;">Benefits</span><div class="flex items-center gap-8" id="ag-el-ben"><span class="elig-dot on"></span><span class="elig-text on">Eligible</span></div></div>
-              <div class="elig-row"><span style="font-weight:500;font-size:13px;">Benefits Hero</span><div class="flex items-center gap-8" id="ag-el-bh"><span class="elig-dot off"></span><span class="elig-text off">Add 1.91:1 image</span></div></div>
-              <div class="elig-row"><span style="font-weight:500;font-size:13px;">Savings</span><div class="flex items-center gap-8" id="ag-el-sav"><span class="elig-dot off"></span><span class="elig-text off">Add promo amount</span></div></div>
-              <div class="elig-row"><span style="font-weight:500;font-size:13px;">Compact</span><div class="flex items-center gap-8"><span class="elig-dot on"></span><span class="elig-text on">Eligible</span></div></div>
-              <div class="elig-row"><span style="font-weight:500;font-size:13px;">Prod. Carousel</span><div class="flex items-center gap-8"><span class="elig-dot off"></span><span class="elig-text off">Add carousel images</span></div></div>
-            </div>
-          </div>
-
-          <!-- Reach -->
-          <div class="panel-box">
-            <div class="pb-hdr"><h4>Network Reach</h4></div>
-            <div class="pb-body">
-              <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px;">
-                <div class="reach-pct" id="ag-reach-pct">71%</div>
-                <div style="font-size:12px;color:var(--g500);">of network<br>inventory</div>
-              </div>
-              <div class="strength-track"><div class="strength-fill good" id="ag-reach-bar" style="width:71%;background:var(--green);"></div></div>
-              <div style="font-size:11px;color:var(--g400);margin-top:6px;" id="ag-reach-note">Add Benefits Hero + Savings to reach 90%+</div>
-            </div>
-          </div>
-
-          <!-- Combinations -->
-          <div class="panel-box">
-            <div class="pb-hdr"><h4>Combinations</h4></div>
-            <div class="pb-body">
-              <div class="combo-big" id="ag-combo-ct">192</div>
-              <div class="combo-sub" id="ag-combo-formula">4T × 2D × 3CTA × 4Img</div>
-              <div style="font-size:11px;color:var(--g500);margin-top:6px;">Brain tests all combinations per impression</div>
-              <div style="font-size:11px;color:var(--g400);margin-top:6px;">vs <strong>1</strong> combination in Manual Creative</div>
-            </div>
-          </div>
-
-          <!-- Preview -->
-          <div class="panel-box">
-            <div class="pb-hdr"><h4>Preview</h4></div>
-            <div>
-              <div class="preview-tabs-row">
-                <div class="ptab active" onclick="agSwitchPrev('text',this)">Text</div>
-                <div class="ptab active" onclick="agSwitchPrev('benefits',this)">Benefits</div>
-                <div class="ptab locked" id="ag-ptab-savings">Savings</div>
-              </div>
-              <div style="padding:12px;" id="ag-preview-area">
-                <div class="prev-ad" id="ag-prev-ad">
-                  <div class="prev-title" id="ag-pv-title">Free delivery on all orders</div>
-                  <div class="prev-body" id="ag-pv-body">Get the products you love delivered fast.</div>
-                  <div class="prev-cta" id="ag-pv-cta">Shop now</div>
-                </div>
-                <div style="display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px;color:var(--g500);margin-top:8px;">
-                  <button onclick="agPrevCombo()" style="padding:3px 10px;border:1px solid var(--g200);border-radius:4px;cursor:pointer;background:white;font-size:12px;">‹</button>
-                  <span id="ag-combo-idx">Combo 1 of 192</span>
-                  <button onclick="agNextCombo()" style="padding:3px 10px;border:1px solid var(--g200);border-radius:4px;cursor:pointer;background:white;font-size:12px;">›</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Strength -->
-          <div class="panel-box">
-            <div class="pb-hdr"><h4>Asset Strength</h4></div>
-            <div class="pb-body">
-              <div class="flex items-center gap-8 mb-8">
-                <div class="strength-track" style="flex:1"><div class="strength-fill good" style="width:72%"></div></div>
-                <span style="font-size:12px;font-weight:600;color:var(--blue);">Good · 72%</span>
-              </div>
-              <div style="font-size:12px;line-height:1.9;color:var(--g600);">
-                ✓ Titles (4/8)<br>✓ Descriptions (2/3)<br>✓ CTAs (3/3)<br>✓ Benefits (3/5)<br>✓ Images (4/8)<br>
-                <span style="color:var(--amber);">○ Add 1.91:1 → Benefits Hero</span><br>
-                <span style="color:var(--amber);">○ Add promo → Savings</span>
-              </div>
-              <div style="font-size:11px;color:var(--g400);margin-top:8px;">Reach Excellent to unlock A/B testing</div>
-            </div>
+          <div class="wizard-footer">
+            <button class="btn btn-ghost" onclick="goTo('creative-choice')">← Back</button>
+            <div class="flex gap-8"><button class="btn btn-secondary btn-sm">Save draft</button><button class="btn btn-primary btn-sm" onclick="navTo('creatives')">Save creative →</button></div>
           </div>
         </div>
       </div>
-    </div>
 
+      <!-- ─── ASSET GROUP EDITOR ─── -->
+      <div id="view-ag-editor" class="view">
+        <div>
+          <div class="back-link" onclick="goTo('creative-choice')">← Choose creative type</div>
+          <div class="flex justify-between items-center">
+            <div><h1 style="font-size:18px;font-weight:600;">Asset Group</h1><div style="font-size:13px;color:var(--muted-fg);margin-top:2px;">⚡ Dynamic · All eligible formats · Brain optimises combinations</div></div>
+            <button class="btn btn-secondary btn-sm" onclick="goTo('creative-choice')">Change type</button>
+          </div>
+        </div>
+        <div class="wizard-card">
+          <div class="wizard-steps-row">
+            <div class="wstep done"><span class="wsn">✓</span>Campaign</div><span class="wstep-sep">›</span>
+            <div class="wstep done"><span class="wsn">✓</span>Ad set</div><span class="wstep-sep">›</span>
+            <div class="wstep active"><span class="wsn">3</span>Asset Group</div><span class="wstep-sep">›</span>
+            <div class="wstep"><span class="wsn">4</span>Review</div>
+          </div>
+          <div class="wizard-body">
+            <div class="editor-layout">
+              <div>
+                <!-- Required assets -->
+                <div class="form-section">
+                  <div class="fs-hdr" onclick="toggleFs('ag-req')"><div class="fs-title"><span class="fs-num">1</span>Required assets <span style="font-size:11px;font-weight:400;color:var(--muted-fg);margin-left:4px;">unlocks Text + Compact</span></div><div class="flex items-center gap-8"><span class="fs-status done">✓ Complete</span><span class="chevron open" id="ch-ag-req">▼</span></div></div>
+                  <div class="fs-body" id="ag-req">
+                    <div class="form-field mb-14">
+                      <label>Titles <span class="req">*</span> <span style="font-size:11px;color:var(--muted-fg);">add multiple — each becomes a test variant</span></label>
+                      <div class="asset-rows" id="ag-titles-list">
+                        <div class="asset-row"><input type="text" value="Free delivery on all orders" oninput="agUpdate()"><span class="perf-pill perf-best">●Best</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
+                        <div class="asset-row"><input type="text" value="Shop the spring sale" oninput="agUpdate()"><span class="perf-pill perf-good">●Good</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
+                        <div class="asset-row"><input type="text" value="20% off today only" oninput="agUpdate()"><span class="perf-pill perf-low">●Low</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
+                        <div class="asset-row"><input type="text" value="Limited time — free shipping" oninput="agUpdate()"><span class="perf-pill perf-pend">●Pending</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
+                      </div>
+                      <button class="add-row-btn" onclick="agAddRow('ag-titles-list','title')">+ Add title</button>
+                    </div>
+                    <div class="form-field mb-14">
+                      <label>Descriptions <span class="req">*</span></label>
+                      <div class="asset-rows" id="ag-desc-list">
+                        <div class="asset-row"><textarea rows="2" oninput="agUpdate()">Get the products you love delivered fast with free standard shipping on all orders over $50.</textarea><span class="perf-pill perf-best" style="margin-top:8px;">●Best</span><button class="rm-btn" style="margin-top:8px;" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
+                        <div class="asset-row"><textarea rows="2" oninput="agUpdate()">Shop thousands of products with free delivery this spring.</textarea><span class="perf-pill perf-good" style="margin-top:8px;">●Good</span><button class="rm-btn" style="margin-top:8px;" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
+                      </div>
+                      <button class="add-row-btn" onclick="agAddDescRow()">+ Add description</button>
+                    </div>
+                    <div class="form-grid">
+                      <div class="form-field">
+                        <label>CTAs <span class="req">*</span></label>
+                        <div class="asset-rows" id="ag-cta-list">
+                          <div class="asset-row"><input type="text" value="Shop now" oninput="agUpdate()"><span class="perf-pill perf-best">●Best</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
+                          <div class="asset-row"><input type="text" value="Get offer" oninput="agUpdate()"><span class="perf-pill perf-good">●Good</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
+                          <div class="asset-row"><input type="text" value="Claim deal" oninput="agUpdate()"><span class="perf-pill perf-pend">●Pending</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
+                        </div>
+                        <button class="add-row-btn" onclick="agAddRow('ag-cta-list','CTA')">+ Add CTA</button>
+                      </div>
+                      <div>
+                        <div class="form-field"><label>Brand name <span class="req">*</span></label><input type="text" value="Acme Co."></div>
+                        <div class="form-field mt-8"><label>Destination URL <span class="req">*</span></label><input type="text" value="https://acme.com/spring"></div>
+                        <div class="form-field mt-8"><label>Negative CTA</label><input type="text" placeholder="No thanks"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-    <!-- ══════ STUB PAGES ══════ -->
-    <div id="view-creatives-library" class="view">
-      <div class="page-hdr"><h1>Creatives Library</h1><p>All creatives across campaigns</p><button class="btn btn-primary" style="margin-top:8px;" onclick="showView('creative-choice')">+ New Creative</button></div>
-      <div class="table-wrap">
-        <div class="tbl-toolbar"><input class="tbl-search" placeholder="🔍 Search creatives…"></div>
-        <table class="main-tbl"><thead><tr><th>Creative</th><th>Type</th><th>Format</th><th>Status</th><th>CVR</th><th></th></tr></thead>
-        <tbody>
-          <tr onclick="showView('ag-editor')" style="cursor:pointer;"><td><div class="campaign-name">Free Delivery — Spring Sale<div class="cn-sub">⚡ Asset Group · 720 combinations · 5 formats</div></div></td><td><span class="badge badge-blue">⚡ Asset Group</span></td><td>5 formats</td><td><span class="badge badge-green">Active</span></td><td>4.8%</td><td><div class="tbl-actions"><button class="btn btn-outline btn-sm">Edit</button></div></td></tr>
-          <tr onclick="showView('manual-creative')" style="cursor:pointer;"><td><div class="campaign-name">Holiday Promo — Benefits<div class="cn-sub">🎛 Manual · Benefits format · Fixed</div></div></td><td><span class="badge badge-gray">Manual</span></td><td>Benefits</td><td><span class="badge badge-amber">Paused</span></td><td>3.6%</td><td><div class="tbl-actions"><button class="btn btn-outline btn-sm">Edit</button></div></td></tr>
-          <tr onclick="showView('manual-creative')" style="cursor:pointer;"><td><div class="campaign-name">Brand Awareness — Text<div class="cn-sub">🎛 Manual · Text format · Fixed</div></div></td><td><span class="badge badge-gray">Manual</span></td><td>Text</td><td><span class="badge badge-green">Active</span></td><td>2.9%</td><td><div class="tbl-actions"><button class="btn btn-outline btn-sm">Edit</button></div></td></tr>
-        </tbody></table>
+                <!-- Format expanders -->
+                <div class="form-section mt-8">
+                  <div class="fs-hdr" onclick="toggleFs('ag-exp')"><div class="fs-title"><span class="fs-num">2</span>Format expanders <span style="font-size:11px;font-weight:400;color:var(--muted-fg);margin-left:4px;">unlock additional formats</span></div><div class="flex items-center gap-8"><span class="fs-status warn" id="ag-exp-status">⚠ 2 formats locked</span><span class="chevron open" id="ch-ag-exp">▼</span></div></div>
+                  <div class="fs-body" id="ag-exp">
+                    <div class="form-field mb-14">
+                      <label>Benefits <span style="font-size:11px;color:var(--green);font-weight:500;">→ unlocks Benefits + Benefits Hero</span></label>
+                      <div class="chips" id="ag-ben-chips">
+                        <span class="chip-green">Free returns<span class="chip-rm" onclick="this.parentElement.remove();agUpdateElig()">×</span></span>
+                        <span class="chip-green">Fast 2-day shipping<span class="chip-rm" onclick="this.parentElement.remove();agUpdateElig()">×</span></span>
+                        <span class="chip-green">Secure checkout<span class="chip-rm" onclick="this.parentElement.remove();agUpdateElig()">×</span></span>
+                      </div>
+                      <input type="text" id="ag-ben-inp" placeholder="Add a benefit, press Enter…" onkeydown="agAddBen(event)" style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;">
+                    </div>
+                    <div class="form-field mb-14">
+                      <label>Promotion <span style="font-size:11px;color:var(--green);font-weight:500;">→ unlocks Savings</span></label>
+                      <input type="text" id="ag-promo-inp" placeholder="e.g. 20% off, Free shipping" oninput="agUpdateElig()" style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;">
+                    </div>
+                    <div class="form-field mb-14">
+                      <label>Callout tags</label>
+                      <div class="chips" id="ag-tag-chips">
+                        <span class="chip-rokt">#FreeShipping<span class="chip-rm" onclick="this.parentElement.remove()">×</span></span>
+                        <span class="chip-rokt">#SpringSale<span class="chip-rm" onclick="this.parentElement.remove()">×</span></span>
+                      </div>
+                      <input type="text" placeholder="Add tag, press Enter…" style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Visual assets -->
+                <div class="form-section mt-8">
+                  <div class="fs-hdr" onclick="toggleFs('ag-vis')"><div class="fs-title"><span class="fs-num">3</span>Visual assets <span style="font-size:11px;font-weight:400;color:var(--muted-fg);margin-left:4px;">1.91:1 unlocks Text Hero & Benefits Hero</span></div><div class="flex items-center gap-8"><span class="fs-status warn">⚠ Add 1.91:1 for Benefits Hero</span><span class="chevron" id="ch-ag-vis">▼</span></div></div>
+                  <div class="fs-body collapsed" id="ag-vis">
+                    <div class="form-field mb-14">
+                      <label>Product images</label>
+                      <div class="img-grid">
+                        <div class="img-slot filled"><div class="img-type-label">1.91:1</div><div style="font-size:10px;">lifestyle-1</div></div>
+                        <div class="img-slot filled"><div class="img-type-label">1.91:1</div><div style="font-size:10px;">lifestyle-2</div></div>
+                        <div class="img-slot filled"><div class="img-type-label">1:1</div><div style="font-size:10px;">product-sq</div></div>
+                        <div class="img-slot filled"><div class="img-type-label">1:1</div><div style="font-size:10px;">brand-sq</div></div>
+                        <div class="img-slot" onclick="this.classList.add('filled');this.innerHTML='<div class=\'img-type-label\'>1.91:1</div><div>new.jpg</div>';agUpdateElig()"><div class="img-type-label">+ 1.91:1</div></div>
+                        <div class="img-slot" onclick="this.classList.add('filled');this.innerHTML='<div class=\'img-type-label\'>4:5</div><div>new.jpg</div>';agUpdateElig()"><div class="img-type-label">+ 4:5</div></div>
+                        <div class="img-slot" onclick="this.classList.add('filled');this.innerHTML='<div class=\'img-type-label\'>1:1</div><div>new.jpg</div>';agUpdateElig()"><div class="img-type-label">+ 1:1</div></div>
+                        <div class="img-slot"><div class="img-type-label">+ Add</div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Offer -->
+                <div class="form-section mt-8">
+                  <div class="fs-hdr" onclick="toggleFs('ag-offer')"><div class="fs-title"><span class="fs-num">4</span>Offer & distribution</div><div class="flex items-center gap-8"><span class="fs-status done">✓ Complete</span><span class="chevron" id="ch-ag-offer">▼</span></div></div>
+                  <div class="fs-body collapsed" id="ag-offer">
+                    <div class="form-grid mb-14">
+                      <div class="form-field"><label>Linked offer</label><select><option>Free Delivery Q2 2026</option></select></div>
+                      <div class="form-field"><label>Coupon code</label><input type="text" placeholder="Optional"></div>
+                    </div>
+                    <div class="toggle-row"><span style="font-size:13px;">CCE Required</span><label class="tgl"><input type="checkbox"><span class="tgl-track"></span><span class="tgl-thumb"></span></label></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- RIGHT PANEL -->
+              <div class="right-panel">
+                <div class="panel-card">
+                  <div class="panel-card-hdr"><h4>Format Eligibility</h4></div>
+                  <div class="panel-card-body">
+                    <div class="elig-row"><span class="elig-fmt">Text</span><div class="elig-status"><span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span></div></div>
+                    <div class="elig-row"><span class="elig-fmt">Text Hero</span><div class="elig-status"><span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span></div></div>
+                    <div class="elig-row"><span class="elig-fmt">Benefits</span><div class="elig-status" id="el-ben"><span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span></div></div>
+                    <div class="elig-row"><span class="elig-fmt">Benefits Hero</span><div class="elig-status" id="el-bh"><span class="elig-dot off"></span><span class="elig-txt-off">Add 1.91:1 image</span></div></div>
+                    <div class="elig-row"><span class="elig-fmt">Savings</span><div class="elig-status" id="el-sav"><span class="elig-dot off"></span><span class="elig-txt-off">Add promo</span></div></div>
+                    <div class="elig-row"><span class="elig-fmt">Compact</span><div class="elig-status"><span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span></div></div>
+                    <div class="elig-row"><span class="elig-fmt">Prod. Carousel</span><div class="elig-status"><span class="elig-dot off"></span><span class="elig-txt-off">Add carousel imgs</span></div></div>
+                  </div>
+                </div>
+                <div class="panel-card">
+                  <div class="panel-card-hdr"><h4>Network Reach</h4></div>
+                  <div class="panel-card-body">
+                    <div class="flex items-center gap-8 mb-8"><div class="big-num" id="ag-reach-pct">71%</div><div style="font-size:12px;color:var(--muted-fg);">of network<br>inventory</div></div>
+                    <div class="str-track"><div class="str-fill" id="ag-reach-bar" style="width:71%;background:var(--green);"></div></div>
+                    <div style="font-size:11px;color:var(--muted-fg);margin-top:5px;" id="ag-reach-note">Target: 80–100% · 5 of 7 formats</div>
+                  </div>
+                </div>
+                <div class="panel-card">
+                  <div class="panel-card-hdr"><h4>Combinations</h4></div>
+                  <div class="panel-card-body">
+                    <div class="big-num big-num-primary" id="ag-combo-ct">192</div>
+                    <div class="big-sub" id="ag-combo-formula">4T × 2D × 3CTA × 4Img</div>
+                    <div style="font-size:11px;color:var(--muted-fg);margin-top:5px;">Brain tests all per impression · vs 1 in Manual</div>
+                  </div>
+                </div>
+                <div class="panel-card">
+                  <div class="panel-card-hdr"><h4>Preview</h4></div>
+                  <div>
+                    <div class="prev-tabs">
+                      <div class="prev-tab active" onclick="agSwitchFmt('text',this)">Text</div>
+                      <div class="prev-tab" onclick="agSwitchFmt('benefits',this)">Benefits</div>
+                      <div class="prev-tab locked" id="ag-ptab-sav">Savings</div>
+                    </div>
+                    <div style="padding:8px 10px;">
+                      <div class="preview-ad" id="ag-prev">
+                        <div class="pa-title">Free delivery on all orders</div>
+                        <div class="pa-body">Get the products you love delivered fast.</div>
+                        <div class="pa-cta">Shop now</div>
+                      </div>
+                      <div class="combo-nav">
+                        <button class="cnav-btn" onclick="agPrev()">‹</button>
+                        <span id="ag-combo-idx" style="font-size:11px;color:var(--muted-fg);">Combo 1 of 192</span>
+                        <button class="cnav-btn" onclick="agNext()">›</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="panel-card">
+                  <div class="panel-card-hdr"><h4>Asset Strength</h4></div>
+                  <div class="panel-card-body">
+                    <div class="flex items-center gap-8 mb-8"><div class="str-track" style="flex:1;"><div class="str-fill" style="width:72%;background:var(--blue);"></div></div><span style="font-size:12px;font-weight:600;color:var(--blue);">Good · 72%</span></div>
+                    <div style="font-size:12px;line-height:1.9;color:var(--g600);">✓ Titles (4/8)<br>✓ Descriptions (2/3)<br>✓ CTAs (3/3)<br>✓ Benefits (3/5)<br>✓ Images (4)<br><span style="color:var(--amber);">○ 1.91:1 → Benefits Hero</span><br><span style="color:var(--amber);">○ Promo → Savings</span></div>
+                    <div style="font-size:11px;color:var(--muted-fg);margin-top:7px;">Reach Excellent to unlock A/B testing</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="wizard-footer">
+            <button class="btn btn-ghost" onclick="goTo('creative-choice')">← Back</button>
+            <div class="flex gap-8"><button class="btn btn-secondary btn-sm">Save draft</button><button class="btn btn-primary btn-sm" onclick="navTo('creatives')">Save Asset Group →</button></div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div id="view-audiences-stub" class="view"><div class="page-hdr"><h1>Audiences</h1><p>Manage audience segments and signals</p></div><div class="card" style="text-align:center;padding:60px;color:var(--g400);">Audiences module — navigate via sidebar</div></div>
-    <div id="view-offers-stub" class="view"><div class="page-hdr"><h1>Offers</h1><p>Manage offer objects</p></div><div class="card" style="text-align:center;padding:60px;color:var(--g400);">Offers module — navigate via sidebar</div></div>
-    <div id="view-reporting-stub" class="view"><div class="page-hdr"><h1>Reports</h1><p>Campaign and creative performance</p></div><div class="card" style="text-align:center;padding:60px;color:var(--g400);">Reporting module — navigate via sidebar</div></div>
-
-  </div><!-- /content -->
-
-  <!-- BOTTOM BAR -->
-  <div class="bottom-bar" id="bottom-bar">
-    <div><button class="btn btn-ghost" onclick="navBack()">← Back</button></div>
-    <div class="bb-r">
-      <button class="btn btn-outline">Save draft</button>
-      <button class="btn btn-primary" onclick="navNext()" id="bb-next">Next →</button>
-    </div>
-  </div>
-
-</div><!-- /main -->
+    </div><!-- /main-inset-inner -->
+  </div><!-- /main-inset -->
+</div><!-- /app -->
 
 <script>
-let currentView = 'campaigns-list';
+// ── STATE ──
+let currentView = 'adsets';
+let viewHistory = [];
 let agComboIdx = 0;
+let agComboTotal = 192;
 let agCurrentFmt = 'text';
 let mcCurrentFmt = 'text';
 
+// ── SIDEBAR TOGGLES ──
+function sbToggle(section){
+  const sub = document.getElementById('sub-'+section);
+  const item = document.getElementById('sb-'+section);
+  if(!sub) return;
+  sub.classList.toggle('collapsed');
+  if(item) item.classList.toggle('expanded');
+  // expand sidebar section and mark active
+  if(item && !sub.classList.contains('collapsed')){
+    item.classList.add('active');
+  }
+}
+
+// ── NAV: navigate to a main section ──
+function navTo(section){
+  // Update sidebar sub-items
+  document.querySelectorAll('.sb-sub-item').forEach(i=>i.classList.remove('active'));
+  const sbi = document.getElementById('sbi-'+section);
+  if(sbi) sbi.classList.add('active');
+  // Expand campaigns section if navigating to a sub-item
+  const campSub = document.getElementById('sub-campaigns');
+  if(campSub) campSub.classList.remove('collapsed');
+  const campItem = document.getElementById('sb-campaigns');
+  if(campItem){ campItem.classList.add('active','expanded'); }
+  // Show view
+  viewHistory = [];
+  showView(section);
+}
+
 // ── NAVIGATION ──
+function goTo(v){
+  viewHistory.push(currentView);
+  showView(v);
+}
+function goBack(){
+  const prev = viewHistory.pop() || 'adsets';
+  showView(prev);
+}
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   const el = document.getElementById('view-'+v);
   if(el) el.classList.add('active');
   currentView = v;
-  updateNav(v);
-  updateTopbar(v);
-  updateBottomBar(v);
-  window.scrollTo(0,0);
+  const inset = document.getElementById('main-inset');
+  if(inset) inset.scrollTop = 0;
 }
 
-function updateNav(v){
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  if(['campaigns-list','campaign-detail','adset-detail','campaign-step1','campaign-step2','creative-choice','manual-creative','ag-editor'].includes(v)){
-    document.getElementById('nav-campaigns').classList.add('active');
-  } else if(v==='creatives-library'){
-    document.getElementById('nav-creatives').classList.add('active');
-  }
-}
-
-const bcs = {
-  'campaigns-list': '<span class="cur">Campaigns</span>',
-  'campaign-detail': '<a onclick="showView(\'campaigns-list\')">Campaigns</a><span class="sep">›</span><span class="cur">Acme Spring Sale 2026</span>',
-  'adset-detail': '<a onclick="showView(\'campaigns-list\')">Campaigns</a><span class="sep">›</span><a onclick="showView(\'campaign-detail\')">Acme Spring Sale</a><span class="sep">›</span><span class="cur">New Customer Acq.</span>',
-  'campaign-step1': '<a onclick="showView(\'campaigns-list\')">Campaigns</a><span class="sep">›</span><span class="cur">New Campaign</span>',
-  'campaign-step2': '<a onclick="showView(\'campaigns-list\')">Campaigns</a><span class="sep">›</span><a onclick="showView(\'campaign-step1\')">New Campaign</a><span class="sep">›</span><span class="cur">Ad Set</span>',
-  'creative-choice': '<a onclick="showView(\'campaigns-list\')">Campaigns</a><span class="sep">›</span><a onclick="showView(\'campaign-step2\')">New Campaign</a><span class="sep">›</span><span class="cur">Add Creative</span>',
-  'manual-creative': '<a onclick="showView(\'campaigns-list\')">Campaigns</a><span class="sep">›</span><a onclick="showView(\'creative-choice\')">Creatives</a><span class="sep">›</span><span class="cur">Manual Creative</span>',
-  'ag-editor': '<a onclick="showView(\'campaigns-list\')">Campaigns</a><span class="sep">›</span><a onclick="showView(\'creative-choice\')">Creatives</a><span class="sep">›</span><span class="cur">Asset Group</span>',
-  'creatives-library': '<span class="cur">Creatives</span>',
-};
-
-function updateTopbar(v){
-  const bc = document.getElementById('topbar-bc');
-  if(bc && bcs[v]) bc.innerHTML = bcs[v];
-  const bb = document.getElementById('bottom-bar');
-  const hiddenViews = ['campaigns-list','campaign-detail','adset-detail','creatives-library','audiences-stub','offers-stub','reporting-stub'];
-  bb.style.display = hiddenViews.includes(v) ? 'none' : 'flex';
-}
-
-function updateBottomBar(v){
-  const next = document.getElementById('bb-next');
-  if(!next) return;
-  const labels = {'campaign-step1':'Next: Ad Set →','campaign-step2':'Next: Creatives →','creative-choice':'','manual-creative':'Save Creative →','ag-editor':'Save Asset Group →'};
-  next.textContent = labels[v] || 'Next →';
-  if(v==='creative-choice') next.style.display='none';
-  else next.style.display='';
-}
-
-function navBack(){
-  const map = {'campaign-step1':'campaigns-list','campaign-step2':'campaign-step1','creative-choice':'campaign-step2','manual-creative':'creative-choice','ag-editor':'creative-choice'};
-  showView(map[currentView]||'campaigns-list');
-}
-
-function navNext(){
-  const map = {'campaign-step1':'campaign-step2','campaign-step2':'creative-choice','manual-creative':'campaigns-list','ag-editor':'campaigns-list'};
-  showView(map[currentView]||currentView);
-}
-
-function startCampaign(){ showView('campaign-step1'); }
-
-// ── FORM HELPERS ──
-function toggleFsc(id){
+// ── COLLAPSIBLE ──
+function toggleFs(id){
   const body = document.getElementById(id);
+  const ch = document.getElementById('ch-'+id);
   if(body) body.classList.toggle('collapsed');
+  if(ch) ch.classList.toggle('open');
 }
 
 // ── MANUAL CREATIVE ──
-const fmtDescs = {
-  'text':'Text format — title, body and CTA. Renders on all placements. No image required.',
-  'benefits':'Benefits format — title, benefit list items and CTA. Highlights key selling points.',
-  'savings':'Savings format — title, promotional amount and CTA. Highlights a specific discount.',
-  'hero':'Text Hero format — large image (1.91:1) with title, body and CTA overlaid.',
-  'image':'Image format — full creative image with minimal text overlay.',
-  'compact':'Compact format — condensed title and CTA. Minimal footprint.'
+const fmtNotes={
+  'text':'Text format — title, body and CTA. No image required. Fixed to this format only.',
+  'benefits':'Benefits format — title, benefit list and CTA. Fixed to this format only.',
+  'savings':'Savings format — title, promotional amount and CTA. Fixed to this format only.',
+  'hero':'Text Hero — large 1.91:1 image with title, body and CTA. Fixed to this format only.',
+  'compact':'Compact — condensed title and CTA. Minimal footprint. Fixed to this format only.'
 };
+const fmtNames={'text':'Text','benefits':'Benefits','savings':'Savings','hero':'Text Hero','compact':'Compact'};
 
-function selectFormat(btn, fmt){
-  document.querySelectorAll('.fmt-btn').forEach(b=>b.classList.remove('selected'));
-  btn.classList.add('selected');
-  mcCurrentFmt = fmt;
-  const desc = document.getElementById('fmt-desc');
-  if(desc) desc.textContent = fmtDescs[fmt]||'';
-  const lbl = document.getElementById('mc-fmt-label');
-  const locked = document.getElementById('mc-fmt-locked');
-  if(lbl) lbl.textContent = btn.textContent.replace(/[📝✓💰🖼📷▪]/g,'').trim();
-  if(locked) locked.textContent = btn.textContent.replace(/[📝✓💰🖼📷▪]/g,'').trim();
-  const benWrap = document.getElementById('mc-benefits-wrap');
-  const promoWrap = document.getElementById('mc-promo-wrap');
-  if(benWrap) benWrap.classList.toggle('hidden', fmt!=='benefits');
-  if(promoWrap) promoWrap.classList.toggle('hidden', fmt!=='savings');
-  mcUpdatePreview();
+function mcSelectFmt(btn,fmt){
+  mcCurrentFmt=fmt;
+  document.querySelectorAll('.fmt-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  const note=document.getElementById('mc-fmt-note');
+  if(note) note.innerHTML=fmtNotes[fmt]||'';
+  const lbl=document.getElementById('mc-prev-label');
+  const locked=document.getElementById('mc-locked-fmt');
+  const name=fmtNames[fmt]||fmt;
+  if(lbl) lbl.textContent=name;
+  if(locked) locked.textContent=name;
+  document.getElementById('mc-ben-f')?.classList.toggle('hidden',fmt!=='benefits');
+  document.getElementById('mc-promo-f')?.classList.toggle('hidden',fmt!=='savings');
+  document.getElementById('mc-img-section')?.classList.toggle('hidden',!['hero'].includes(fmt));
+  const on=document.getElementById('mc-offer-num');
+  if(on) on.textContent=['hero'].includes(fmt)?'4':'3';
+  mcUpdatePrev();
 }
 
-function mcUpdatePreview(){
-  const title = document.querySelector('#view-manual-creative input[value^="Free"]')?.value || 'Your title';
-  const body = document.querySelector('#view-manual-creative textarea')?.value || 'Your body copy here.';
-  const cta = document.querySelector('#view-manual-creative input[placeholder=""]')?.value || 'Shop now';
-  const pv = document.getElementById('mc-prev-ad');
+function mcUpdatePrev(){
+  const inputs=document.querySelectorAll('#view-manual-creative .wizard-body input[type="text"]');
+  const title=inputs[0]?.value||'Your title';
+  const cta=inputs[2]?.value||'Shop now';
+  const body=document.querySelector('#view-manual-creative textarea')?.value||'';
+  const pv=document.getElementById('mc-prev-ad');
   if(!pv) return;
-  let html = '';
-  if(mcCurrentFmt==='hero'||mcCurrentFmt==='image') html += '<div class="prev-img-placeholder">📷 hero-image.jpg</div>';
-  html += '<div class="prev-title">'+title+'</div>';
-  if(mcCurrentFmt==='benefits'){
-    html += '<div class="prev-benefits"><div class="prev-benefit">Free returns</div><div class="prev-benefit">Fast 2-day delivery</div></div>';
-  }
-  if(mcCurrentFmt!=='image') html += '<div class="prev-body">'+body+'</div>';
-  html += '<div class="prev-cta">Shop now</div>';
-  pv.innerHTML = html;
+  let html='';
+  if(['hero'].includes(mcCurrentFmt)) html+='<div class="pa-img">📷 Image</div>';
+  html+='<div class="pa-title">'+title+'</div>';
+  if(mcCurrentFmt==='benefits') html+='<div class="pa-ben">Free returns</div><div class="pa-ben">Fast 2-day delivery</div>';
+  html+='<div class="pa-body">'+body.substring(0,70)+'</div>';
+  html+='<div class="pa-cta">'+cta+'</div>';
+  pv.innerHTML=html;
 }
 
 // ── ASSET GROUP ──
-let agComboCount = 192;
-
-function agAddBenefit(e){
-  if(e.key!=='Enter') return;
-  const inp = document.getElementById('ag-ben-input');
-  const v = inp.value.trim();
-  if(!v) return;
-  const chips = document.getElementById('ag-ben-chips');
-  const c = document.createElement('span');
-  c.className = 'benefit-chip';
-  c.innerHTML = v+'<span class="rm" onclick="this.closest(\'.benefit-chip\').remove();agUpdateEligibility()">×</span>';
-  chips.appendChild(c);
-  inp.value = '';
-  agUpdateEligibility();
-}
-
-function addAgRow(listId, type){
-  const list = document.getElementById(listId);
-  const row = document.createElement('div');
-  row.className = 'asset-row';
-  row.innerHTML = '<input type="text" placeholder="Enter '+type+'…" oninput="agUpdatePreview()"><span class="perf-badge pending">●Pending</span><button class="rm-btn" onclick="this.closest(\'.asset-row\').remove();agUpdatePreview()">×</button>';
+function agAddRow(listId,type){
+  const list=document.getElementById(listId);
+  if(!list) return;
+  const row=document.createElement('div');
+  row.className='asset-row';
+  row.innerHTML='<input type="text" placeholder="Enter '+type+'…" oninput="agUpdate()"><span class="perf-pill perf-pend">●Pending</span><button class="rm-btn" onclick="this.closest(\'.asset-row\').remove();agUpdate()">×</button>';
   list.appendChild(row);
   row.querySelector('input').focus();
-  agUpdatePreview();
+  agUpdate();
 }
 
-function addAgDescRow(){
-  const list = document.getElementById('ag-descs');
-  const row = document.createElement('div');
-  row.className = 'asset-row';
-  row.innerHTML = '<textarea rows="2" placeholder="Enter description…" oninput="agUpdatePreview()"></textarea><span class="perf-badge pending" style="margin-top:8px;">●Pending</span><button class="rm-btn" style="margin-top:8px;" onclick="this.closest(\'.asset-row\').remove();agUpdatePreview()">×</button>';
+function agAddDescRow(){
+  const list=document.getElementById('ag-desc-list');
+  if(!list) return;
+  const row=document.createElement('div');
+  row.className='asset-row';
+  row.innerHTML='<textarea rows="2" placeholder="Enter description…" oninput="agUpdate()"></textarea><span class="perf-pill perf-pend" style="margin-top:8px;">●Pending</span><button class="rm-btn" style="margin-top:8px;" onclick="this.closest(\'.asset-row\').remove();agUpdate()">×</button>';
   list.appendChild(row);
-  agUpdatePreview();
+  agUpdate();
 }
 
-function agUpdateEligibility(){
-  const hasBen = document.getElementById('ag-ben-chips').querySelectorAll('.benefit-chip').length > 0;
-  const hasPromo = document.getElementById('ag-promo').value.trim() !== '';
-  const filledImgs = document.querySelectorAll('#view-ag-editor .img-slot.filled').length;
-  const has191 = filledImgs >= 2;
+function agAddBen(e){
+  if(e.key!=='Enter') return;
+  const inp=document.getElementById('ag-ben-inp');
+  const v=inp.value.trim(); if(!v) return;
+  const chips=document.getElementById('ag-ben-chips');
+  if(chips.querySelectorAll('.chip-green').length>=5) return;
+  const c=document.createElement('span');
+  c.className='chip-green';
+  c.innerHTML=v+'<span class="chip-rm" onclick="this.parentElement.remove();agUpdateElig()">×</span>';
+  chips.appendChild(c);
+  inp.value='';
+  agUpdateElig();
+}
 
-  const elBen = document.getElementById('ag-el-ben');
-  if(elBen) elBen.innerHTML = hasBen ? '<span class="elig-dot on"></span><span class="elig-text on">Eligible</span>' : '<span class="elig-dot off"></span><span class="elig-text off">Add benefits</span>';
-  const elBh = document.getElementById('ag-el-bh');
-  if(elBh) elBh.innerHTML = (hasBen&&has191) ? '<span class="elig-dot on"></span><span class="elig-text on">Eligible</span>' : '<span class="elig-dot off"></span><span class="elig-text off">'+(hasBen?'Add 1.91:1 image':'Add benefits+image')+'</span>';
-  const elSav = document.getElementById('ag-el-sav');
-  if(elSav) elSav.innerHTML = hasPromo ? '<span class="elig-dot on"></span><span class="elig-text on">Eligible</span>' : '<span class="elig-dot off"></span><span class="elig-text off">Add promo amount</span>';
+function agUpdateElig(){
+  const hasBen=document.getElementById('ag-ben-chips').querySelectorAll('.chip-green').length>0;
+  const hasPromo=document.getElementById('ag-promo-inp').value.trim()!=='';
+  const filledImgs=document.querySelectorAll('#view-ag-editor .img-slot.filled').length;
+  const has191=filledImgs>=2;
 
-  let cnt = 3;
+  const elBen=document.getElementById('el-ben');
+  if(elBen) elBen.innerHTML=hasBen?'<span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span>':'<span class="elig-dot off"></span><span class="elig-txt-off">Add benefits</span>';
+  const elBh=document.getElementById('el-bh');
+  if(elBh) elBh.innerHTML=(hasBen&&has191)?'<span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span>':'<span class="elig-dot off"></span><span class="elig-txt-off">'+(hasBen?'Add 1.91:1 image':'Add benefits + image')+'</span>';
+  const elSav=document.getElementById('el-sav');
+  if(elSav) elSav.innerHTML=hasPromo?'<span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span>':'<span class="elig-dot off"></span><span class="elig-txt-off">Add promo</span>';
+
+  let cnt=3;
   if(hasBen) cnt++;
   if(hasBen&&has191) cnt++;
   if(hasPromo) cnt++;
-  const pct = Math.round((cnt/7)*100);
-  const rp = document.getElementById('ag-reach-pct');
-  const rb = document.getElementById('ag-reach-bar');
-  const rn = document.getElementById('ag-reach-note');
-  if(rp) rp.textContent = pct+'%';
-  if(rb) rb.style.width = pct+'%';
-  if(rn) rn.textContent = pct>=85 ? '🎉 Great coverage! Add Product Carousel for 100%.' : 'Target: 80–100% · '+cnt+' of 7 formats';
+  const pct=Math.round((cnt/7)*100);
+  const rp=document.getElementById('ag-reach-pct');
+  const rb=document.getElementById('ag-reach-bar');
+  const rn=document.getElementById('ag-reach-note');
+  if(rp) rp.textContent=pct+'%';
+  if(rb) rb.style.width=pct+'%';
+  if(rn) rn.textContent=pct>=85?'🎉 Great reach! Add carousel for 100%.':'Target: 80–100% · '+cnt+' of 7 formats';
 
-  const ptSav = document.getElementById('ag-ptab-savings');
-  if(ptSav){ if(hasPromo){ptSav.classList.remove('locked');ptSav.classList.add('active');}else{ptSav.classList.add('locked');ptSav.classList.remove('active');} }
-  agUpdatePreview();
+  const expStatus=document.getElementById('ag-exp-status');
+  const missing=7-cnt;
+  if(expStatus){expStatus.textContent=missing===0?'✓ All formats unlocked':'⚠ '+missing+' format'+(missing>1?'s':'')+' locked';expStatus.className='fs-status '+(missing===0?'done':'warn');}
+
+  const ptSav=document.getElementById('ag-ptab-sav');
+  if(ptSav){if(hasPromo){ptSav.classList.remove('locked');}else{ptSav.classList.add('locked');}}
+  agUpdate();
 }
 
-function agUpdatePreview(){
-  const titles = document.querySelectorAll('#ag-titles input');
-  const descs = document.querySelectorAll('#ag-descs textarea');
-  const ctas = document.querySelectorAll('#ag-ctas input');
-  const imgs = document.querySelectorAll('#view-ag-editor .img-slot.filled');
-  const nT = titles.length||1, nD = descs.length||1, nC = ctas.length||1, nI = Math.max(imgs.length,1);
-  const total = nT*nD*nC*nI;
-  agComboCount = total;
-  const ct = document.getElementById('ag-combo-ct');
-  const cf = document.getElementById('ag-combo-formula');
-  if(ct) ct.textContent = total.toLocaleString();
-  if(cf) cf.textContent = nT+'T × '+nD+'D × '+nC+'CTA × '+nI+'Img';
+function agUpdate(){
+  const titles=document.querySelectorAll('#ag-titles-list input');
+  const descs=document.querySelectorAll('#ag-desc-list textarea');
+  const ctas=document.querySelectorAll('#ag-cta-list input');
+  const imgs=document.querySelectorAll('#view-ag-editor .img-slot.filled');
+  const nT=titles.length||1,nD=descs.length||1,nC=ctas.length||1,nI=Math.max(imgs.length,1);
+  agComboTotal=nT*nD*nC*nI;
+  if(agComboIdx>=agComboTotal) agComboIdx=0;
+  const ct=document.getElementById('ag-combo-ct');
+  const cf=document.getElementById('ag-combo-formula');
+  const ci=document.getElementById('ag-combo-idx');
+  if(ct) ct.textContent=agComboTotal.toLocaleString();
+  if(cf) cf.textContent=nT+'T × '+nD+'D × '+nC+'CTA × '+nI+'Img';
+  if(ci) ci.textContent='Combo '+(agComboIdx+1)+' of '+agComboTotal;
 
-  const t = titles.length > 0 ? titles[agComboIdx % titles.length].value : 'Free delivery on all orders';
-  const b = descs.length > 0 ? descs[agComboIdx % descs.length].value : 'Get the products you love.';
-  const c = ctas.length > 0 ? ctas[agComboIdx % ctas.length].value : 'Shop now';
-  const hasBen = document.getElementById('ag-ben-chips').querySelectorAll('.benefit-chip').length > 0;
-  const hasPromo = document.getElementById('ag-promo')?.value.trim();
-  const pv = document.getElementById('ag-prev-ad');
+  const t=titles.length>0?titles[agComboIdx%titles.length].value:'Free delivery on all orders';
+  const b=descs.length>0?descs[agComboIdx%descs.length].value:'Get the products you love.';
+  const c=ctas.length>0?ctas[agComboIdx%ctas.length].value:'Shop now';
+  const hasBen=document.getElementById('ag-ben-chips').querySelectorAll('.chip-green').length>0;
+  const promo=document.getElementById('ag-promo-inp')?.value.trim();
+  const tags=Array.from(document.querySelectorAll('#ag-tag-chips .chip-rokt')).map(ch=>ch.textContent.replace('×','').trim());
+  const pv=document.getElementById('ag-prev');
   if(!pv) return;
-  let html = '';
-  if(agCurrentFmt==='benefits'&&hasBen){
-    html += '<div class="prev-benefits"><div class="prev-benefit">Free returns</div><div class="prev-benefit">Fast 2-day shipping</div></div>';
-  }
-  if(agCurrentFmt==='savings'&&hasPromo){
-    html += '<div style="display:inline-block;background:var(--amber-l);color:var(--amber);border:1px solid #fcd34d;border-radius:5px;padding:4px 8px;font-size:11px;font-weight:600;margin-bottom:7px;">🏷 '+hasPromo+'</div>';
-  }
-  html += '<div class="prev-title">'+(t||'Your title')+'</div>';
-  html += '<div class="prev-body">'+(b||'Your body')+'</div>';
-  html += '<div class="prev-cta">'+(c||'Shop now')+'</div>';
-  pv.innerHTML = html;
-  const idx = document.getElementById('ag-combo-idx');
-  if(idx) idx.textContent = 'Combo '+(agComboIdx+1)+' of '+total;
+  let html='';
+  if(agCurrentFmt==='benefits'&&hasBen) html+='<div class="pa-ben">Free returns</div><div class="pa-ben">Fast 2-day shipping</div>';
+  if(agCurrentFmt==='savings'&&promo) html+='<div style="display:inline-block;background:var(--amber-l);color:var(--amber);border:1px solid #fcd34d;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:700;margin-bottom:5px;">🏷 '+promo+'</div>';
+  html+='<div class="pa-title">'+(t||'Title')+'</div>';
+  html+='<div class="pa-body">'+(b||'Body').substring(0,70)+'</div>';
+  html+='<div class="pa-cta">'+(c||'Shop now')+'</div>';
+  if(tags.length>0) html+='<div class="pa-tags">'+tags.map(tg=>'<span class="pa-tag">'+tg+'</span>').join('')+'</div>';
+  pv.innerHTML=html;
 }
 
-function agSwitchPrev(fmt, tab){
+function agSwitchFmt(fmt,tab){
   if(tab.classList.contains('locked')) return;
-  agCurrentFmt = fmt;
-  document.querySelectorAll('#view-ag-editor .ptab').forEach(t=>t.classList.remove('active'));
+  agCurrentFmt=fmt;
+  document.querySelectorAll('#view-ag-editor .prev-tab').forEach(t=>t.classList.remove('active'));
   tab.classList.add('active');
-  agUpdatePreview();
+  agUpdate();
 }
 
-function agPrevCombo(){
-  agComboIdx = (agComboIdx - 1 + agComboCount) % agComboCount;
-  agUpdatePreview();
-}
-function agNextCombo(){
-  agComboIdx = (agComboIdx + 1) % agComboCount;
-  agUpdatePreview();
-}
+function agPrev(){agComboIdx=(agComboIdx-1+agComboTotal)%agComboTotal;agUpdate();}
+function agNext(){agComboIdx=(agComboIdx+1)%agComboTotal;agUpdate();}
 
 // ── INIT ──
-updateTopbar('campaigns-list');
-document.getElementById('bottom-bar').style.display='none';
+agUpdate();
+mcUpdatePrev();
 </script>
 </body>
 </html>
