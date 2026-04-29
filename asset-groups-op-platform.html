@@ -379,6 +379,76 @@ tr:hover .row-actions{opacity:1;}
 .combo-snippet{font-size:12px;color:var(--g700);line-height:1.5;}
 .combo-snippet strong{font-weight:600;color:var(--foreground);}
 
+/* ── AI RECOMMENDATIONS PANEL ── */
+.ai-panel{
+  border:1.5px solid var(--rokt-m);
+  border-radius:var(--radius);
+  background:#fff;
+  overflow:hidden;
+}
+.ai-panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;
+  background:var(--rokt-l);
+  border-bottom:1px solid var(--rokt-m);
+  cursor:pointer;
+  user-select:none;
+}
+.ai-panel-header-left{display:flex;align-items:center;gap:8px;}
+.ai-brain-badge{
+  display:flex;align-items:center;gap:5px;
+  background:var(--primary);color:#fff;
+  border-radius:20px;padding:3px 9px;font-size:11px;font-weight:700;
+  letter-spacing:.02em;
+}
+.ai-panel-title{font-size:13px;font-weight:600;color:var(--foreground);}
+.ai-panel-subtitle{font-size:11px;color:var(--muted-fg);margin-left:4px;}
+.ai-toggle-btn{
+  font-size:11px;color:var(--muted-fg);border:none;background:transparent;
+  cursor:pointer;padding:2px 6px;border-radius:4px;transition:background .15s;
+}
+.ai-toggle-btn:hover{background:var(--rokt-m);}
+.ai-recs-body{padding:0;}
+.ai-recs-body.collapsed{display:none;}
+.ai-rec-row{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:11px 14px;border-bottom:1px solid var(--border);
+  transition:background .15s;
+}
+.ai-rec-row:last-child{border-bottom:none;}
+.ai-rec-row:hover{background:var(--g50);}
+.ai-rec-priority{
+  flex-shrink:0;margin-top:1px;
+  font-size:10px;font-weight:700;border-radius:3px;
+  padding:2px 6px;text-transform:uppercase;letter-spacing:.04em;
+}
+.ai-pri-high{background:#fef2f2;color:#dc2626;}
+.ai-pri-med{background:#fffbeb;color:#d97706;}
+.ai-pri-low{background:#f0fdf4;color:#16a34a;}
+.ai-rec-icon{flex-shrink:0;font-size:16px;margin-top:0px;}
+.ai-rec-content{flex:1;min-width:0;}
+.ai-rec-action{font-size:13px;font-weight:500;color:var(--foreground);line-height:1.4;}
+.ai-rec-detail{font-size:12px;color:var(--muted-fg);margin-top:2px;line-height:1.4;}
+.ai-rec-impact{
+  flex-shrink:0;text-align:right;margin-top:2px;
+}
+.ai-rec-impact-val{font-size:13px;font-weight:700;color:var(--green);}
+.ai-rec-impact-lbl{font-size:10px;color:var(--muted-fg);margin-top:1px;}
+.ai-rec-btns{display:flex;gap:6px;flex-shrink:0;align-items:flex-start;}
+.ai-apply-btn{
+  font-size:11px;font-weight:600;padding:4px 10px;border-radius:4px;
+  border:1px solid var(--primary);background:var(--primary);color:#fff;
+  cursor:pointer;white-space:nowrap;transition:opacity .15s;
+}
+.ai-apply-btn:hover{opacity:.88;}
+.ai-dismiss-btn{
+  font-size:11px;padding:4px 8px;border-radius:4px;
+  border:1px solid var(--border);background:#fff;color:var(--muted-fg);
+  cursor:pointer;transition:background .15s;
+}
+.ai-dismiss-btn:hover{background:var(--g100);}
+.ai-rec-row.dismissed{opacity:.45;pointer-events:none;}
+
 /* ── UTILS ── */
 .hidden{display:none!important;}
 .flex{display:flex;}.items-center{align-items:center;}.justify-between{justify-content:space-between;}
@@ -1220,6 +1290,93 @@ tr:hover .row-actions{opacity:1;}
           <div class="stat-cell"><div class="stat-label">Asset Strength</div><div class="stat-val" style="color:var(--blue);">Good · 72%</div><div class="stat-sub">28% to Excellent</div></div>
         </div>
 
+        <!-- AI Recommended Actions -->
+        <div class="ai-panel">
+          <div class="ai-panel-header" onclick="toggleAIPanel()">
+            <div class="ai-panel-header-left">
+              <div class="ai-brain-badge">🧠 Rokt Brain</div>
+              <span class="ai-panel-title">Recommended actions</span>
+              <span class="ai-panel-subtitle">4 actions · estimated +22% CVR lift</span>
+            </div>
+            <button class="ai-toggle-btn" id="ai-toggle-lbl">Hide ▲</button>
+          </div>
+          <div class="ai-recs-body" id="ai-recs-body">
+
+            <!-- Rec 1: High — pause bad title -->
+            <div class="ai-rec-row" id="ai-rec-1">
+              <span class="ai-rec-priority ai-pri-high">High</span>
+              <span class="ai-rec-icon">🚫</span>
+              <div class="ai-rec-content">
+                <div class="ai-rec-action">Pause title "20% off today only"</div>
+                <div class="ai-rec-detail">This title is −69.6% CVR vs. group average across all combinations. Pausing it redirects impressions to your top 3 titles and removes the worst-performing combo (0.9% CVR) from rotation.</div>
+              </div>
+              <div class="ai-rec-impact">
+                <div class="ai-rec-impact-val">+12% CVR</div>
+                <div class="ai-rec-impact-lbl">est. lift</div>
+              </div>
+              <div class="ai-rec-btns">
+                <button class="ai-apply-btn" onclick="applyRec('ai-rec-1', this)">Pause title</button>
+                <button class="ai-dismiss-btn" onclick="dismissRec('ai-rec-1')">Dismiss</button>
+              </div>
+            </div>
+
+            <!-- Rec 2: High — remove weak image -->
+            <div class="ai-rec-row" id="ai-rec-2">
+              <span class="ai-rec-priority ai-pri-high">High</span>
+              <span class="ai-rec-icon">🖼️</span>
+              <div class="ai-rec-content">
+                <div class="ai-rec-action">Remove image "brand-sq.jpg"</div>
+                <div class="ai-rec-detail">brand-sq.jpg (1:1) delivers −56.3% CVR vs. average. Removing it consolidates image budget to lifestyle-1.jpg (+16.7%) and lifestyle-2.jpg. The 1:1 slot still covered by product-sq.jpg.</div>
+              </div>
+              <div class="ai-rec-impact">
+                <div class="ai-rec-impact-val">+7% CVR</div>
+                <div class="ai-rec-impact-lbl">est. lift</div>
+              </div>
+              <div class="ai-rec-btns">
+                <button class="ai-apply-btn" onclick="applyRec('ai-rec-2', this)">Remove image</button>
+                <button class="ai-dismiss-btn" onclick="dismissRec('ai-rec-2')">Dismiss</button>
+              </div>
+            </div>
+
+            <!-- Rec 3: Medium — unlock Benefits Hero -->
+            <div class="ai-rec-row" id="ai-rec-3">
+              <span class="ai-rec-priority ai-pri-med">Medium</span>
+              <span class="ai-rec-icon">🔓</span>
+              <div class="ai-rec-content">
+                <div class="ai-rec-action">Add a 1.91:1 image to unlock Benefits Hero format</div>
+                <div class="ai-rec-detail">Benefits Hero is your only ineligible format. Adding a 1.91:1 image unlocks it and is estimated to add +8% incremental reach. Text Hero (your top format at 5.4% CVR) already proves hero formats convert well for this audience.</div>
+              </div>
+              <div class="ai-rec-impact">
+                <div class="ai-rec-impact-val">+8% reach</div>
+                <div class="ai-rec-impact-lbl">est. gain</div>
+              </div>
+              <div class="ai-rec-btns">
+                <button class="ai-apply-btn" onclick="goTo('ag-editor')">Edit assets →</button>
+                <button class="ai-dismiss-btn" onclick="dismissRec('ai-rec-3')">Dismiss</button>
+              </div>
+            </div>
+
+            <!-- Rec 4: Medium — resolve pending CTA -->
+            <div class="ai-rec-row" id="ai-rec-4">
+              <span class="ai-rec-priority ai-pri-med">Medium</span>
+              <span class="ai-rec-icon">⏳</span>
+              <div class="ai-rec-content">
+                <div class="ai-rec-action">Replace CTA "Claim deal" — insufficient data</div>
+                <div class="ai-rec-detail">"Claim deal" has only 140K impressions with no statistically valid CVR yet. Brain recommends swapping it for a new variant (e.g. "Get free delivery") to accelerate learning and avoid dead weight in combinations.</div>
+              </div>
+              <div class="ai-rec-impact">
+                <div class="ai-rec-impact-val">+3% CVR</div>
+                <div class="ai-rec-impact-lbl">est. lift</div>
+              </div>
+              <div class="ai-rec-btns">
+                <button class="ai-apply-btn" onclick="goTo('ag-editor')">Edit CTA →</button>
+                <button class="ai-dismiss-btn" onclick="dismissRec('ai-rec-4')">Dismiss</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         <!-- Reporting tabs -->
         <div class="report-tabs">
           <div class="report-tab active" onclick="switchReportTab(this,'rp-intelligence')">Asset Intelligence</div>
@@ -1674,6 +1831,46 @@ function agSwitchFmt(fmt,tab){
 
 function agPrev(){agComboIdx=(agComboIdx-1+agComboTotal)%agComboTotal;agUpdate();}
 function agNext(){agComboIdx=(agComboIdx+1)%agComboTotal;agUpdate();}
+
+// ── AI RECOMMENDATIONS PANEL ──
+function toggleAIPanel(){
+  const body = document.getElementById('ai-recs-body');
+  const lbl = document.getElementById('ai-toggle-lbl');
+  if(!body) return;
+  const collapsed = body.classList.toggle('collapsed');
+  if(lbl) lbl.textContent = collapsed ? 'Show ▼' : 'Hide ▲';
+}
+
+function dismissRec(id){
+  const row = document.getElementById(id);
+  if(row) row.classList.add('dismissed');
+  updateAICount();
+}
+
+function applyRec(id, btn){
+  const row = document.getElementById(id);
+  if(row){
+    row.classList.add('dismissed');
+    if(btn){ btn.textContent = '✓ Applied'; btn.style.background = 'var(--green)'; btn.style.borderColor = 'var(--green)'; }
+  }
+  updateAICount();
+}
+
+function updateAICount(){
+  const total = document.querySelectorAll('#ai-recs-body .ai-rec-row').length;
+  const dismissed = document.querySelectorAll('#ai-recs-body .ai-rec-row.dismissed').length;
+  const remaining = total - dismissed;
+  const sub = document.querySelector('.ai-panel-subtitle');
+  if(sub){
+    if(remaining === 0){
+      sub.textContent = '✓ All actions resolved';
+      sub.style.color = 'var(--green)';
+    } else {
+      sub.textContent = remaining + ' action' + (remaining > 1 ? 's' : '') + ' remaining';
+      sub.style.color = '';
+    }
+  }
+}
 
 // ── ASSET GROUP REPORTING ──
 function openAGReport(name, status){
