@@ -266,7 +266,148 @@ tr:hover .row-actions{opacity:1;}
 .chip-rm{cursor:pointer;opacity:.6;font-size:12px;line-height:1;}
 .chip-rm:hover{opacity:1;}
 
-/* ── IMAGE GRID ── */
+/* ── VISUAL ASSETS FLOW (Google/Meta-style) ── */
+.va-summary{
+  display:flex;align-items:center;gap:16px;
+  padding:10px 14px;background:var(--g50);
+  border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:12px;
+}
+.va-summary-count{font-size:13px;font-weight:600;color:var(--foreground);}
+.va-summary-sub{font-size:11px;color:var(--muted-fg);margin-top:1px;}
+.va-count-track{flex:1;height:5px;background:var(--g200);border-radius:100px;overflow:hidden;}
+.va-count-fill{height:100%;background:var(--primary);border-radius:100px;transition:width .3s;}
+.va-req-pills{display:flex;gap:6px;flex-shrink:0;}
+.va-req-pill{
+  display:flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:500;padding:2px 8px;
+  border-radius:20px;border:1px solid;
+}
+.va-req-pill.done{background:var(--green-l);color:var(--green);border-color:#bbf7d0;}
+.va-req-pill.partial{background:var(--amber-l);color:var(--amber);border-color:#fcd34d;}
+.va-req-pill.empty{background:var(--g100);color:var(--g500);border-color:var(--g300);}
+
+/* Ratio tabs */
+.va-ratio-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;}
+.va-ratio-tab{
+  flex:1;padding:8px 12px;text-align:center;cursor:pointer;
+  font-size:12px;font-weight:500;color:var(--muted-fg);
+  background:#fff;border-right:1px solid var(--border);
+  transition:all .15s;user-select:none;
+}
+.va-ratio-tab:last-child{border-right:none;}
+.va-ratio-tab:hover{background:var(--g50);}
+.va-ratio-tab.active{background:var(--foreground);color:#fff;font-weight:600;}
+.va-ratio-tab .va-tab-ratio{font-size:13px;font-weight:700;display:block;}
+.va-ratio-tab .va-tab-label{font-size:10px;opacity:.75;display:block;margin-top:1px;}
+.va-ratio-tab .va-tab-count{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:18px;height:18px;padding:0 5px;margin-top:4px;
+  background:rgba(255,255,255,.2);border-radius:100px;
+  font-size:10px;font-weight:700;
+}
+.va-ratio-tab:not(.active) .va-tab-count{background:var(--g200);color:var(--g600);}
+.va-ratio-tab.active .va-tab-count{background:rgba(255,255,255,.25);color:#fff;}
+.va-ratio-tab .va-tab-req{font-size:9px;margin-top:3px;display:block;}
+.va-ratio-tab.active .va-tab-req{color:rgba(255,255,255,.7);}
+.va-ratio-tab:not(.active) .va-tab-req{color:var(--green);}
+.va-ratio-tab:not(.active).needs .va-tab-req{color:var(--amber);}
+
+/* Ratio panels */
+.va-panel{display:none;}
+.va-panel.active{display:block;}
+.va-fmt-unlock{
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  padding:7px 10px;background:var(--blue-l);border:1px solid #bfdbfe;
+  border-radius:6px;margin-bottom:10px;font-size:11px;color:var(--blue);font-weight:500;
+}
+.va-fmt-unlock span{font-weight:400;color:var(--g600);}
+.va-fmt-chip{
+  background:#fff;border:1px solid #bfdbfe;border-radius:4px;
+  padding:1px 6px;font-size:10px;font-weight:600;color:var(--blue);
+}
+.va-optional-note{
+  padding:7px 10px;background:var(--g50);border:1px solid var(--border);
+  border-radius:6px;margin-bottom:10px;font-size:11px;color:var(--muted-fg);
+}
+
+/* Upload zone */
+.va-upload-zone{
+  border:2px dashed var(--border);border-radius:var(--radius);
+  padding:24px 16px;text-align:center;cursor:pointer;
+  transition:all .2s;background:#fff;margin-bottom:10px;
+  position:relative;
+}
+.va-upload-zone:hover,.va-upload-zone.drag-over{
+  border-color:var(--primary);background:var(--rokt-l);
+}
+.va-upload-icon{font-size:28px;margin-bottom:8px;display:block;}
+.va-upload-title{font-size:13px;font-weight:600;color:var(--foreground);margin-bottom:4px;}
+.va-upload-sub{font-size:11px;color:var(--muted-fg);margin-bottom:14px;}
+.va-upload-actions{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;}
+.va-upload-btn{
+  padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;
+  cursor:pointer;border:1px solid;transition:all .15s;
+}
+.va-upload-btn.primary{background:var(--primary);color:#fff;border-color:var(--primary);}
+.va-upload-btn.primary:hover{opacity:.88;}
+.va-upload-btn.secondary{background:#fff;color:var(--foreground);border-color:var(--border);}
+.va-upload-btn.secondary:hover{background:var(--g50);}
+.va-upload-divider{font-size:11px;color:var(--muted-fg);}
+.va-upload-spec{font-size:10px;color:var(--g400);margin-top:8px;}
+
+/* Thumbnail grid */
+.va-thumb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;}
+.va-thumb{
+  position:relative;border-radius:8px;overflow:hidden;
+  border:1.5px solid var(--border);background:var(--g100);
+  cursor:pointer;
+}
+.va-thumb:hover .va-thumb-overlay{opacity:1;}
+.va-thumb-img{
+  width:100%;display:block;
+  background:linear-gradient(135deg,var(--g200) 0%,var(--g300) 100%);
+}
+.va-thumb-img.r191{aspect-ratio:1.91;}
+.va-thumb-img.r11{aspect-ratio:1;}
+.va-thumb-img.r45{aspect-ratio:0.8;}
+/* Simulated photo fills */
+.va-thumb-img.photo-a{background:linear-gradient(135deg,#93c5fd 0%,#6366f1 100%);}
+.va-thumb-img.photo-b{background:linear-gradient(135deg,#86efac 0%,#059669 100%);}
+.va-thumb-img.photo-c{background:linear-gradient(135deg,#fda4af 0%,#e11d48 100%);}
+.va-thumb-img.photo-d{background:linear-gradient(135deg,#fcd34d 0%,#d97706 100%);}
+.va-thumb-img.photo-e{background:linear-gradient(135deg,#c4b5fd 0%,#7c3aed 100%);}
+.va-thumb-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,.55);
+  opacity:0;transition:opacity .15s;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+}
+.va-thumb-del{
+  background:#fff;color:var(--red);border:none;border-radius:4px;
+  font-size:11px;font-weight:600;padding:3px 10px;cursor:pointer;
+}
+.va-thumb-del:hover{background:var(--red);color:#fff;}
+.va-thumb-footer{
+  padding:4px 6px;display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid var(--border);background:#fff;
+}
+.va-thumb-name{font-size:10px;color:var(--g600);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;}
+.va-thumb-perf{font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;}
+.va-thumb-perf.best{background:var(--green-l);color:var(--green);}
+.va-thumb-perf.good{background:var(--blue-l);color:var(--blue);}
+.va-thumb-perf.low{background:var(--red-l);color:var(--red);}
+.va-thumb-perf.new{background:var(--g100);color:var(--g500);}
+.va-count-note{font-size:11px;color:var(--muted-fg);margin-bottom:8px;}
+.va-add-thumb{
+  border:2px dashed var(--border);border-radius:8px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;cursor:pointer;background:var(--g50);
+  font-size:11px;color:var(--muted-fg);padding:12px 8px;
+  transition:all .15s;min-height:80px;
+}
+.va-add-thumb:hover{border-color:var(--primary);color:var(--primary);background:var(--rokt-l);}
+
+/* ── IMAGE GRID (legacy — keep for manual creative) ── */
 .img-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}
 .img-slot{aspect-ratio:1;border:2px dashed var(--border);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:10px;color:var(--muted-fg);text-align:center;gap:3px;background:var(--g50);transition:all .15s;}
 .img-slot:hover{border-color:var(--primary);color:var(--primary);background:var(--rokt-l);}
@@ -1028,21 +1169,160 @@ tr:hover .row-actions{opacity:1;}
 
                 <!-- Visual assets -->
                 <div class="form-section mt-8">
-                  <div class="fs-hdr" onclick="toggleFs('ag-vis')"><div class="fs-title"><span class="fs-num">3</span>Visual assets <span style="font-size:11px;font-weight:400;color:var(--muted-fg);margin-left:4px;">1.91:1 unlocks Text Hero & Benefits Hero</span></div><div class="flex items-center gap-8"><span class="fs-status warn">⚠ Add 1.91:1 for Benefits Hero</span><span class="chevron" id="ch-ag-vis">▼</span></div></div>
+                  <div class="fs-hdr" onclick="toggleFs('ag-vis')">
+                    <div class="fs-title"><span class="fs-num">3</span>Visual assets</div>
+                    <div class="flex items-center gap-8">
+                      <span class="fs-status warn" id="va-section-status">⚠ Add 1.91:1 for Benefits Hero</span>
+                      <span class="chevron" id="ch-ag-vis">▼</span>
+                    </div>
+                  </div>
                   <div class="fs-body collapsed" id="ag-vis">
-                    <div class="form-field mb-14">
-                      <label>Product images</label>
-                      <div class="img-grid">
-                        <div class="img-slot filled"><div class="img-type-label">1.91:1</div><div style="font-size:10px;">lifestyle-1</div></div>
-                        <div class="img-slot filled"><div class="img-type-label">1.91:1</div><div style="font-size:10px;">lifestyle-2</div></div>
-                        <div class="img-slot filled"><div class="img-type-label">1:1</div><div style="font-size:10px;">product-sq</div></div>
-                        <div class="img-slot filled"><div class="img-type-label">1:1</div><div style="font-size:10px;">brand-sq</div></div>
-                        <div class="img-slot" onclick="this.classList.add('filled');this.innerHTML='<div class=\'img-type-label\'>1.91:1</div><div>new.jpg</div>';agUpdateElig()"><div class="img-type-label">+ 1.91:1</div></div>
-                        <div class="img-slot" onclick="this.classList.add('filled');this.innerHTML='<div class=\'img-type-label\'>4:5</div><div>new.jpg</div>';agUpdateElig()"><div class="img-type-label">+ 4:5</div></div>
-                        <div class="img-slot" onclick="this.classList.add('filled');this.innerHTML='<div class=\'img-type-label\'>1:1</div><div>new.jpg</div>';agUpdateElig()"><div class="img-type-label">+ 1:1</div></div>
-                        <div class="img-slot"><div class="img-type-label">+ Add</div></div>
+
+                    <!-- Summary bar -->
+                    <div class="va-summary">
+                      <div>
+                        <div class="va-summary-count" id="va-total-count">4 images uploaded</div>
+                        <div class="va-summary-sub">across 2 aspect ratios · 20 max per group</div>
+                      </div>
+                      <div class="va-count-track"><div class="va-count-fill" id="va-count-fill" style="width:20%"></div></div>
+                      <div class="va-req-pills">
+                        <div class="va-req-pill done" id="va-pill-191">✓ 1.91:1</div>
+                        <div class="va-req-pill done" id="va-pill-11">✓ 1:1</div>
+                        <div class="va-req-pill empty" id="va-pill-45">○ 4:5</div>
                       </div>
                     </div>
+
+                    <!-- Ratio tabs -->
+                    <div class="va-ratio-tabs">
+                      <div class="va-ratio-tab active" id="va-tab-191" onclick="vaSwitch('191',this)">
+                        <span class="va-tab-ratio">1.91:1</span>
+                        <span class="va-tab-label">Landscape</span>
+                        <span class="va-tab-count" id="va-cnt-191">2</span>
+                        <span class="va-tab-req">Unlocks Text Hero + Benefits Hero</span>
+                      </div>
+                      <div class="va-ratio-tab" id="va-tab-11" onclick="vaSwitch('11',this)">
+                        <span class="va-tab-ratio">1:1</span>
+                        <span class="va-tab-label">Square</span>
+                        <span class="va-tab-count" id="va-cnt-11">2</span>
+                        <span class="va-tab-req">All formats</span>
+                      </div>
+                      <div class="va-ratio-tab needs" id="va-tab-45" onclick="vaSwitch('45',this)">
+                        <span class="va-tab-ratio">4:5</span>
+                        <span class="va-tab-label">Portrait</span>
+                        <span class="va-tab-count" id="va-cnt-45">0</span>
+                        <span class="va-tab-req">Optional · feed placements</span>
+                      </div>
+                    </div>
+
+                    <!-- Panel: 1.91:1 Landscape -->
+                    <div class="va-panel active" id="va-panel-191">
+                      <div class="va-fmt-unlock">
+                        🔓 Unlocks formats: <span class="va-fmt-chip">Text Hero</span><span class="va-fmt-chip">Benefits Hero</span>
+                        <span>· Min 600×314px · JPG, PNG, WebP · Max 5MB</span>
+                      </div>
+                      <div class="va-count-note" id="va-note-191">2 of 20 images · add up to 18 more</div>
+                      <div class="va-upload-zone" id="va-zone-191"
+                        ondragover="event.preventDefault();this.classList.add('drag-over')"
+                        ondragleave="this.classList.remove('drag-over')"
+                        ondrop="event.preventDefault();this.classList.remove('drag-over');vaSimulateUpload('191')">
+                        <span class="va-upload-icon">⬆️</span>
+                        <div class="va-upload-title">Drag &amp; drop landscape images here</div>
+                        <div class="va-upload-sub">1.91:1 ratio · 1280×672px recommended</div>
+                        <div class="va-upload-actions">
+                          <button class="va-upload-btn primary" onclick="event.stopPropagation();vaSimulateUpload('191')">Upload image</button>
+                          <span class="va-upload-divider">or</span>
+                          <button class="va-upload-btn secondary" onclick="event.stopPropagation();vaSimulateURL('191')">Add from URL</button>
+                          <button class="va-upload-btn secondary" onclick="event.stopPropagation();vaSimulateUpload('191')">📁 Asset Library</button>
+                        </div>
+                        <div class="va-upload-spec">JPG · PNG · WebP · Max 5 MB · Min 600 × 314 px</div>
+                      </div>
+                      <div class="va-thumb-grid" id="va-grid-191">
+                        <div class="va-thumb">
+                          <div class="va-thumb-img r191 photo-a"></div>
+                          <div class="va-thumb-overlay"><button class="va-thumb-del" onclick="vaRemoveThumb(this,'191')">Remove</button></div>
+                          <div class="va-thumb-footer"><span class="va-thumb-name">lifestyle-1.jpg</span><span class="va-thumb-perf best">●Best</span></div>
+                        </div>
+                        <div class="va-thumb">
+                          <div class="va-thumb-img r191 photo-b"></div>
+                          <div class="va-thumb-overlay"><button class="va-thumb-del" onclick="vaRemoveThumb(this,'191')">Remove</button></div>
+                          <div class="va-thumb-footer"><span class="va-thumb-name">lifestyle-2.jpg</span><span class="va-thumb-perf good">●Good</span></div>
+                        </div>
+                        <div class="va-add-thumb" onclick="vaSimulateUpload('191')">
+                          <div style="font-size:20px;">＋</div>
+                          <div>Add image</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Panel: 1:1 Square -->
+                    <div class="va-panel" id="va-panel-11">
+                      <div class="va-fmt-unlock">
+                        🔓 Unlocks formats: <span class="va-fmt-chip">Text</span><span class="va-fmt-chip">Benefits</span><span class="va-fmt-chip">Compact</span><span class="va-fmt-chip">Savings</span>
+                        <span>· Min 300×300px · JPG, PNG, WebP · Max 5MB</span>
+                      </div>
+                      <div class="va-count-note" id="va-note-11">2 of 20 images · add up to 18 more</div>
+                      <div class="va-upload-zone" id="va-zone-11"
+                        ondragover="event.preventDefault();this.classList.add('drag-over')"
+                        ondragleave="this.classList.remove('drag-over')"
+                        ondrop="event.preventDefault();this.classList.remove('drag-over');vaSimulateUpload('11')">
+                        <span class="va-upload-icon">⬆️</span>
+                        <div class="va-upload-title">Drag &amp; drop square images here</div>
+                        <div class="va-upload-sub">1:1 ratio · 1080×1080px recommended</div>
+                        <div class="va-upload-actions">
+                          <button class="va-upload-btn primary" onclick="event.stopPropagation();vaSimulateUpload('11')">Upload image</button>
+                          <span class="va-upload-divider">or</span>
+                          <button class="va-upload-btn secondary" onclick="event.stopPropagation();vaSimulateURL('11')">Add from URL</button>
+                          <button class="va-upload-btn secondary" onclick="event.stopPropagation();vaSimulateUpload('11')">📁 Asset Library</button>
+                        </div>
+                        <div class="va-upload-spec">JPG · PNG · WebP · Max 5 MB · Min 300 × 300 px</div>
+                      </div>
+                      <div class="va-thumb-grid" id="va-grid-11">
+                        <div class="va-thumb">
+                          <div class="va-thumb-img r11 photo-c"></div>
+                          <div class="va-thumb-overlay"><button class="va-thumb-del" onclick="vaRemoveThumb(this,'11')">Remove</button></div>
+                          <div class="va-thumb-footer"><span class="va-thumb-name">product-sq.jpg</span><span class="va-thumb-perf good">●Good</span></div>
+                        </div>
+                        <div class="va-thumb">
+                          <div class="va-thumb-img r11 photo-d"></div>
+                          <div class="va-thumb-overlay"><button class="va-thumb-del" onclick="vaRemoveThumb(this,'11')">Remove</button></div>
+                          <div class="va-thumb-footer"><span class="va-thumb-name">brand-sq.jpg</span><span class="va-thumb-perf low">●Low</span></div>
+                        </div>
+                        <div class="va-add-thumb" onclick="vaSimulateUpload('11')">
+                          <div style="font-size:20px;">＋</div>
+                          <div>Add image</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Panel: 4:5 Portrait -->
+                    <div class="va-panel" id="va-panel-45">
+                      <div class="va-optional-note">
+                        💡 <strong>Optional</strong> — Portrait (4:5) images are used on feed placements where vertical images perform better. Adding at least 1 is recommended.
+                      </div>
+                      <div class="va-count-note" id="va-note-45">0 of 20 images</div>
+                      <div class="va-upload-zone" id="va-zone-45"
+                        ondragover="event.preventDefault();this.classList.add('drag-over')"
+                        ondragleave="this.classList.remove('drag-over')"
+                        ondrop="event.preventDefault();this.classList.remove('drag-over');vaSimulateUpload('45')">
+                        <span class="va-upload-icon">⬆️</span>
+                        <div class="va-upload-title">Drag &amp; drop portrait images here</div>
+                        <div class="va-upload-sub">4:5 ratio · 1080×1350px recommended</div>
+                        <div class="va-upload-actions">
+                          <button class="va-upload-btn primary" onclick="event.stopPropagation();vaSimulateUpload('45')">Upload image</button>
+                          <span class="va-upload-divider">or</span>
+                          <button class="va-upload-btn secondary" onclick="event.stopPropagation();vaSimulateURL('45')">Add from URL</button>
+                          <button class="va-upload-btn secondary" onclick="event.stopPropagation();vaSimulateUpload('45')">📁 Asset Library</button>
+                        </div>
+                        <div class="va-upload-spec">JPG · PNG · WebP · Max 5 MB · Min 480 × 600 px</div>
+                      </div>
+                      <div class="va-thumb-grid" id="va-grid-45">
+                        <div class="va-add-thumb" onclick="vaSimulateUpload('45')">
+                          <div style="font-size:20px;">＋</div>
+                          <div>Add image</div>
+                        </div>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
 
@@ -1757,8 +2037,8 @@ function agAddBen(e){
 function agUpdateElig(){
   const hasBen=document.getElementById('ag-ben-chips').querySelectorAll('.chip-green').length>0;
   const hasPromo=document.getElementById('ag-promo-inp').value.trim()!=='';
-  const filledImgs=document.querySelectorAll('#view-ag-editor .img-slot.filled').length;
-  const has191=filledImgs>=2;
+  const filledImgs=vaGetCount('191')+vaGetCount('11')+vaGetCount('45');
+  const has191=vaGetCount('191')>=1;
 
   const elBen=document.getElementById('el-ben');
   if(elBen) elBen.innerHTML=hasBen?'<span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span>':'<span class="elig-dot off"></span><span class="elig-txt-off">Add benefits</span>';
@@ -1792,8 +2072,8 @@ function agUpdate(){
   const titles=document.querySelectorAll('#ag-titles-list input');
   const descs=document.querySelectorAll('#ag-desc-list textarea');
   const ctas=document.querySelectorAll('#ag-cta-list input');
-  const imgs=document.querySelectorAll('#view-ag-editor .img-slot.filled');
-  const nT=titles.length||1,nD=descs.length||1,nC=ctas.length||1,nI=Math.max(imgs.length,1);
+  const nImgs=vaGetCount('191')+vaGetCount('11')+vaGetCount('45');
+  const nT=titles.length||1,nD=descs.length||1,nC=ctas.length||1,nI=Math.max(nImgs,1);
   agComboTotal=nT*nD*nC*nI;
   if(agComboIdx>=agComboTotal) agComboIdx=0;
   const ct=document.getElementById('ag-combo-ct');
@@ -1831,6 +2111,110 @@ function agSwitchFmt(fmt,tab){
 
 function agPrev(){agComboIdx=(agComboIdx-1+agComboTotal)%agComboTotal;agUpdate();}
 function agNext(){agComboIdx=(agComboIdx+1)%agComboTotal;agUpdate();}
+
+// ── VISUAL ASSETS FLOW ──
+const vaPhotos = ['photo-a','photo-b','photo-c','photo-d','photo-e'];
+const vaNames191 = ['hero-shot.jpg','campaign-1.jpg','lifestyle-3.jpg','product-hero.jpg','banner.jpg'];
+const vaNames11  = ['square-1.jpg','brand-sq2.jpg','product-sq2.jpg','icon-sq.jpg','store-sq.jpg'];
+const vaNames45  = ['portrait-1.jpg','feed-1.jpg','story-1.jpg','vertical-1.jpg'];
+let vaNewIdx = 0;
+
+function vaSwitch(ratio, tab){
+  document.querySelectorAll('.va-ratio-tab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+  document.querySelectorAll('.va-panel').forEach(p=>p.classList.remove('active'));
+  const panel = document.getElementById('va-panel-'+ratio);
+  if(panel) panel.classList.add('active');
+}
+
+function vaGetCount(ratio){
+  const grid = document.getElementById('va-grid-'+ratio);
+  if(!grid) return 0;
+  return grid.querySelectorAll('.va-thumb').length;
+}
+
+function vaUpdateSummary(){
+  const c191 = vaGetCount('191');
+  const c11  = vaGetCount('11');
+  const c45  = vaGetCount('45');
+  const total = c191 + c11 + c45;
+
+  // Count badges on tabs
+  const cnt191 = document.getElementById('va-cnt-191'); if(cnt191) cnt191.textContent = c191;
+  const cnt11  = document.getElementById('va-cnt-11');  if(cnt11)  cnt11.textContent  = c11;
+  const cnt45  = document.getElementById('va-cnt-45');  if(cnt45)  cnt45.textContent  = c45;
+
+  // Count notes
+  ['191','11','45'].forEach(r=>{
+    const n = document.getElementById('va-note-'+r);
+    const c = vaGetCount(r);
+    if(n) n.textContent = c+' of 20 images'+(c<20?' · add up to '+(20-c)+' more':'');
+  });
+
+  // Summary bar
+  const tc = document.getElementById('va-total-count');
+  const ratioCount = (c191>0?1:0)+(c11>0?1:0)+(c45>0?1:0);
+  if(tc) tc.textContent = total+' image'+(total!==1?'s':'')+' uploaded';
+  const fill = document.getElementById('va-count-fill');
+  if(fill) fill.style.width = Math.min(100,Math.round(total/20*100))+'%';
+
+  // Req pills
+  const p191 = document.getElementById('va-pill-191');
+  const p11  = document.getElementById('va-pill-11');
+  const p45  = document.getElementById('va-pill-45');
+  if(p191){ p191.className='va-req-pill '+(c191>0?'done':'partial'); p191.textContent=(c191>0?'✓ ':'○ ')+'1.91:1'+(c191>0?' ×'+c191:''); }
+  if(p11){  p11.className ='va-req-pill '+(c11>0?'done':'partial');  p11.textContent =(c11>0?'✓ ':'○ ')+'1:1'+(c11>0?' ×'+c11:''); }
+  if(p45){  p45.className ='va-req-pill '+(c45>0?'done':'empty');    p45.textContent =(c45>0?'✓ ':'○ ')+'4:5'+(c45>0?' ×'+c45:''); }
+
+  // Tab needs class
+  const t45 = document.getElementById('va-tab-45');
+  if(t45){ t45.classList.toggle('needs', c45===0); }
+
+  // Section status
+  const st = document.getElementById('va-section-status');
+  if(st){
+    if(c191>0 && c11>0){ st.textContent='✓ Complete'; st.className='fs-status done'; }
+    else if(c191===0)   { st.textContent='⚠ Add 1.91:1 for Text Hero'; st.className='fs-status warn'; }
+    else                { st.textContent='⚠ Add 1:1 image'; st.className='fs-status warn'; }
+  }
+
+  // Keep agUpdateElig in sync (counts filled img-slots for legacy logic)
+  agUpdateElig();
+}
+
+function vaSimulateUpload(ratio){
+  const grid = document.getElementById('va-grid-'+ratio);
+  if(!grid) return;
+  const count = grid.querySelectorAll('.va-thumb').length;
+  if(count >= 20){ alert('Maximum 20 images per ratio reached.'); return; }
+  const names = ratio==='191'?vaNames191:ratio==='11'?vaNames11:vaNames45;
+  const photo = vaPhotos[vaNewIdx % vaPhotos.length];
+  const name  = names[vaNewIdx % names.length];
+  vaNewIdx++;
+  const aspectClass = ratio==='191'?'r191':ratio==='11'?'r11':'r45';
+  const thumb = document.createElement('div');
+  thumb.className = 'va-thumb';
+  thumb.innerHTML = `
+    <div class="va-thumb-img ${aspectClass} ${photo}"></div>
+    <div class="va-thumb-overlay"><button class="va-thumb-del" onclick="vaRemoveThumb(this,'${ratio}')">Remove</button></div>
+    <div class="va-thumb-footer"><span class="va-thumb-name">${name}</span><span class="va-thumb-perf new">●New</span></div>`;
+  // Insert before the "Add" tile
+  const addTile = grid.querySelector('.va-add-thumb');
+  if(addTile) grid.insertBefore(thumb, addTile);
+  else grid.appendChild(thumb);
+  vaUpdateSummary();
+}
+
+function vaSimulateURL(ratio){
+  const url = prompt('Paste image URL:');
+  if(!url) return;
+  vaSimulateUpload(ratio); // reuse simulate for prototype
+}
+
+function vaRemoveThumb(btn, ratio){
+  btn.closest('.va-thumb').remove();
+  vaUpdateSummary();
+}
 
 // ── AI RECOMMENDATIONS PANEL ──
 function toggleAIPanel(){
