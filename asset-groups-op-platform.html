@@ -579,21 +579,21 @@ tr:hover .row-actions{opacity:1;}
                   <td class="num-cell">2.8%</td><td class="num-cell">657</td>
                   <td><div class="row-actions"><button class="row-btn">Edit</button></div></td>
                 </tr>
-                <tr onclick="goTo('manual-creative')">
+                <tr onclick="openManualCreative('benefits','Holiday Promo — Benefits','Paused')">
                   <td><div class="cell-name">Holiday Promo — Benefits</div><div class="cell-sub">🎛 Manual · Benefits format only</div></td>
                   <td><span class="badge badge-gray">🎛 Manual</span></td>
                   <td style="font-size:12px;">Benefits</td><td>—</td>
                   <td><span class="badge badge-amber"><span class="badge-dot badge-dot-amber"></span>Paused</span></td>
                   <td class="num-cell">3.6%</td><td class="num-cell">436</td>
-                  <td><div class="row-actions"><button class="row-btn">Edit</button></div></td>
+                  <td><div class="row-actions"><button class="row-btn" onclick="event.stopPropagation();openManualCreative('benefits','Holiday Promo — Benefits','Paused')">Edit</button></div></td>
                 </tr>
-                <tr onclick="goTo('manual-creative')">
+                <tr onclick="openManualCreative('text','Brand Awareness — Text','Active')">
                   <td><div class="cell-name">Brand Awareness — Text</div><div class="cell-sub">🎛 Manual · Text format only</div></td>
                   <td><span class="badge badge-gray">🎛 Manual</span></td>
                   <td style="font-size:12px;">Text</td><td>—</td>
                   <td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td>
                   <td class="num-cell">2.9%</td><td class="num-cell">522</td>
-                  <td><div class="row-actions"><button class="row-btn">Edit</button></div></td>
+                  <td><div class="row-actions"><button class="row-btn" onclick="event.stopPropagation();openManualCreative('text','Brand Awareness — Text','Active')">Edit</button></div></td>
                 </tr>
               </tbody>
             </table>
@@ -702,7 +702,7 @@ tr:hover .row-actions{opacity:1;}
                 </ul>
                 <button class="cc-select-btn">Create Asset Group →</button>
               </div>
-              <div class="choice-card" onclick="goTo('manual-creative')">
+              <div class="choice-card" onclick="goToManualCreativeNew();goTo('manual-creative')">
                 <div class="cc-icon">🎛</div>
                 <div class="cc-title">Manual Creative</div>
                 <div class="cc-desc">Choose a specific format and control exactly how your ad renders. Fixed to one format. Best for regulated verticals, precise brand control, or A/B tests.</div>
@@ -733,14 +733,20 @@ tr:hover .row-actions{opacity:1;}
       <!-- ─── MANUAL CREATIVE ─── -->
       <div id="view-manual-creative" class="view">
         <div>
-          <div class="back-link" onclick="goTo('creative-choice')">← Choose creative type</div>
+          <div class="back-link" id="mc-back-link" onclick="mcGoBack()">← Creatives</div>
           <div class="flex justify-between items-center">
-            <div><h1 style="font-size:18px;font-weight:600;">Manual Creative</h1><div style="font-size:13px;color:var(--muted-fg);margin-top:2px;">🎛 Fixed format · Full brand control</div></div>
-            <button class="btn btn-secondary btn-sm" onclick="goTo('creative-choice')">Change type</button>
+            <div>
+              <h1 style="font-size:18px;font-weight:600;" id="mc-page-title">Edit Creative</h1>
+              <div style="font-size:13px;color:var(--muted-fg);margin-top:2px;" id="mc-page-sub">🎛 Fixed format · Full brand control</div>
+            </div>
+            <div class="flex gap-8">
+              <span id="mc-status-badge"></span>
+              <button class="btn btn-secondary btn-sm" id="mc-change-type-btn" onclick="goTo('creative-choice')" style="display:none;">Change type</button>
+            </div>
           </div>
         </div>
         <div class="wizard-card">
-          <div class="wizard-steps-row">
+          <div class="wizard-steps-row" id="mc-wizard-steps">
             <div class="wstep done"><span class="wsn">✓</span>Campaign</div><span class="wstep-sep">›</span>
             <div class="wstep done"><span class="wsn">✓</span>Ad set</div><span class="wstep-sep">›</span>
             <div class="wstep active"><span class="wsn">3</span>Manual Creative</div><span class="wstep-sep">›</span>
@@ -812,9 +818,12 @@ tr:hover .row-actions{opacity:1;}
               </div>
             </div>
           </div>
-          <div class="wizard-footer">
-            <button class="btn btn-ghost" onclick="goTo('creative-choice')">← Back</button>
-            <div class="flex gap-8"><button class="btn btn-secondary btn-sm">Save draft</button><button class="btn btn-primary btn-sm" onclick="navTo('creatives')">Save creative →</button></div>
+          <div class="wizard-footer" id="mc-footer">
+            <button class="btn btn-ghost" id="mc-footer-back" onclick="mcGoBack()">← Back</button>
+            <div class="flex gap-8">
+              <button class="btn btn-secondary btn-sm" id="mc-footer-draft">Save draft</button>
+              <button class="btn btn-primary btn-sm" id="mc-footer-save" onclick="navTo('creatives')">Save creative →</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1076,6 +1085,59 @@ function toggleFs(id){
   const ch = document.getElementById('ch-'+id);
   if(body) body.classList.toggle('collapsed');
   if(ch) ch.classList.toggle('open');
+}
+
+// ── OPEN MANUAL CREATIVE (from existing creative row) ──
+let mcEditMode = false; // true = editing existing, false = creating new
+
+function openManualCreative(fmt, name, status){
+  mcEditMode = true;
+  // Update header
+  document.getElementById('mc-back-link').textContent = '← Creatives';
+  document.getElementById('mc-page-title').textContent = name;
+  document.getElementById('mc-page-sub').innerHTML = '🎛 Manual · ' + (fmt.charAt(0).toUpperCase()+fmt.slice(1)) + ' format';
+  // Status badge
+  const badgeEl = document.getElementById('mc-status-badge');
+  const badgeClass = status === 'Active' ? 'badge-green' : status === 'Paused' ? 'badge-amber' : 'badge-gray';
+  const dotClass = status === 'Active' ? 'badge-dot-green' : status === 'Paused' ? 'badge-dot-amber' : 'badge-dot-gray';
+  badgeEl.innerHTML = '<span class="badge '+badgeClass+'"><span class="badge-dot '+dotClass+'"></span>'+status+'</span>';
+  // Hide wizard steps, show change-type button
+  document.getElementById('mc-wizard-steps').style.display = 'none';
+  document.getElementById('mc-change-type-btn').style.display = 'none';
+  // Footer: edit mode
+  document.getElementById('mc-footer-back').textContent = '← Creatives';
+  document.getElementById('mc-footer-draft').style.display = 'none';
+  document.getElementById('mc-footer-save').textContent = 'Save changes';
+  // Pre-select format
+  const fmtBtns = document.querySelectorAll('#view-manual-creative .fmt-btn');
+  fmtBtns.forEach(b => b.classList.remove('sel'));
+  const fmtMap = {'text':0,'benefits':1,'savings':2,'hero':3,'compact':4};
+  const idx = fmtMap[fmt];
+  if(idx !== undefined && fmtBtns[idx]){
+    fmtBtns[idx].classList.add('sel');
+    mcSelectFmt(fmtBtns[idx], fmt);
+  }
+  // Navigate
+  viewHistory.push(currentView);
+  showView('manual-creative');
+}
+
+function goToManualCreativeNew(){
+  mcEditMode = false;
+  document.getElementById('mc-back-link').textContent = '← Choose creative type';
+  document.getElementById('mc-page-title').textContent = 'Manual Creative';
+  document.getElementById('mc-page-sub').innerHTML = '🎛 Fixed format · Full brand control';
+  document.getElementById('mc-status-badge').innerHTML = '';
+  document.getElementById('mc-wizard-steps').style.display = '';
+  document.getElementById('mc-change-type-btn').style.display = '';
+  document.getElementById('mc-footer-back').textContent = '← Back';
+  document.getElementById('mc-footer-draft').style.display = '';
+  document.getElementById('mc-footer-save').textContent = 'Save creative →';
+}
+
+function mcGoBack(){
+  if(mcEditMode){ navTo('creatives'); }
+  else { goTo('creative-choice'); }
 }
 
 // ── MANUAL CREATIVE ──
