@@ -1548,12 +1548,12 @@ tr:hover .row-actions{opacity:1;}
                   </div>
                   <div class="ai-fill-actions">
                     <button class="ai-fill-go" id="ag-ai-fill-btn" onclick="agAIFill()">✨ AI Suggest</button>
-                    <button class="ai-fill-skip" onclick="document.getElementById('ag-ai-fill-banner').classList.add('hidden')">Start manually</button>
+                    <button class="ai-fill-skip" onclick="agStartManually()">Start manually</button>
                   </div>
                 </div>
                 <!-- Required assets -->
                 <div class="form-section">
-                  <div class="fs-hdr" onclick="toggleFs('ag-req')"><div class="fs-title"><span class="fs-num">1</span>Required assets <span style="font-size:11px;font-weight:400;color:var(--muted-fg);margin-left:4px;">unlocks Text + Compact</span></div><div class="flex items-center gap-8"><span class="fs-status done">✓ Complete</span><span class="chevron open" id="ch-ag-req">▼</span></div></div>
+                  <div class="fs-hdr" onclick="toggleFs('ag-req')"><div class="fs-title"><span class="fs-num">1</span>Required assets <span style="font-size:11px;font-weight:400;color:var(--muted-fg);margin-left:4px;">unlocks Text + Compact</span></div><div class="flex items-center gap-8"><span class="fs-status" id="ag-req-status"></span><span class="chevron open" id="ch-ag-req">▼</span></div></div>
                   <div class="fs-body" id="ag-req">
                     <div class="form-field mb-14">
                       <label>Titles <span class="req">*</span> <span style="font-size:11px;color:var(--muted-fg);">add multiple — each becomes a test variant</span></label>
@@ -1613,15 +1613,15 @@ tr:hover .row-actions{opacity:1;}
                       <div id="ag-ben-rows">
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
                           <div><label style="font-size:12px;font-weight:600;color:var(--g700);display:block;margin-bottom:4px;">Benefit #1 text</label><textarea rows="2" style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;resize:vertical;" oninput="agUpdateElig()" placeholder="Enter benefit text (e.g. Free returns)">Free returns</textarea></div>
-                          <div><label style="font-size:12px;font-weight:600;color:var(--g700);display:block;margin-bottom:4px;">Benefit #1 Icon</label><select style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;background:var(--bg);"><option value="">Select Icon</option><option value="check" selected>✓ Checkmark</option><option value="star">★ Star</option><option value="shield">🛡 Shield</option><option value="truck">🚚 Truck</option><option value="gift">🎁 Gift</option><option value="bolt">⚡ Bolt</option><option value="heart">♥ Heart</option><option value="lock">🔒 Lock</option></select></div>
+                          <div><label style="font-size:12px;font-weight:600;color:var(--g700);display:block;margin-bottom:4px;">Benefit #1 Icon</label><select style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;background:var(--bg);"><option value="" selected>Select Icon</option><option value="check">✓ Checkmark</option><option value="star">★ Star</option><option value="shield">🛡 Shield</option><option value="truck">🚚 Truck</option><option value="gift">🎁 Gift</option><option value="bolt">⚡ Bolt</option><option value="heart">♥ Heart</option><option value="lock">🔒 Lock</option></select></div>
                         </div>
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
                           <div><label style="font-size:12px;font-weight:600;color:var(--g700);display:block;margin-bottom:4px;">Benefit #2 text</label><textarea rows="2" style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;resize:vertical;" oninput="agUpdateElig()" placeholder="Enter benefit text (e.g. $50 cash back)">Fast 2-day shipping</textarea></div>
-                          <div><label style="font-size:12px;font-weight:600;color:var(--g700);display:block;margin-bottom:4px;">Benefit #2 Icon</label><select style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;background:var(--bg);"><option value="">Select Icon</option><option value="check">✓ Checkmark</option><option value="star">★ Star</option><option value="shield">🛡 Shield</option><option value="truck" selected>🚚 Truck</option><option value="gift">🎁 Gift</option><option value="bolt">⚡ Bolt</option><option value="heart">♥ Heart</option><option value="lock">🔒 Lock</option></select></div>
+                          <div><label style="font-size:12px;font-weight:600;color:var(--g700);display:block;margin-bottom:4px;">Benefit #2 Icon</label><select style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;background:var(--bg);"><option value="" selected>Select Icon</option><option value="check">✓ Checkmark</option><option value="star">★ Star</option><option value="shield">🛡 Shield</option><option value="truck">🚚 Truck</option><option value="gift">🎁 Gift</option><option value="bolt">⚡ Bolt</option><option value="heart">♥ Heart</option><option value="lock">🔒 Lock</option></select></div>
                         </div>
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
                           <div><label style="font-size:12px;font-weight:600;color:var(--g700);display:block;margin-bottom:4px;">Benefit #3 text</label><textarea rows="2" style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;resize:vertical;" oninput="agUpdateElig()" placeholder="Enter benefit text (e.g. Free shipping)">Secure checkout</textarea></div>
-                          <div><label style="font-size:12px;font-weight:600;color:var(--g700);display:block;margin-bottom:4px;">Benefit #3 Icon</label><select style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;background:var(--bg);"><option value="">Select Icon</option><option value="check">✓ Checkmark</option><option value="star">★ Star</option><option value="shield" selected>🛡 Shield</option><option value="truck">🚚 Truck</option><option value="gift">🎁 Gift</option><option value="bolt">⚡ Bolt</option><option value="heart">♥ Heart</option><option value="lock">🔒 Lock</option></select></div>
+                          <div><label style="font-size:12px;font-weight:600;color:var(--g700);display:block;margin-bottom:4px;">Benefit #3 Icon</label><select style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;background:var(--bg);"><option value="" selected>Select Icon</option><option value="check">✓ Checkmark</option><option value="star">★ Star</option><option value="shield">🛡 Shield</option><option value="truck">🚚 Truck</option><option value="gift">🎁 Gift</option><option value="bolt">⚡ Bolt</option><option value="heart">♥ Heart</option><option value="lock">🔒 Lock</option></select></div>
                         </div>
                       </div>
                       <button class="add-row-btn" onclick="agAddBenRow()">+ Add benefit</button>
@@ -1958,6 +1958,14 @@ tr:hover .row-actions{opacity:1;}
                     <div class="flex items-center gap-8 mb-8"><div class="str-track" style="flex:1;"><div class="str-fill" style="width:72%;background:var(--blue);"></div></div><span style="font-size:12px;font-weight:600;color:var(--blue);">Good · 72%</span></div>
                     <div style="font-size:12px;line-height:1.9;color:var(--g600);">✓ Titles (4/8)<br>✓ Descriptions (2/3)<br>✓ CTAs (3/3)<br>✓ Benefits (3/5)<br>✓ Images (4)<br><span style="color:var(--amber);">○ 1.91:1 → Benefits Hero</span><br><span style="color:var(--amber);">○ Promo → Savings</span></div>
                     <div style="font-size:11px;color:var(--muted-fg);margin-top:7px;">Reach Excellent to unlock A/B testing</div>
+                  </div>
+                </div>
+                <!-- AI nudge — shown after "Start manually" is clicked -->
+                <div id="ag-ai-nudge" class="panel-card hidden" style="border:1px solid var(--primary-light,#c7d7fe);background:#f5f8ff;">
+                  <div class="panel-card-body" style="display:flex;align-items:center;gap:10px;padding:10px 12px;">
+                    <span style="font-size:16px;">🧠</span>
+                    <div style="flex:1;font-size:12px;color:var(--g700);">Let Rokt Brain suggest your assets</div>
+                    <button class="btn btn-secondary btn-sm" style="font-size:11px;padding:4px 10px;" onclick="agAIFill()">✨ AI Suggest</button>
                   </div>
                 </div>
               </div>
@@ -3195,11 +3203,32 @@ function agUpdateElig(){
   agUpdate();
 }
 
+function agStartManually(){
+  document.getElementById('ag-ai-fill-banner').classList.add('hidden');
+  const nudge = document.getElementById('ag-ai-nudge');
+  if(nudge) nudge.classList.remove('hidden');
+}
+
 function agUpdate(){
   const titles=document.querySelectorAll('#ag-titles-list input');
   const descs=document.querySelectorAll('#ag-desc-list textarea');
   const ctas=document.querySelectorAll('#ag-cta-list input');
   const nImgs=vaGetCount('191')+vaGetCount('11')+vaGetCount('45');
+
+  // Required assets status badge
+  const reqStatus = document.getElementById('ag-req-status');
+  if(reqStatus){
+    const hasT = Array.from(titles).some(i=>i.value.trim()!=='');
+    const hasS = Array.from(document.querySelectorAll('#ag-sdesc-list input')).some(i=>i.value.trim()!=='');
+    const hasD = Array.from(descs).some(i=>i.value.trim()!=='');
+    const hasC = Array.from(ctas).some(i=>i.value.trim()!=='');
+    const brandInputs = document.querySelectorAll('#ag-req input[type="text"]');
+    const hasB = brandInputs[0]?.value.trim()!=='';
+    const hasU = brandInputs[1]?.value.trim()!=='';
+    const allDone = hasT&&hasS&&hasD&&hasC&&hasB&&hasU;
+    reqStatus.className = 'fs-status '+(allDone?'done':'warn');
+    reqStatus.textContent = allDone?'✓ Complete':'Missing required fields';
+  }
   const nT=titles.length||1,nD=descs.length||1,nC=ctas.length||1,nI=Math.max(nImgs,1);
   agComboTotal=nT*nD*nC*nI;
   if(agComboIdx>=agComboTotal) agComboIdx=0;
@@ -3268,9 +3297,11 @@ function goToAGNew(){
   document.getElementById('ag-change-type-btn').style.display = '';
   const draftBadge = document.getElementById('ag-draft-badge');
   if(draftBadge) draftBadge.style.display = '';
-  // Show AI fill banner
+  // Show AI fill banner, hide nudge
   const banner = document.getElementById('ag-ai-fill-banner');
   if(banner) banner.classList.remove('hidden');
+  const nudge = document.getElementById('ag-ai-nudge');
+  if(nudge) nudge.classList.add('hidden');
   // Reset preview
   agCurrentFmtPrev = 'text';
   document.querySelectorAll('.fmt-prev-tab').forEach((t,i)=>{ t.classList.toggle('active', i===0); });
@@ -3494,8 +3525,11 @@ function _doAGEdit(name){
   if(draftBadge) draftBadge.style.display = 'none';
   const banner = document.getElementById('ag-ai-fill-banner');
   if(banner) banner.classList.add('hidden');
+  const nudge = document.getElementById('ag-ai-nudge');
+  if(nudge) nudge.classList.remove('hidden');
   viewHistory.push(currentView);
   showView('ag-editor');
+  agUpdate();
 }
 function goToAGEdit(name){
   openRefineModal(name);
