@@ -1584,7 +1584,7 @@ tr:hover .row-actions{opacity:1;}
 
                 <!-- Format expanders -->
                 <div class="form-section mt-8">
-                  <div class="fs-hdr" onclick="toggleFs('ag-exp')"><div class="fs-title"><span class="fs-num">2</span>Format expanders <span style="font-size:11px;font-weight:400;color:var(--muted-fg);margin-left:4px;">unlock additional formats</span></div><div class="flex items-center gap-8"><span class="fs-status warn" id="ag-exp-status">⚠ 2 formats locked</span><span class="chevron open" id="ch-ag-exp">▼</span></div></div>
+                  <div class="fs-hdr" onclick="toggleFs('ag-exp')"><div class="fs-title"><span class="fs-num">2</span>Format expanders <span style="font-size:11px;font-weight:400;color:var(--muted-fg);margin-left:4px;">unlock additional formats</span></div><div class="flex items-center gap-8"><span class="chevron open" id="ch-ag-exp">▼</span></div></div>
                   <div class="fs-body" id="ag-exp">
                     <div class="form-field mb-14">
                       <label>Benefits <span style="font-size:11px;color:var(--green);font-weight:500;">→ unlocks Benefits + Benefits Hero</span></label>
@@ -1615,7 +1615,6 @@ tr:hover .row-actions{opacity:1;}
                   <div class="fs-hdr" onclick="toggleFs('ag-vis')">
                     <div class="fs-title"><span class="fs-num">3</span>Visual assets</div>
                     <div class="flex items-center gap-8">
-                      <span class="fs-status warn" id="va-section-status">⚠ Add 1.91:1 for Benefits Hero</span>
                       <span class="chevron" id="ch-ag-vis">▼</span>
                     </div>
                   </div>
@@ -2975,10 +2974,6 @@ function agUpdateElig(){
   if(rb) rb.style.width=pct+'%';
   if(rn) rn.textContent=pct>=85?'🎉 Great reach! Add carousel for 100%.':'Target: 80–100% · '+cnt+' of 7 formats';
 
-  const expStatus=document.getElementById('ag-exp-status');
-  const missing=7-cnt;
-  if(expStatus){expStatus.textContent=missing===0?'✓ All formats unlocked':'⚠ '+missing+' format'+(missing>1?'s':'')+' locked';expStatus.className='fs-status '+(missing===0?'done':'warn');}
-
   const ptSav=document.getElementById('ag-ptab-sav');
   if(ptSav){if(hasPromo){ptSav.classList.remove('locked');}else{ptSav.classList.add('locked');}}
   agUpdate();
@@ -3316,14 +3311,6 @@ function vaUpdateSummary(){
   // Tab needs class
   const t45 = document.getElementById('va-tab-45');
   if(t45){ t45.classList.toggle('needs', c45===0); }
-
-  // Section status
-  const st = document.getElementById('va-section-status');
-  if(st){
-    if(c191>0 && c11>0){ st.textContent='✓ Complete'; st.className='fs-status done'; }
-    else if(c191===0)   { st.textContent='⚠ Add 1.91:1 for Text Hero'; st.className='fs-status warn'; }
-    else                { st.textContent='⚠ Add 1:1 image'; st.className='fs-status warn'; }
-  }
 
   // Keep agUpdateElig in sync (counts filled img-slots for legacy logic)
   agUpdateElig();
