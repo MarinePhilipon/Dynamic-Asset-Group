@@ -1580,23 +1580,19 @@ tr:hover .row-actions{opacity:1;}
                       </div>
                       <button class="add-row-btn" onclick="agAddDescRow()">+ Add long description</button>
                     </div>
-                    <div class="form-grid">
-                      <div class="form-field">
-                        <label>CTAs <span class="req">*</span></label>
-                        <div class="asset-rows" id="ag-cta-list">
-                          <div class="asset-row"><input type="text" value="Shop now" oninput="agUpdate()"><span class="perf-pill perf-best">●Best</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
-                          <div class="asset-row"><input type="text" value="Get offer" oninput="agUpdate()"><span class="perf-pill perf-good">●Good</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
-                          <div class="asset-row"><input type="text" value="Claim deal" oninput="agUpdate()"><span class="perf-pill perf-pend">●Pending</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
-                        </div>
-                        <button class="add-row-btn" onclick="agAddRow('ag-cta-list','CTA')">+ Add CTA</button>
+                    <div class="form-field mb-14">
+                      <label>CTAs <span class="req">*</span></label>
+                      <div class="asset-rows" id="ag-cta-list">
+                        <div class="asset-row"><input type="text" value="Shop now" oninput="agUpdate()"><span class="perf-pill perf-best">●Best</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
+                        <div class="asset-row"><input type="text" value="Get offer" oninput="agUpdate()"><span class="perf-pill perf-good">●Good</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
+                        <div class="asset-row"><input type="text" value="Claim deal" oninput="agUpdate()"><span class="perf-pill perf-pend">●Pending</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
                       </div>
-                      <div>
-                        <div class="form-field"><label>Brand name <span class="req">*</span></label><input type="text" value="Acme Co."></div>
-                        <div class="form-field mt-8"><label>Destination URL <span class="req">*</span></label><input type="text" value="https://acme.com/spring"></div>
-                        <div class="form-field mt-8"><label>Negative CTA</label><input type="text" placeholder="No thanks"></div>
-                        <div class="form-field mt-8"><label>Disclaimer <span style="font-size:11px;color:var(--muted-fg);font-weight:400;">optional</span></label><input type="text" placeholder="e.g. T&amp;Cs apply. See acme.com/terms"></div>
-                      </div>
+                      <button class="add-row-btn" onclick="agAddRow('ag-cta-list','CTA')">+ Add CTA</button>
                     </div>
+                    <div class="form-field mb-14"><label>Brand name <span class="req">*</span></label><input type="text" value="Acme Co."></div>
+                    <div class="form-field mb-14"><label>Destination URL <span class="req">*</span></label><input type="text" value="https://acme.com/spring"></div>
+                    <div class="form-field mb-14"><label>Negative CTA</label><input type="text" placeholder="No thanks"></div>
+                    <div class="form-field"><label>Disclaimer <span style="font-size:11px;color:var(--muted-fg);font-weight:400;">optional</span></label><input type="text" placeholder="e.g. T&amp;Cs apply. See acme.com/terms"></div>
                   </div>
                 </div>
 
@@ -1606,12 +1602,27 @@ tr:hover .row-actions{opacity:1;}
                   <div class="fs-body" id="ag-exp">
                     <div class="form-field mb-14">
                       <label>Benefits <span style="font-size:11px;color:var(--green);font-weight:500;">→ unlocks Benefits + Benefits Hero</span></label>
-                      <div class="chips" id="ag-ben-chips">
-                        <span class="chip-green">Free returns<span class="chip-rm" onclick="this.parentElement.remove();agUpdateElig()">×</span></span>
-                        <span class="chip-green">Fast 2-day shipping<span class="chip-rm" onclick="this.parentElement.remove();agUpdateElig()">×</span></span>
-                        <span class="chip-green">Secure checkout<span class="chip-rm" onclick="this.parentElement.remove();agUpdateElig()">×</span></span>
+                      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                        <input type="checkbox" id="ag-ben-same-icon" style="width:14px;height:14px;cursor:pointer;">
+                        <label for="ag-ben-same-icon" style="font-size:13px;color:var(--g600);cursor:pointer;font-weight:400;">Display the same icon for all benefits</label>
                       </div>
-                      <input type="text" id="ag-ben-inp" placeholder="Add a benefit, press Enter…" onkeydown="agAddBen(event)" style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;">
+                      <!-- hidden chip tracker for agUpdateElig() compat -->
+                      <div id="ag-ben-chips" style="display:none;"></div>
+                      <div id="ag-ben-rows">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
+                          <div><label style="font-size:12px;font-weight:600;color:var(--g700);display:block;margin-bottom:4px;">Benefit #1 text</label><textarea rows="2" style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;resize:vertical;" oninput="agUpdateElig()" placeholder="Enter benefit text (e.g. Free returns)">Free returns</textarea></div>
+                          <div><label style="font-size:12px;font-weight:600;color:var(--g700);display:block;margin-bottom:4px;">Benefit #1 Icon</label><select style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;background:var(--bg);"><option value="">Select Icon</option><option value="check" selected>✓ Checkmark</option><option value="star">★ Star</option><option value="shield">🛡 Shield</option><option value="truck">🚚 Truck</option><option value="gift">🎁 Gift</option><option value="bolt">⚡ Bolt</option><option value="heart">♥ Heart</option><option value="lock">🔒 Lock</option></select></div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
+                          <div><label style="font-size:12px;font-weight:600;color:var(--g700);display:block;margin-bottom:4px;">Benefit #2 text</label><textarea rows="2" style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;resize:vertical;" oninput="agUpdateElig()" placeholder="Enter benefit text (e.g. $50 cash back)">Fast 2-day shipping</textarea></div>
+                          <div><label style="font-size:12px;font-weight:600;color:var(--g700);display:block;margin-bottom:4px;">Benefit #2 Icon</label><select style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;background:var(--bg);"><option value="">Select Icon</option><option value="check">✓ Checkmark</option><option value="star">★ Star</option><option value="shield">🛡 Shield</option><option value="truck" selected>🚚 Truck</option><option value="gift">🎁 Gift</option><option value="bolt">⚡ Bolt</option><option value="heart">♥ Heart</option><option value="lock">🔒 Lock</option></select></div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
+                          <div><label style="font-size:12px;font-weight:600;color:var(--g700);display:block;margin-bottom:4px;">Benefit #3 text</label><textarea rows="2" style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;resize:vertical;" oninput="agUpdateElig()" placeholder="Enter benefit text (e.g. Free shipping)">Secure checkout</textarea></div>
+                          <div><label style="font-size:12px;font-weight:600;color:var(--g700);display:block;margin-bottom:4px;">Benefit #3 Icon</label><select style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;background:var(--bg);"><option value="">Select Icon</option><option value="check">✓ Checkmark</option><option value="star">★ Star</option><option value="shield" selected>🛡 Shield</option><option value="truck">🚚 Truck</option><option value="gift">🎁 Gift</option><option value="bolt">⚡ Bolt</option><option value="heart">♥ Heart</option><option value="lock">🔒 Lock</option></select></div>
+                        </div>
+                      </div>
+                      <button class="add-row-btn" onclick="agAddBenRow()">+ Add benefit</button>
                     </div>
                     <div class="form-field mb-14">
                       <label>Promotion <span style="font-size:11px;color:var(--green);font-weight:500;">→ unlocks Savings</span></label>
@@ -3044,22 +3055,24 @@ function agAddDescRow(){
   agUpdate();
 }
 
-function agAddBen(e){
-  if(e.key!=='Enter') return;
-  const inp=document.getElementById('ag-ben-inp');
-  const v=inp.value.trim(); if(!v) return;
-  const chips=document.getElementById('ag-ben-chips');
-  if(chips.querySelectorAll('.chip-green').length>=5) return;
-  const c=document.createElement('span');
-  c.className='chip-green';
-  c.innerHTML=v+'<span class="chip-rm" onclick="this.parentElement.remove();agUpdateElig()">×</span>';
-  chips.appendChild(c);
-  inp.value='';
+function agAddBen(e){ /* legacy no-op */ }
+
+function agAddBenRow(){
+  const rows=document.getElementById('ag-ben-rows');
+  if(!rows) return;
+  const n=rows.querySelectorAll('div[style*="grid-template-columns"]').length+1;
+  const icons='<option value="">Select Icon</option><option value="check">✓ Checkmark</option><option value="star">★ Star</option><option value="shield">🛡 Shield</option><option value="truck">🚚 Truck</option><option value="gift">🎁 Gift</option><option value="bolt">⚡ Bolt</option><option value="heart">♥ Heart</option><option value="lock">🔒 Lock</option>';
+  const div=document.createElement('div');
+  div.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;';
+  div.innerHTML=`<div><label style="font-size:12px;font-weight:600;color:var(--g700);display:block;margin-bottom:4px;">Benefit #${n} text</label><textarea rows="2" style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;resize:vertical;" oninput="agUpdateElig()" placeholder="Enter benefit text"></textarea></div><div><label style="font-size:12px;font-weight:600;color:var(--g700);display:block;margin-bottom:4px;">Benefit #${n} Icon</label><select style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;background:var(--bg);">${icons}</select></div>`;
+  rows.appendChild(div);
   agUpdateElig();
 }
 
 function agUpdateElig(){
-  const hasBen=document.getElementById('ag-ben-chips').querySelectorAll('.chip-green').length>0;
+  // count filled benefit rows (new structured UI)
+  const benRows=document.querySelectorAll('#ag-ben-rows textarea');
+  const hasBen=Array.from(benRows).some(t=>t.value.trim()!=='');
   const hasPromo=document.getElementById('ag-promo-inp').value.trim()!=='';
   const filledImgs=vaGetCount('191')+vaGetCount('11')+vaGetCount('45');
   const has191=vaGetCount('191')>=1;
@@ -3106,13 +3119,14 @@ function agUpdate(){
   const t=titles.length>0?titles[agComboIdx%titles.length].value:'Free delivery on all orders';
   const b=descs.length>0?descs[agComboIdx%descs.length].value:'Get the products you love.';
   const c=ctas.length>0?ctas[agComboIdx%ctas.length].value:'Shop now';
-  const hasBen=document.getElementById('ag-ben-chips').querySelectorAll('.chip-green').length>0;
+  const hasBen=Array.from(document.querySelectorAll('#ag-ben-rows textarea')).some(t=>t.value.trim()!=='');
+  const benTexts=Array.from(document.querySelectorAll('#ag-ben-rows textarea')).map(t=>t.value.trim()).filter(Boolean);
   const promo=document.getElementById('ag-promo-inp')?.value.trim();
   const tags=Array.from(document.querySelectorAll('#ag-tag-chips .chip-rokt')).map(ch=>ch.textContent.replace('×','').trim());
   const pv=document.getElementById('ag-prev');
   if(!pv) return;
   let html='';
-  if(agCurrentFmt==='benefits'&&hasBen) html+='<div class="pa-ben">Free returns</div><div class="pa-ben">Fast 2-day shipping</div>';
+  if(agCurrentFmt==='benefits'&&hasBen) html+=benTexts.slice(0,3).map(b=>'<div class="pa-ben">'+b+'</div>').join('');
   if(agCurrentFmt==='savings'&&promo) html+='<div style="display:inline-block;background:var(--amber-l);color:var(--amber);border:1px solid #fcd34d;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:700;margin-bottom:5px;">🏷 '+promo+'</div>';
   html+='<div class="pa-title">'+(t||'Title')+'</div>';
   html+='<div class="pa-body">'+(b||'Body').substring(0,70)+'</div>';
@@ -3144,8 +3158,7 @@ function goToAGNew(){
   document.getElementById('ag-titles-list').innerHTML = '';
   document.getElementById('ag-desc-list').innerHTML = '';
   document.getElementById('ag-cta-list').innerHTML = '';
-  document.getElementById('ag-ben-chips').innerHTML = '';
-  document.getElementById('ag-ben-inp').value = '';
+  document.querySelectorAll('#ag-ben-rows textarea').forEach(t=>t.value='');
   document.getElementById('ag-promo-inp').value = '';
   document.getElementById('ag-tag-chips').innerHTML = '';
   // Clear images
@@ -3239,9 +3252,9 @@ function agAIFill(){
       const pill = i===0?'perf-best':i===1?'perf-good':'perf-pend';
       return `<div class="asset-row"><input type="text" value="${v}" oninput="agUpdate()"><span class="perf-pill ${pill}">●${i===0?'Best':i===1?'Good':'Pending'}</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>`;
     }).join('');
-    // Benefits
-    const bc = document.getElementById('ag-ben-chips');
-    bc.innerHTML = AI_BENS.slice(0,3).map(b=>`<span class="chip-green">${b}<span class="chip-rm" onclick="this.parentElement.remove();agUpdateElig()">×</span></span>`).join('');
+    // Benefits — fill structured textarea rows
+    const benTextareas = document.querySelectorAll('#ag-ben-rows textarea');
+    AI_BENS.slice(0,3).forEach((b,i)=>{ if(benTextareas[i]) benTextareas[i].value=b; });
     // Simulate images
     vaSimulateUpload('191'); vaSimulateUpload('191');
     vaSimulateUpload('11');
@@ -3266,7 +3279,7 @@ function renderFmtPreview(){
   const titles = document.querySelectorAll('#ag-titles-list input');
   const descs  = document.querySelectorAll('#ag-desc-list textarea');
   const ctas   = document.querySelectorAll('#ag-cta-list input');
-  const bens   = Array.from(document.querySelectorAll('#ag-ben-chips .chip-green')).map(c=>c.childNodes[0].textContent.trim());
+  const bens   = Array.from(document.querySelectorAll('#ag-ben-rows textarea')).map(t=>t.value.trim()).filter(Boolean);
   const promo  = document.getElementById('ag-promo-inp')?.value.trim();
   const t = titles.length>0 ? titles[agComboIdx%titles.length].value : 'Your headline here';
   const d = descs.length>0  ? descs[agComboIdx%descs.length].value   : 'Your description here';
