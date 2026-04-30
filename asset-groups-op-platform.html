@@ -619,6 +619,13 @@ tr:hover .row-actions{opacity:1;}
 .panel-card-hdr{padding:9px 14px;background:var(--g50);border-bottom:1px solid var(--g100);}
 .panel-card-hdr h4{font-size:11px;font-weight:600;color:var(--muted-fg);text-transform:uppercase;letter-spacing:.5px;}
 .panel-card-body{padding:12px;}
+.ag-adset-row{display:flex;align-items:center;padding:10px 12px;border-bottom:1px solid var(--g100);cursor:pointer;font-size:13px;}
+.ag-adset-row:hover{background:var(--g50);}
+.ag-adset-row:last-child{border-bottom:none;}
+.ag-adset-row.selected{background:#f0f4ff;}
+.ag-offer-opt{padding:10px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--g100);}
+.ag-offer-opt:hover{background:var(--g50);}
+.ag-offer-opt:last-child{border-bottom:none;}
 .elig-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--g100);font-size:13px;}
 .elig-row:last-child{border-bottom:none;}
 .elig-fmt{font-weight:500;color:var(--g700);}
@@ -1602,6 +1609,14 @@ tr:hover .row-actions{opacity:1;}
                   <div class="fs-hdr" onclick="toggleFs('ag-exp')"><div class="fs-title"><span class="fs-num">2</span>Format expanders <span style="font-size:11px;font-weight:400;color:var(--muted-fg);margin-left:4px;">unlock additional formats</span></div><div class="flex items-center gap-8"><span class="chevron open" id="ch-ag-exp">▼</span></div></div>
                   <div class="fs-body" id="ag-exp">
                     <div class="form-field mb-14">
+                      <label>Callout tags <span style="font-size:11px;color:var(--muted-fg);font-weight:400;">up to 2 render at the same time</span></label>
+                      <div class="chips" id="ag-tag-chips">
+                        <span class="chip-rokt">#FreeShipping<span class="chip-rm" onclick="this.parentElement.remove()">×</span></span>
+                        <span class="chip-rokt">#SpringSale<span class="chip-rm" onclick="this.parentElement.remove()">×</span></span>
+                      </div>
+                      <input type="text" placeholder="Add tag, press Enter…" style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;">
+                    </div>
+                    <div class="form-field mb-14">
                       <label>Benefits <span style="font-size:11px;color:var(--green);font-weight:500;">→ unlocks Benefits + Benefits Hero</span></label>
                       <p style="font-size:11px;color:var(--muted-fg);margin:2px 0 10px;">All 3 benefits always render together as a group — Brain does not mix and match individual benefits across impressions. Add multiple sets of 3 to let Brain test different groupings.</p>
                       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
@@ -1630,22 +1645,15 @@ tr:hover .row-actions{opacity:1;}
                       <label>Promotion <span style="font-size:11px;color:var(--green);font-weight:500;">→ unlocks Savings</span></label>
                       <input type="text" id="ag-promo-inp" placeholder="e.g. 20% off, Free shipping" oninput="agUpdateElig()" style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;">
                     </div>
-                    <div class="form-field mb-14">
-                      <label>Callout tags <span style="font-size:11px;color:var(--muted-fg);font-weight:400;">up to 2 render at the same time</span></label>
-                      <div class="chips" id="ag-tag-chips">
-                        <span class="chip-rokt">#FreeShipping<span class="chip-rm" onclick="this.parentElement.remove()">×</span></span>
-                        <span class="chip-rokt">#SpringSale<span class="chip-rm" onclick="this.parentElement.remove()">×</span></span>
-                      </div>
-                      <input type="text" placeholder="Add tag, press Enter…" style="width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;">
-                    </div>
                   </div>
                 </div>
 
                 <!-- Visual assets -->
                 <div class="form-section mt-8">
                   <div class="fs-hdr" onclick="toggleFs('ag-vis')">
-                    <div class="fs-title"><span class="fs-num">3</span>Visual assets</div>
+                    <div class="fs-title"><span class="fs-num">3</span>Visual assets <span class="req">*</span> <span style="font-size:11px;font-weight:400;color:var(--muted-fg);margin-left:4px;">at least 1 image required</span></div>
                     <div class="flex items-center gap-8">
+                      <span class="fs-status" id="ag-vis-status"></span>
                       <span class="chevron" id="ch-ag-vis">▼</span>
                     </div>
                   </div>
@@ -1690,12 +1698,6 @@ tr:hover .row-actions{opacity:1;}
                         <span class="va-tab-label">Brand Logo</span>
                         <span class="va-tab-count" id="va-cnt-logo">0</span>
                         <span class="va-tab-req">Optional · 1:1 + 1.91:1</span>
-                      </div>
-                      <div class="va-ratio-tab" id="va-tab-carousel" onclick="vaSwitch('carousel',this)">
-                        <span class="va-tab-ratio">🎠</span>
-                        <span class="va-tab-label">Carousel</span>
-                        <span class="va-tab-count" id="va-cnt-carousel">0</span>
-                        <span class="va-tab-req">Unlocks Prod. Carousel</span>
                       </div>
                     </div>
 
@@ -1836,30 +1838,64 @@ tr:hover .row-actions{opacity:1;}
                     </div>
 
                     <!-- Panel: Carousel -->
-                    <div class="va-panel" id="va-panel-carousel">
-                      <div class="va-fmt-unlock">
-                        🔓 Unlocks format: <span class="va-fmt-chip">Product Carousel</span>
-                        <span>· Upload 2–10 product images · Recommended 1:1 square</span>
+                  </div>
+                </div>
+
+                <!-- Link Ad Sets + Offers -->
+                <div class="form-section mt-8">
+                  <div class="fs-hdr" onclick="toggleFs('ag-links')"><div class="fs-title"><span class="fs-num">4</span>Link Ad Sets &amp; Offers <span class="req">*</span></div><div class="flex items-center gap-8"><span class="fs-status warn" id="ag-links-status">Selection required</span><span class="chevron" id="ch-ag-links">▼</span></div></div>
+                  <div class="fs-body" id="ag-links">
+
+                    <!-- Link Ad Sets -->
+                    <div class="form-field mb-14">
+                      <label style="font-size:14px;font-weight:700;color:var(--g900);">Link Ad Sets</label>
+                      <div style="position:relative;margin-top:6px;">
+                        <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--g400);font-size:14px;">🔍</span>
+                        <input type="text" id="ag-adset-search" placeholder="Search for an ad set to link" oninput="agFilterAdSets(this.value)" style="width:100%;padding:8px 11px 8px 34px;border:2px solid var(--primary);border-radius:var(--radius);font-size:13px;font-family:inherit;" onclick="document.getElementById('ag-adset-dropdown').style.display='block'">
                       </div>
-                      <div class="va-count-note" id="va-note-carousel">0 of 10 carousel images · min 2 required to unlock format</div>
-                      <div class="va-upload-zone" id="va-zone-carousel"
-                        ondragover="event.preventDefault();this.classList.add('drag-over')"
-                        ondragleave="this.classList.remove('drag-over')"
-                        ondrop="event.preventDefault();this.classList.remove('drag-over');vaSimulateUpload('carousel')">
-                        <span class="va-upload-icon">⬆️</span>
-                        <div class="va-upload-title">Drag &amp; drop product images for carousel</div>
-                        <div class="va-upload-sub">1:1 ratio · 1080×1080px recommended · upload 2–10 images</div>
-                        <div class="va-upload-actions">
-                          <button class="va-upload-btn primary" onclick="event.stopPropagation();vaSimulateUpload('carousel')">Upload images</button>
-                          <span class="va-upload-divider">or</span>
-                          <button class="va-upload-btn secondary" onclick="event.stopPropagation();openAssetLibrary('carousel')">📁 Asset Library</button>
+                      <div id="ag-adset-dropdown" style="border:1px solid var(--border);border-radius:var(--radius);margin-top:2px;background:var(--bg);box-shadow:0 4px 12px rgba(0,0,0,.08);">
+                        <div style="padding:10px 12px;border-bottom:1px solid var(--g100);display:flex;align-items:center;gap:8px;">
+                          <input type="checkbox" id="ag-adset-all" onchange="agToggleAllAdSets(this.checked)" style="width:14px;height:14px;cursor:pointer;">
+                          <label for="ag-adset-all" style="font-size:13px;cursor:pointer;">Select All</label>
                         </div>
-                        <div class="va-upload-spec">JPG · PNG · WebP · Max 5 MB · Min 300 × 300 px</div>
+                        <div id="ag-adset-list">
+                          <div class="ag-adset-row" onclick="agToggleAdSet(this)"><input type="checkbox" style="width:14px;height:14px;cursor:pointer;" onclick="event.stopPropagation();agToggleAdSet(this.closest('.ag-adset-row'))"><span style="font-size:13px;margin-left:8px;">Traffic - All - En</span></div>
+                          <div class="ag-adset-row" onclick="agToggleAdSet(this)"><input type="checkbox" style="width:14px;height:14px;cursor:pointer;" onclick="event.stopPropagation();agToggleAdSet(this.closest('.ag-adset-row'))"><span style="font-size:13px;margin-left:8px;">Traffic - Mobile - En</span></div>
+                          <div class="ag-adset-row" onclick="agToggleAdSet(this)"><input type="checkbox" style="width:14px;height:14px;cursor:pointer;" onclick="event.stopPropagation();agToggleAdSet(this.closest('.ag-adset-row'))"><span style="font-size:13px;margin-left:8px;">Retargeting - High Intent</span></div>
+                          <div class="ag-adset-row" onclick="agToggleAdSet(this)"><input type="checkbox" style="width:14px;height:14px;cursor:pointer;" onclick="event.stopPropagation();agToggleAdSet(this.closest('.ag-adset-row'))"><span style="font-size:13px;margin-left:8px;">Prospecting - Broad</span></div>
+                        </div>
                       </div>
-                      <div class="va-thumb-grid" id="va-grid-carousel">
-                        <div class="va-add-thumb" onclick="vaSimulateUpload('carousel')">
-                          <div style="font-size:20px;">＋</div>
-                          <div>Add image</div>
+                      <div id="ag-adset-selected" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;"></div>
+                    </div>
+
+                    <!-- Link Offers -->
+                    <div class="form-field" style="border-top:1px solid var(--g100);padding-top:14px;">
+                      <label style="font-size:14px;font-weight:700;color:var(--g900);">Link Offers</label>
+                      <div style="position:relative;margin-top:6px;">
+                        <input type="text" id="ag-offer-search" placeholder="Search or select an offer" oninput="agFilterOffers(this.value)" style="width:100%;padding:8px 34px 8px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;" onclick="document.getElementById('ag-offer-dropdown').style.display='block'">
+                        <span style="position:absolute;right:11px;top:50%;transform:translateY(-50%);color:var(--g400);font-size:14px;cursor:help;" title="Select the offer this creative promotes">ⓘ</span>
+                      </div>
+                      <div id="ag-links-offer-err" style="font-size:12px;color:var(--red);margin-top:4px;display:none;">An offer selection is required.</div>
+                      <div id="ag-offer-dropdown" style="border:1px solid var(--border);border-radius:var(--radius);margin-top:2px;background:var(--bg);box-shadow:0 4px 12px rgba(0,0,0,.08);display:none;">
+                        <div id="ag-offer-list">
+                          <div class="ag-offer-opt" onclick="agSelectOffer('Free Delivery Q2 2026')">Free Delivery Q2 2026</div>
+                          <div class="ag-offer-opt" onclick="agSelectOffer('20% Off First Order')">20% Off First Order</div>
+                          <div class="ag-offer-opt" onclick="agSelectOffer('Spring Sale — Flat 15%')">Spring Sale — Flat 15%</div>
+                          <div class="ag-offer-opt" onclick="agSelectOffer('Summer Clearance')">Summer Clearance</div>
+                        </div>
+                      </div>
+                      <div style="margin-top:8px;display:flex;align-items:start;gap:8px;">
+                        <input type="checkbox" id="ag-no-offer-chk" style="width:14px;height:14px;margin-top:2px;cursor:pointer;" onchange="agToggleNoOffer(this.checked)">
+                        <div>
+                          <label for="ag-no-offer-chk" style="font-size:13px;font-weight:500;cursor:pointer;">This creative does not have an offer</label>
+                          <p style="font-size:12px;color:var(--muted-fg);margin:2px 0 0;">Choose this only if the creative does not include a promotion or incentive. You cannot change this selection once the creative is published.</p>
+                        </div>
+                      </div>
+                      <div id="ag-offer-preview" style="margin-top:10px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+                        <div style="padding:10px 12px;background:var(--g50);border-bottom:1px solid var(--g100);font-size:12px;font-weight:600;color:var(--g600);">Offer Overview</div>
+                        <div id="ag-offer-preview-body" style="padding:24px;text-align:center;color:var(--amber);">
+                          <div style="font-size:22px;">⚠</div>
+                          <div style="font-size:13px;font-weight:600;color:var(--g700);margin-top:4px;">No offer selected</div>
                         </div>
                       </div>
                     </div>
@@ -1867,21 +1903,18 @@ tr:hover .row-actions{opacity:1;}
                   </div>
                 </div>
 
-                <!-- Offer -->
+                <!-- More options (optional) -->
                 <div class="form-section mt-8">
-                  <div class="fs-hdr" onclick="toggleFs('ag-offer')"><div class="fs-title"><span class="fs-num">4</span>Offer & distribution</div><div class="flex items-center gap-8"><span class="fs-status done">✓ Complete</span><span class="chevron" id="ch-ag-offer">▼</span></div></div>
+                  <div class="fs-hdr" onclick="toggleFs('ag-offer')"><div class="fs-title"><span class="fs-num">5</span>More options <span style="font-size:11px;font-weight:400;color:var(--muted-fg);margin-left:4px;">optional</span></div><div class="flex items-center gap-8"><span class="chevron" id="ch-ag-offer">▼</span></div></div>
                   <div class="fs-body collapsed" id="ag-offer">
-                    <div class="form-grid mb-14">
-                      <div class="form-field"><label>Linked offer <span class="req">*</span></label><select><option>Free Delivery Q2 2026</option><option>20% Off First Order</option><option>Spring Sale — Flat 15%</option></select></div>
-                      <div class="form-field">
-                        <label>Linked coupon <span style="font-size:11px;color:var(--muted-fg);font-weight:400;">from Resources → Coupons</span></label>
-                        <select>
-                          <option value="">None</option>
-                          <option>SPRING20 — 20% off</option>
-                          <option>FREESHIP — Free shipping</option>
-                          <option>WELCOME15 — 15% off first order</option>
-                        </select>
-                      </div>
+                    <div class="form-field mb-14">
+                      <label>Linked coupon <span style="font-size:11px;color:var(--muted-fg);font-weight:400;">from Resources → Coupons</span></label>
+                      <select>
+                        <option value="">None</option>
+                        <option>SPRING20 — 20% off</option>
+                        <option>FREESHIP — Free shipping</option>
+                        <option>WELCOME15 — 15% off first order</option>
+                      </select>
                     </div>
                     <div class="form-field mb-14">
                       <label>Linked nurture <span style="font-size:11px;color:var(--muted-fg);font-weight:400;">from Resources → Nurture — shown to non-converters</span></label>
@@ -3584,6 +3617,31 @@ function validateAG(){
   if(brandInput && !brandInput.value.trim()){ mark(brandInput, true); errors.push('Brand name is required'); valid=false; } else { mark(brandInput, false); }
   if(urlInput   && !urlInput.value.trim())  { mark(urlInput, true);   errors.push('Destination URL is required'); valid=false; } else { mark(urlInput, false); }
 
+  // Visual assets — at least 1 image
+  const totalImgs = vaGetCount('191')+vaGetCount('11')+vaGetCount('45');
+  if(totalImgs === 0){ errors.push('Add at least one image in Visual assets'); valid=false; }
+
+  // Link Ad Sets — at least 1 selected
+  const hasAdSet = Array.from(document.querySelectorAll('.ag-adset-row')).some(r=>r.classList.contains('selected'));
+  if(!hasAdSet){
+    errors.push('Link at least one Ad Set');
+    const adsetSearch = document.getElementById('ag-adset-search');
+    mark(adsetSearch, true);
+    valid=false;
+  } else { mark(document.getElementById('ag-adset-search'), false); }
+
+  // Link Offers — offer selected or "no offer" checked
+  if(!_selectedOffer){
+    errors.push('Link an offer (or check "This creative does not have an offer")');
+    const offerSearch = document.getElementById('ag-offer-search');
+    mark(offerSearch, true);
+    document.getElementById('ag-links-offer-err').style.display='block';
+    valid=false;
+  } else {
+    mark(document.getElementById('ag-offer-search'), false);
+    document.getElementById('ag-links-offer-err').style.display='none';
+  }
+
   if(!valid){
     // Show or update validation banner
     let banner = document.getElementById('ag-validation-banner');
@@ -3836,10 +3894,80 @@ const vaNames11  = ['square-1.jpg','brand-sq2.jpg','product-sq2.jpg','icon-sq.jp
 const vaNames45  = ['portrait-1.jpg','feed-1.jpg','story-1.jpg','vertical-1.jpg'];
 let vaNewIdx = 0;
 
+// ── LINK AD SETS & OFFERS ──
+let _selectedOffer = '';
+
+function agFilterAdSets(q){
+  document.getElementById('ag-adset-dropdown').style.display='block';
+  const rows = document.querySelectorAll('.ag-adset-row');
+  rows.forEach(r=>{ r.style.display = r.querySelector('span').textContent.toLowerCase().includes(q.toLowerCase())?'':'none'; });
+}
+function agToggleAllAdSets(checked){
+  document.querySelectorAll('.ag-adset-row').forEach(r=>{
+    r.querySelector('input[type="checkbox"]').checked = checked;
+    r.classList.toggle('selected', checked);
+  });
+  agUpdateLinksStatus();
+}
+function agToggleAdSet(row){
+  const chk = row.querySelector('input[type="checkbox"]');
+  chk.checked = !chk.checked;
+  row.classList.toggle('selected', chk.checked);
+  agUpdateLinksStatus();
+}
+function agFilterOffers(q){
+  document.getElementById('ag-offer-dropdown').style.display='block';
+  document.querySelectorAll('.ag-offer-opt').forEach(o=>{ o.style.display=o.textContent.toLowerCase().includes(q.toLowerCase())?'':'none'; });
+}
+function agSelectOffer(name){
+  _selectedOffer = name;
+  const inp = document.getElementById('ag-offer-search');
+  if(inp) inp.value = name;
+  document.getElementById('ag-offer-dropdown').style.display='none';
+  document.getElementById('ag-links-offer-err').style.display='none';
+  document.getElementById('ag-offer-preview-body').innerHTML=`<div style="padding:10px 0;font-size:13px;font-weight:600;color:var(--green);">✓ ${name}</div><div style="font-size:12px;color:var(--muted-fg);">Offer linked successfully.</div>`;
+  agUpdateLinksStatus();
+}
+function agToggleNoOffer(checked){
+  const search = document.getElementById('ag-offer-search');
+  const dropdown = document.getElementById('ag-offer-dropdown');
+  if(checked){
+    _selectedOffer = '__no_offer__';
+    if(search){ search.value=''; search.disabled=true; search.style.opacity='.45'; }
+    if(dropdown) dropdown.style.display='none';
+    document.getElementById('ag-links-offer-err').style.display='none';
+    document.getElementById('ag-offer-preview-body').innerHTML='<div style="padding:10px 0;font-size:13px;color:var(--muted-fg);">No offer — this creative has no promotion or incentive.</div>';
+  } else {
+    _selectedOffer = '';
+    if(search){ search.disabled=false; search.style.opacity=''; }
+  }
+  agUpdateLinksStatus();
+}
+function agUpdateLinksStatus(){
+  const hasAdSet = Array.from(document.querySelectorAll('.ag-adset-row')).some(r=>r.classList.contains('selected'));
+  const hasOffer = !!_selectedOffer;
+  const st = document.getElementById('ag-links-status');
+  if(st){
+    if(hasAdSet && hasOffer){ st.className='fs-status done'; st.textContent='✓ Linked'; }
+    else{ st.className='fs-status warn'; st.textContent='Selection required'; }
+  }
+}
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e){
+  if(!e.target.closest('#ag-adset-search') && !e.target.closest('#ag-adset-dropdown')){
+    const dd = document.getElementById('ag-adset-dropdown');
+    if(dd) dd.style.display='none';
+  }
+  if(!e.target.closest('#ag-offer-search') && !e.target.closest('#ag-offer-dropdown')){
+    const dd = document.getElementById('ag-offer-dropdown');
+    if(dd) dd.style.display='none';
+  }
+});
+
 function vaSwitch(ratio, tab){
   document.querySelectorAll('.va-ratio-tab').forEach(t=>t.classList.remove('active'));
   tab.classList.add('active');
-  ['191','11','45','logo','carousel'].forEach(r=>{
+  ['191','11','45','logo'].forEach(r=>{
     const p = document.getElementById('va-panel-'+r);
     if(p) p.classList.remove('active');
   });
@@ -3877,6 +4005,13 @@ function vaUpdateSummary(){
   if(tc) tc.textContent = total+' image'+(total!==1?'s':'')+' uploaded';
   const fill = document.getElementById('va-count-fill');
   if(fill) fill.style.width = Math.min(100,Math.round(total/20*100))+'%';
+
+  // Visual assets required status badge
+  const visStatus = document.getElementById('ag-vis-status');
+  if(visStatus){
+    if(total > 0){ visStatus.className='fs-status done'; visStatus.textContent='✓ '+total+' image'+(total!==1?'s':''); }
+    else{ visStatus.className='fs-status warn'; visStatus.textContent='⚠ No images uploaded'; }
+  }
 
   // Req pills
   const p191 = document.getElementById('va-pill-191');
