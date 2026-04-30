@@ -633,6 +633,40 @@ tr:hover .row-actions{opacity:1;}
 .big-sub{font-size:12px;color:var(--muted-fg);margin-top:2px;}
 .str-track{background:var(--g100);border-radius:100px;height:5px;overflow:hidden;}
 .str-fill{height:100%;border-radius:100px;}
+/* ── CAMPAIGN LIST & DETAIL ── */
+.camp-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:20px;}
+.camp-tab{
+  padding:10px 18px;font-size:14px;font-weight:500;color:var(--muted-fg);
+  cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;
+  transition:all .15s;
+}
+.camp-tab:hover{color:var(--foreground);}
+.camp-tab.active{color:var(--foreground);border-bottom-color:var(--foreground);font-weight:600;}
+.metric-strip{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:#fff;margin-bottom:16px;}
+.metric-card{padding:16px 20px;border-right:1px solid var(--border);cursor:pointer;transition:background .15s;}
+.metric-card:last-child{border-right:none;}
+.metric-card:hover{background:var(--g50);}
+.metric-card.active{border-bottom:3px solid var(--primary);}
+.metric-label{font-size:12px;color:var(--muted-fg);font-weight:500;margin-bottom:6px;}
+.metric-val{font-size:22px;font-weight:700;color:var(--foreground);}
+.metric-sub{font-size:11px;color:var(--muted-fg);margin-top:3px;}
+.metric-val.green{color:var(--green);}
+.metric-val.dash{color:var(--g300);}
+/* Sparkline chart area */
+.chart-area{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
+.chart-legend{display:flex;gap:20px;margin-bottom:12px;}
+.chart-legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted-fg);}
+.chart-legend-line{width:24px;height:2px;border-radius:1px;}
+.chart-legend-dash{width:24px;height:0;border-top:2px dashed var(--g400);}
+.chart-svg{width:100%;height:160px;}
+/* Budget & schedule cards */
+.camp-cards-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.camp-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;}
+.camp-card-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin-bottom:12px;color:var(--foreground);}
+.camp-card-icon{font-size:15px;}
+.camp-card-val{font-size:15px;font-weight:600;color:var(--foreground);}
+.camp-card-muted{font-size:13px;color:var(--muted-fg);}
+
 .prev-tabs{display:flex;border-bottom:1px solid var(--border);}
 .prev-tab{padding:6px 11px;font-size:12px;font-weight:500;color:var(--muted-fg);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
 .prev-tab.active{color:var(--primary);border-bottom-color:var(--primary);}
@@ -810,13 +844,13 @@ tr:hover .row-actions{opacity:1;}
 
       <!-- Campaigns -->
       <div class="sb-group">
-        <div class="sb-item active expanded" id="sb-campaigns" onclick="sbToggle('campaigns')">
+        <div class="sb-item active expanded" id="sb-campaigns" onclick="navToCampaigns()">
           <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 6.5H1.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5H3l.5 4h1L5 9.5l8 4V2z"/></svg>
           <span>Campaigns</span>
           <span class="sb-arrow">›</span>
         </div>
         <div class="sb-sub" id="sub-campaigns">
-          <div class="sb-sub-item active" id="sbi-adsets" onclick="navTo('adsets')">Ad sets</div>
+          <div class="sb-sub-item" id="sbi-adsets" onclick="navTo('adsets')">Ad sets</div>
           <div class="sb-sub-item" id="sbi-offers" onclick="navTo('offers')">Offers</div>
           <div class="sb-sub-item" id="sbi-creatives" onclick="navTo('creatives')">Creatives</div>
           <div class="sb-sub-item" id="sbi-asset-groups" onclick="navTo('asset-groups')">Asset Groups</div>
@@ -885,8 +919,213 @@ tr:hover .row-actions{opacity:1;}
   <div class="main-inset" id="main-inset">
     <div class="main-inset-inner">
 
+      <!-- ─── CAMPAIGNS LIST ─── -->
+      <div id="view-campaigns" class="view active">
+        <div class="page-header">
+          <div><h1>Campaigns</h1></div>
+          <div class="page-header-right">
+            <div class="date-tabs">
+              <button class="date-tab">1d</button>
+              <button class="date-tab">7d</button>
+              <button class="date-tab active">30d</button>
+              <button class="date-tab-cal">📅 Apr 1 – Apr 30</button>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="goTo('wizard-step1')">+ New Campaign</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <div class="toolbar-search"><span style="color:var(--muted-fg);font-size:13px;">🔍</span><input type="text" placeholder="Search campaigns…"></div>
+          <button class="btn btn-secondary btn-sm">Filter</button>
+          <button class="btn btn-secondary btn-sm">Segment</button>
+          <button class="btn btn-secondary btn-sm">Display</button>
+          <div class="toolbar-spacer"></div>
+          <div class="btn-icon">⬇</div>
+        </div>
+        <div class="table-card">
+          <div class="tbl-scroll">
+            <table class="tbl">
+              <thead><tr>
+                <th>Campaign Name ↕</th><th>Status</th><th>Budget</th>
+                <th>Type ↕</th><th>Objective ↕</th><th>Trend</th>
+                <th style="text-align:right;">Total Spend</th>
+                <th style="text-align:right;">Impressions</th>
+                <th style="text-align:right;">Referrals</th>
+                <th style="text-align:right;">Acquisitions</th>
+                <th style="text-align:right;">CoPI</th>
+              </tr></thead>
+              <tbody>
+                <tr style="background:var(--g50);font-size:12px;color:var(--muted-fg);">
+                  <td colspan="6"><strong>Totals</strong></td>
+                  <td class="num-cell">$36,600</td><td class="num-cell">1.46M</td><td class="num-cell">2,117</td><td class="num-cell">2,117</td><td class="num-cell">$17.29</td>
+                </tr>
+                <tr onclick="openCampaign('Acme Spring Sale 2026','Active')" style="cursor:pointer;">
+                  <td><div class="cell-name">Acme Spring Sale 2026</div></td>
+                  <td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td>
+                  <td style="font-size:12px;">$50,000</td>
+                  <td style="font-size:12px;">Managed</td>
+                  <td style="font-size:12px;">Acquisition</td>
+                  <td><svg width="60" height="24" viewBox="0 0 60 24"><polyline points="0,20 10,18 20,14 30,10 40,8 50,6 60,4" fill="none" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round"/></svg></td>
+                  <td class="num-cell">$22,400</td><td class="num-cell">820K</td><td class="num-cell">1,681</td><td class="num-cell">1,681</td><td class="num-cell">$13.33</td>
+                </tr>
+                <tr onclick="openCampaign('Acme Brand Awareness Q2','Active')" style="cursor:pointer;">
+                  <td><div class="cell-name">Acme Brand Awareness Q2</div></td>
+                  <td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td>
+                  <td style="font-size:12px;">$30,000</td>
+                  <td style="font-size:12px;">Managed</td>
+                  <td style="font-size:12px;">Awareness</td>
+                  <td><svg width="60" height="24" viewBox="0 0 60 24"><polyline points="0,16 10,14 20,16 30,12 40,14 50,10 60,8" fill="none" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round"/></svg></td>
+                  <td class="num-cell">$14,200</td><td class="num-cell">640K</td><td class="num-cell">436</td><td class="num-cell">436</td><td class="num-cell">$32.57</td>
+                </tr>
+                <tr onclick="openCampaign('Holiday Retargeting','Inactive')" style="cursor:pointer;">
+                  <td><div class="cell-name">Holiday Retargeting</div></td>
+                  <td><span class="badge badge-gray">Inactive</span></td>
+                  <td style="font-size:12px;">$20,000</td>
+                  <td style="font-size:12px;">Managed</td>
+                  <td style="font-size:12px;">Traffic</td>
+                  <td><svg width="60" height="24" viewBox="0 0 60 24"><polyline points="0,8 10,6 20,8 30,20 40,20 50,20 60,20" fill="none" stroke="var(--g300)" stroke-width="1.5" stroke-linecap="round"/></svg></td>
+                  <td class="num-cell" style="color:var(--muted-fg);">—</td><td class="num-cell" style="color:var(--muted-fg);">—</td><td class="num-cell" style="color:var(--muted-fg);">—</td><td class="num-cell" style="color:var(--muted-fg);">—</td><td class="num-cell" style="color:var(--muted-fg);">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="padding:10px 16px;font-size:12px;color:var(--muted-fg);border-top:1px solid var(--border);">3 campaigns</div>
+        </div>
+      </div>
+
+      <!-- ─── CAMPAIGN DETAIL ─── -->
+      <div id="view-campaign-detail" class="view">
+        <div style="margin-bottom:16px;">
+          <div class="back-link" onclick="goBack()" style="margin-bottom:6px;">← All campaigns</div>
+          <div class="flex justify-between items-center">
+            <div>
+              <h1 style="font-size:20px;font-weight:700;" id="camp-detail-title">Acme Spring Sale 2026</h1>
+              <div style="font-size:13px;color:var(--muted-fg);margin-top:2px;" id="camp-detail-dates">Apr 1, 2026 — Apr 30, 2026</div>
+            </div>
+            <div class="flex gap-8 items-center">
+              <span id="camp-detail-badge"><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></span>
+              <div class="date-tabs">
+                <button class="date-tab">1d</button>
+                <button class="date-tab">7d</button>
+                <button class="date-tab active">30d</button>
+                <button class="date-tab-cal">📅 Apr 1 – Apr 30</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Campaign tabs -->
+        <div class="camp-tabs">
+          <div class="camp-tab active" id="ctab-overview" onclick="switchCampTab('overview',this)">Overview</div>
+          <div class="camp-tab" id="ctab-adsets" onclick="switchCampTab('adsets',this)">Ad Sets</div>
+          <div class="camp-tab" id="ctab-creatives" onclick="switchCampTab('creatives',this)">Creatives</div>
+          <div class="camp-tab" id="ctab-offers" onclick="switchCampTab('offers',this)">Offers</div>
+        </div>
+
+        <!-- Overview panel -->
+        <div id="cpanel-overview">
+          <div class="metric-strip">
+            <div class="metric-card active"><div class="metric-label">Total Spend</div><div class="metric-val" id="cd-spend">$22,400</div></div>
+            <div class="metric-card"><div class="metric-label">Impressions</div><div class="metric-val" id="cd-impr">820K</div></div>
+            <div class="metric-card"><div class="metric-label">Referrals</div><div class="metric-val" id="cd-ref">1,681</div></div>
+            <div class="metric-card"><div class="metric-label">Acquisitions</div><div class="metric-val" id="cd-acq">1,681</div></div>
+            <div class="metric-card"><div class="metric-label">CoPI</div><div class="metric-val" id="cd-copi">$13.33</div></div>
+          </div>
+
+          <div class="chart-area">
+            <div class="chart-legend">
+              <div class="chart-legend-item"><div class="chart-legend-dash"></div>Previous period</div>
+              <div class="chart-legend-item"><div class="chart-legend-line" style="background:var(--primary);"></div>Total Spend</div>
+            </div>
+            <svg class="chart-svg" viewBox="0 0 800 160" preserveAspectRatio="none">
+              <!-- Grid lines -->
+              <line x1="0" y1="40" x2="800" y2="40" stroke="var(--g100)" stroke-width="1"/>
+              <line x1="0" y1="80" x2="800" y2="80" stroke="var(--g100)" stroke-width="1"/>
+              <line x1="0" y1="120" x2="800" y2="120" stroke="var(--g100)" stroke-width="1"/>
+              <!-- Y labels -->
+              <text x="4" y="38" font-size="10" fill="var(--g400)">4</text>
+              <text x="4" y="78" font-size="10" fill="var(--g400)">3</text>
+              <text x="4" y="118" font-size="10" fill="var(--g400)">2</text>
+              <text x="4" y="155" font-size="10" fill="var(--g400)">1</text>
+              <!-- Previous period dashed -->
+              <polyline points="20,130 80,125 140,128 200,122 260,118 320,120 380,115 440,118 500,112 560,116 620,110 680,108 760,105" fill="none" stroke="var(--g300)" stroke-width="1.5" stroke-dasharray="4,3"/>
+              <!-- Total Spend solid -->
+              <polyline points="20,155 80,152 140,148 200,140 260,130 320,118 380,110 440,105 500,98 560,92 620,85 680,78 760,70" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- Dots -->
+              <circle cx="20" cy="155" r="3" fill="var(--primary)"/>
+              <circle cx="760" cy="70" r="3" fill="var(--primary)"/>
+              <!-- X labels -->
+              <text x="14" y="158" font-size="9" fill="var(--g400)" text-anchor="middle" transform="translate(0,8)">Apr 1</text>
+              <text x="154" y="158" font-size="9" fill="var(--g400)" text-anchor="middle" transform="translate(0,8)">Apr 8</text>
+              <text x="294" y="158" font-size="9" fill="var(--g400)" text-anchor="middle" transform="translate(0,8)">Apr 15</text>
+              <text x="434" y="158" font-size="9" fill="var(--g400)" text-anchor="middle" transform="translate(0,8)">Apr 22</text>
+              <text x="760" y="158" font-size="9" fill="var(--g400)" text-anchor="middle" transform="translate(0,8)">Apr 30</text>
+            </svg>
+          </div>
+
+          <div class="camp-cards-row">
+            <div class="camp-card">
+              <div class="camp-card-title"><span class="camp-card-icon">💰</span>Budget Utilization</div>
+              <div class="camp-card-val" id="cd-budget-val">$22,400 spent of $50,000</div>
+              <div style="margin:10px 0 6px;"><div class="str-track" style="height:8px;"><div class="str-fill" id="cd-budget-bar" style="width:44.8%;background:var(--primary);"></div></div></div>
+              <div class="camp-card-muted">44.8% utilised · 30 days remaining</div>
+            </div>
+            <div class="camp-card">
+              <div class="camp-card-title"><span class="camp-card-icon">📅</span>Schedule</div>
+              <div class="camp-card-val" id="cd-schedule">Apr 1, 2026 — Apr 30, 2026</div>
+              <div class="camp-card-muted" style="margin-top:6px;">30-day campaign · no end-date cap</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ad Sets panel -->
+        <div id="cpanel-adsets" style="display:none;">
+          <div class="table-card">
+            <div class="tbl-scroll">
+              <table class="tbl">
+                <thead><tr><th>Ad set</th><th>Type</th><th>Status</th><th style="text-align:right;">CVR</th><th style="text-align:right;">Acquisitions</th><th style="text-align:right;">Gross cost</th><th></th></tr></thead>
+                <tbody>
+                  <tr><td><div class="cell-name">New Customer Acquisition</div><div class="cell-sub">⚡ Dynamic · 2 Asset Groups · 720 combos</div></td><td><span class="badge badge-rokt">⚡ Asset Group</span></td><td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td><td class="num-cell">4.2%</td><td class="num-cell">1,681</td><td class="num-cell">$36,200</td><td><div class="row-actions"><button class="row-btn" onclick="goTo('creative-choice')">+ Creative</button><button class="row-btn">Edit</button></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Creatives panel -->
+        <div id="cpanel-creatives" style="display:none;">
+          <div style="margin-bottom:12px;display:flex;justify-content:flex-end;">
+            <button class="btn btn-primary btn-sm" onclick="goTo('creative-choice')">+ New creative</button>
+          </div>
+          <div class="table-card">
+            <div class="tbl-scroll">
+              <table class="tbl">
+                <thead><tr><th>Creative</th><th>Type</th><th>Strength</th><th>Status</th><th style="text-align:right;">CVR</th><th style="text-align:right;">Acquisitions</th><th></th></tr></thead>
+                <tbody>
+                  <tr onclick="goToAGEdit('Free Delivery — Spring Sale')" style="cursor:pointer;"><td><div class="cell-name">Free Delivery — Spring Sale</div><div class="cell-sub">⚡ Asset Group · 720 combinations</div></td><td><span class="badge badge-rokt">⚡ Asset Group</span></td><td><span class="badge badge-blue">Good · 72%</span></td><td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td><td class="num-cell">4.8%</td><td class="num-cell">1,024</td><td><div class="row-actions"><button class="row-btn" onclick="event.stopPropagation();goToAGEdit('Free Delivery — Spring Sale')">Edit</button></div></td></tr>
+                  <tr onclick="openManualCreative('benefits','Holiday Promo — Benefits','Paused')" style="cursor:pointer;"><td><div class="cell-name">Holiday Promo — Benefits</div><div class="cell-sub">🎛 Manual · Benefits format only</div></td><td><span class="badge badge-gray">🎛 Manual</span></td><td>—</td><td><span class="badge badge-amber"><span class="badge-dot badge-dot-amber"></span>Paused</span></td><td class="num-cell">3.6%</td><td class="num-cell">436</td><td><div class="row-actions"><button class="row-btn" onclick="event.stopPropagation();openManualCreative('benefits','Holiday Promo — Benefits','Paused')">Edit</button></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Offers panel -->
+        <div id="cpanel-offers" style="display:none;">
+          <div class="table-card">
+            <div class="tbl-scroll">
+              <table class="tbl">
+                <thead><tr><th>Offer</th><th>Type</th><th>Status</th><th style="text-align:right;">Referrals</th><th style="text-align:right;">CVR</th><th></th></tr></thead>
+                <tbody>
+                  <tr><td><div class="cell-name">Free Delivery Q2 2026</div><div class="cell-sub">Standard offer</div></td><td><span class="badge badge-gray">Standard</span></td><td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td><td class="num-cell">1,681</td><td class="num-cell">4.8%</td><td><div class="row-actions"><button class="row-btn">Edit</button></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- ─── AD SETS VIEW ─── -->
-      <div id="view-adsets" class="view active">
+      <div id="view-adsets" class="view">
         <div class="page-header">
           <div>
             <h1>Ad sets</h1>
@@ -2448,7 +2687,7 @@ tr:hover .row-actions{opacity:1;}
 
 <script>
 // ── STATE ──
-let currentView = 'adsets';
+let currentView = 'campaigns';
 let viewHistory = [];
 let agComboIdx = 0;
 let agComboTotal = 192;
@@ -2495,6 +2734,60 @@ function navTo(section, group){
   if(!grpSub && grpItem) grpItem.classList.add('active');
   viewHistory = [];
   showView(section);
+}
+
+// ── CAMPAIGNS ──
+function navToCampaigns(){
+  document.querySelectorAll('.sb-sub-item').forEach(i=>i.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  const campItem = document.getElementById('sb-campaigns');
+  if(campItem){ campItem.classList.add('active','expanded'); }
+  const campSub = document.getElementById('sub-campaigns');
+  if(campSub) campSub.classList.remove('collapsed');
+  viewHistory = [];
+  showView('campaigns');
+}
+
+function openCampaign(name, status){
+  document.getElementById('camp-detail-title').textContent = name;
+  const isActive = status === 'Active';
+  const badge = document.getElementById('camp-detail-badge');
+  if(badge){
+    badge.innerHTML = isActive
+      ? '<span class="badge badge-green"><span class="badge-dot badge-dot-green"></span> Active</span>'
+      : '<span class="badge badge-gray"> Inactive</span>';
+  }
+  // Populate metrics per campaign
+  const data = {
+    'Acme Spring Sale 2026':      { spend:'$22,400', impr:'820K', ref:'14,200', acq:'1,681', copi:'$13.33', budSpent:'$22,400 spent of $50,000', budPct:'44.8', dates:'Jan 15 – Jun 30, 2026' },
+    'Acme Brand Awareness Q2':    { spend:'$9,800',  impr:'410K', ref:'6,300',  acq:'740',   copi:'$13.24', budSpent:'$9,800 spent of $30,000',  budPct:'32.7', dates:'Apr 1 – Jun 30, 2026' },
+    'Holiday Retargeting':        { spend:'$41,000', impr:'1.2M', ref:'28,400', acq:'3,920', copi:'$10.46', budSpent:'$41,000 spent of $40,000', budPct:'100',  dates:'Nov 1 – Dec 31, 2025' },
+  };
+  const d = data[name] || data['Acme Spring Sale 2026'];
+  const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  set('cd-spend', d.spend);
+  set('cd-impr',  d.impr);
+  set('cd-ref',   d.ref);
+  set('cd-acq',   d.acq);
+  set('cd-copi',  d.copi);
+  set('cd-budget-val', d.budSpent);
+  const bar = document.getElementById('cd-budget-bar');
+  if(bar) bar.style.width = Math.min(parseFloat(d.budPct),100) + '%';
+  const datesEl = document.getElementById('camp-detail-dates');
+  if(datesEl) datesEl.textContent = d.dates;
+  // Reset to overview tab
+  switchCampTab('overview', document.getElementById('ctab-overview'));
+  viewHistory.push(currentView);
+  showView('campaign-detail');
+}
+
+function switchCampTab(panel, tabEl){
+  document.querySelectorAll('.camp-tab').forEach(t=>t.classList.remove('active'));
+  if(tabEl) tabEl.classList.add('active');
+  ['overview','adsets','creatives','offers'].forEach(p=>{
+    const el = document.getElementById('cpanel-'+p);
+    if(el) el.style.display = (p === panel) ? '' : 'none';
+  });
 }
 
 // ── NAVIGATION ──
