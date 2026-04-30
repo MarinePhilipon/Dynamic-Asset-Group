@@ -831,7 +831,7 @@ tr:hover .row-actions{opacity:1;}
           <span class="sb-arrow">›</span>
         </div>
         <div class="sb-sub collapsed" id="sub-audiences">
-          <div class="sb-sub-item" onclick="">Custom Audiences</div>
+          <div class="sb-sub-item" id="sbi-audiences" onclick="navTo('audiences','audiences')">Custom Audiences</div>
         </div>
       </div>
 
@@ -843,15 +843,15 @@ tr:hover .row-actions{opacity:1;}
           <span class="sb-arrow">›</span>
         </div>
         <div class="sb-sub collapsed" id="sub-resources">
-          <div class="sb-sub-item" onclick="">Asset Library</div>
-          <div class="sb-sub-item" onclick="">Coupons</div>
-          <div class="sb-sub-item" onclick="">Nurture</div>
+          <div class="sb-sub-item" id="sbi-asset-library" onclick="navTo('asset-library','resources')">Asset Library</div>
+          <div class="sb-sub-item" id="sbi-coupons" onclick="navTo('coupons','resources')">Coupons</div>
+          <div class="sb-sub-item" id="sbi-nurture" onclick="navTo('nurture','resources')">Nurture</div>
         </div>
       </div>
 
       <!-- Experimentation -->
       <div class="sb-group">
-        <div class="sb-item" id="sb-experimentation" onclick="">
+        <div class="sb-item" id="sb-experimentation" onclick="navTo('experiments','experimentation')">
           <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2v6L2 13h12L11 8V2"/><line x1="4" y1="2" x2="12" y2="2"/></svg>
           <span>Experimentation</span>
         </div>
@@ -859,7 +859,7 @@ tr:hover .row-actions{opacity:1;}
 
       <!-- Insights -->
       <div class="sb-group">
-        <div class="sb-item" id="sb-insights" onclick="">
+        <div class="sb-item" id="sb-insights" onclick="navTo('insights','insights')">
           <svg class="sb-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="9" width="3" height="5" rx=".5"/><rect x="6" y="5" width="3" height="9" rx=".5"/><rect x="11" y="2" width="3" height="12" rx=".5"/></svg>
           <span>Insights</span>
         </div>
@@ -1646,7 +1646,7 @@ tr:hover .row-actions{opacity:1;}
               <button class="date-tab">30d</button>
               <button class="date-tab-cal">📅 Apr 23 – Apr 29</button>
             </div>
-            <button class="btn btn-secondary btn-sm" onclick="goTo('view-experiments')">⚗ Experiments</button>
+            <button class="btn btn-secondary btn-sm" onclick="goTo('experiments')">⚗ Experiments</button>
             <button class="btn btn-primary btn-sm" onclick="goToAGNew()">+ New Asset Group</button>
           </div>
         </div>
@@ -1676,7 +1676,7 @@ tr:hover .row-actions{opacity:1;}
                 <th></th>
               </tr></thead>
               <tbody>
-                <tr onclick="goTo('ag-editor')">
+                <tr onclick="goToAGEdit('Free Delivery — Spring Sale')">
                   <td>
                     <div class="cell-name">Free Delivery — Spring Sale</div>
                     <div class="cell-sub">4 titles · 2 desc · 3 CTAs · 4 images</div>
@@ -1712,7 +1712,7 @@ tr:hover .row-actions{opacity:1;}
                     </div>
                   </td>
                 </tr>
-                <tr onclick="goTo('ag-editor')">
+                <tr onclick="goToAGEdit('20% Off First Order')">
                   <td>
                     <div class="cell-name">20% Off First Order</div>
                     <div class="cell-sub">3 titles · 2 desc · 2 CTAs · 3 images</div>
@@ -1764,6 +1764,134 @@ tr:hover .row-actions{opacity:1;}
         </div>
       </div>
 
+
+      <!-- ─── CUSTOM AUDIENCES ─── -->
+      <div id="view-audiences" class="view">
+        <div class="page-header">
+          <div><h1>Custom Audiences</h1><div class="ph-sub">Acme Co. · Segment and target your customers</div></div>
+          <button class="btn btn-primary btn-sm">+ New audience</button>
+        </div>
+        <div class="table-card">
+          <div class="tbl-scroll">
+            <table class="tbl">
+              <thead><tr><th>Audience</th><th>Type</th><th>Size</th><th>Status</th><th>Used in</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><div class="cell-name">Spring Sale Purchasers</div><div class="cell-sub">Purchased in last 30 days</div></td><td><span class="badge badge-blue">Customer list</span></td><td class="num-cell">42,300</td><td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td><td style="font-size:12px;">3 ad sets</td><td><div class="row-actions"><button class="row-btn">Edit</button></div></td></tr>
+                <tr><td><div class="cell-name">Lapsed — 90 days</div><div class="cell-sub">No purchase in 90+ days</div></td><td><span class="badge badge-blue">Customer list</span></td><td class="num-cell">18,750</td><td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td><td style="font-size:12px;">1 ad set</td><td><div class="row-actions"><button class="row-btn">Edit</button></div></td></tr>
+                <tr><td><div class="cell-name">High-value lookalike</div><div class="cell-sub">Similar to top 10% of customers</div></td><td><span class="badge badge-rokt">Lookalike</span></td><td class="num-cell">210,000</td><td><span class="badge badge-amber"><span class="badge-dot badge-dot-amber"></span>Building</span></td><td style="font-size:12px;">—</td><td><div class="row-actions"><button class="row-btn">Edit</button></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── ASSET LIBRARY ─── -->
+      <div id="view-asset-library" class="view">
+        <div class="page-header">
+          <div><h1>Asset Library</h1><div class="ph-sub">Acme Co. · Reusable images across all asset groups</div></div>
+          <button class="btn btn-primary btn-sm" onclick="openAssetLibrary('191')">+ Upload assets</button>
+        </div>
+        <div class="stat-strip">
+          <div class="stat-cell"><div class="stat-label">Total assets</div><div class="stat-val">9</div><div class="stat-sub">Across 3 ratios</div></div>
+          <div class="stat-cell"><div class="stat-label">1.91:1 Landscape</div><div class="stat-val">4</div><div class="stat-sub">Used in 2 groups</div></div>
+          <div class="stat-cell"><div class="stat-label">1:1 Square</div><div class="stat-val">3</div><div class="stat-sub">Used in 2 groups</div></div>
+          <div class="stat-cell"><div class="stat-label">4:5 Portrait</div><div class="stat-val">2</div><div class="stat-sub">Used in 0 groups</div></div>
+        </div>
+        <div class="table-card">
+          <div class="tbl-scroll">
+            <table class="tbl">
+              <thead><tr><th>Asset</th><th>Ratio</th><th>Dimensions</th><th>Rating</th><th>Used in</th><th style="text-align:right;">CVR vs avg</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><div style="display:flex;align-items:center;gap:10px;"><div class="va-thumb-img r191 photo-a" style="width:60px;border-radius:4px;flex-shrink:0;"></div><div class="cell-name">lifestyle-1.jpg</div></div></td><td><span class="badge badge-gray">1.91:1</span></td><td style="font-size:12px;">1280×672</td><td><span class="perf-pill perf-best" style="margin:0;">●Best</span></td><td style="font-size:12px;">Free Delivery AG</td><td class="num-cell" style="color:var(--green);">+16.7%</td><td><div class="row-actions"><button class="row-btn">Use in AG</button></div></td></tr>
+                <tr><td><div style="display:flex;align-items:center;gap:10px;"><div class="va-thumb-img r191 photo-b" style="width:60px;border-radius:4px;flex-shrink:0;"></div><div class="cell-name">lifestyle-2.jpg</div></div></td><td><span class="badge badge-gray">1.91:1</span></td><td style="font-size:12px;">1280×672</td><td><span class="perf-pill perf-good" style="margin:0;">●Good</span></td><td style="font-size:12px;">Free Delivery AG</td><td class="num-cell">+0.0%</td><td><div class="row-actions"><button class="row-btn">Use in AG</button></div></td></tr>
+                <tr><td><div style="display:flex;align-items:center;gap:10px;"><div class="va-thumb-img r11 photo-c" style="width:40px;border-radius:4px;flex-shrink:0;aspect-ratio:1;"></div><div class="cell-name">product-sq.jpg</div></div></td><td><span class="badge badge-gray">1:1</span></td><td style="font-size:12px;">1080×1080</td><td><span class="perf-pill perf-good" style="margin:0;">●Good</span></td><td style="font-size:12px;">Free Delivery AG</td><td class="num-cell" style="color:var(--red);">-10.4%</td><td><div class="row-actions"><button class="row-btn">Use in AG</button></div></td></tr>
+                <tr><td><div style="display:flex;align-items:center;gap:10px;"><div class="va-thumb-img r11 photo-d" style="width:40px;border-radius:4px;flex-shrink:0;aspect-ratio:1;"></div><div class="cell-name">brand-sq.jpg</div></div></td><td><span class="badge badge-gray">1:1</span></td><td style="font-size:12px;">1080×1080</td><td><span class="perf-pill perf-low" style="margin:0;">●Low</span></td><td style="font-size:12px;">Free Delivery AG</td><td class="num-cell" style="color:var(--red);">-56.3%</td><td><div class="row-actions"><button class="row-btn">Replace</button></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── COUPONS ─── -->
+      <div id="view-coupons" class="view">
+        <div class="page-header">
+          <div><h1>Coupons</h1><div class="ph-sub">Acme Co. · Manage discount codes linked to your creatives</div></div>
+          <button class="btn btn-primary btn-sm">+ New coupon</button>
+        </div>
+        <div class="table-card">
+          <div class="tbl-scroll">
+            <table class="tbl">
+              <thead><tr><th>Coupon</th><th>Discount</th><th>Status</th><th>Expiry</th><th>Linked to</th><th style="text-align:right;">Uses</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><div class="cell-name">SPRING20</div><div class="cell-sub">Spring sale campaign</div></td><td style="font-size:13px;font-weight:600;">20% off</td><td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td><td style="font-size:12px;">Jun 30, 2026</td><td style="font-size:12px;">Free Delivery AG</td><td class="num-cell">1,204</td><td><div class="row-actions"><button class="row-btn">Edit</button></div></td></tr>
+                <tr><td><div class="cell-name">FREESHIP</div><div class="cell-sub">Free shipping promotion</div></td><td style="font-size:13px;font-weight:600;">Free shipping</td><td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td><td style="font-size:12px;">May 31, 2026</td><td style="font-size:12px;">20% Off AG</td><td class="num-cell">843</td><td><div class="row-actions"><button class="row-btn">Edit</button></div></td></tr>
+                <tr><td><div class="cell-name">WELCOME15</div><div class="cell-sub">New customer offer</div></td><td style="font-size:13px;font-weight:600;">15% off first order</td><td><span class="badge badge-amber"><span class="badge-dot badge-dot-amber"></span>Paused</span></td><td style="font-size:12px;">Dec 31, 2026</td><td style="font-size:12px;">—</td><td class="num-cell">312</td><td><div class="row-actions"><button class="row-btn">Edit</button></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── NURTURE ─── -->
+      <div id="view-nurture" class="view">
+        <div class="page-header">
+          <div><h1>Nurture</h1><div class="ph-sub">Acme Co. · Follow-up sequences for non-converters from your creatives</div></div>
+          <button class="btn btn-primary btn-sm">+ New sequence</button>
+        </div>
+        <div class="stat-strip">
+          <div class="stat-cell"><div class="stat-label">Active sequences</div><div class="stat-val">3</div><div class="stat-sub">Running</div></div>
+          <div class="stat-cell"><div class="stat-label">Contacts entered</div><div class="stat-val">8,420</div><div class="stat-sub">Last 30 days</div></div>
+          <div class="stat-cell"><div class="stat-label">Avg conversion rate</div><div class="stat-val green">12.4%</div><div class="stat-sub">From nurture</div></div>
+          <div class="stat-cell"><div class="stat-label">Incremental lift</div><div class="stat-val primary">+18%</div><div class="stat-sub">vs no follow-up</div></div>
+        </div>
+        <div class="table-card">
+          <div class="tbl-scroll">
+            <table class="tbl">
+              <thead><tr><th>Sequence</th><th>Channel</th><th>Steps</th><th>Trigger</th><th>Status</th><th style="text-align:right;">Entered</th><th style="text-align:right;">CVR</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><div class="cell-name">Spring Sale Winback</div><div class="cell-sub">Linked to: Free Delivery AG</div></td><td><span class="badge badge-blue">Email</span></td><td style="font-size:12px;">3 steps</td><td style="font-size:12px;">Non-convert after AG impression</td><td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td><td class="num-cell">4,210</td><td class="num-cell">13.2%</td><td><div class="row-actions"><button class="row-btn">Edit</button><button class="row-btn">View flow</button></div></td></tr>
+                <tr><td><div class="cell-name">Free Delivery Reminder</div><div class="cell-sub">Linked to: Free Delivery AG</div></td><td><span class="badge badge-rokt">Push</span></td><td style="font-size:12px;">2 steps</td><td style="font-size:12px;">Non-convert after 24h</td><td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td><td class="num-cell">2,840</td><td class="num-cell">11.8%</td><td><div class="row-actions"><button class="row-btn">Edit</button><button class="row-btn">View flow</button></div></td></tr>
+                <tr><td><div class="cell-name">Cart Abandonment</div><div class="cell-sub">Linked to: 20% Off AG</div></td><td><span class="badge badge-blue">Email</span></td><td style="font-size:12px;">4 steps</td><td style="font-size:12px;">Non-convert after AG impression</td><td><span class="badge badge-green"><span class="badge-dot badge-dot-green"></span>Active</span></td><td class="num-cell">1,370</td><td class="num-cell">12.1%</td><td><div class="row-actions"><button class="row-btn">Edit</button><button class="row-btn">View flow</button></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── INSIGHTS ─── -->
+      <div id="view-insights" class="view">
+        <div class="page-header">
+          <div><h1>Insights</h1><div class="ph-sub">Acme Co. · Cross-campaign intelligence from Rokt Brain</div></div>
+          <div class="page-header-right">
+            <div class="date-tabs"><button class="date-tab">1d</button><button class="date-tab active">7d</button><button class="date-tab">30d</button><button class="date-tab-cal">📅 Apr 23–29</button></div>
+          </div>
+        </div>
+        <div class="stat-strip">
+          <div class="stat-cell"><div class="stat-label">Total CVR</div><div class="stat-val green">3.9%</div><div class="stat-sub">+11% vs last period</div></div>
+          <div class="stat-cell"><div class="stat-label">Total acquisitions</div><div class="stat-val">2,117</div><div class="stat-sub">Last 7 days</div></div>
+          <div class="stat-cell"><div class="stat-label">Impressions</div><div class="stat-val">1.4M</div><div class="stat-sub">All campaigns</div></div>
+          <div class="stat-cell"><div class="stat-label">Gross revenue</div><div class="stat-val">$94,200</div><div class="stat-sub">Last 7 days</div></div>
+          <div class="stat-cell"><div class="stat-label">ROAS</div><div class="stat-val primary">4.2×</div><div class="stat-sub">vs 3.8× last period</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="table-card">
+            <div style="padding:10px 16px;background:var(--g50);border-bottom:1px solid var(--border);"><span style="font-size:12px;font-weight:600;color:var(--muted-fg);">TOP PERFORMING CREATIVES</span></div>
+            <div class="tbl-scroll"><table class="tbl"><thead><tr><th>Creative</th><th style="text-align:right;">CVR</th><th style="text-align:right;">Acq.</th></tr></thead><tbody>
+              <tr><td><div class="cell-name">Free Delivery — Spring Sale</div><div class="cell-sub">⚡ Asset Group</div></td><td class="num-cell" style="color:var(--green);font-weight:600;">4.8%</td><td class="num-cell">1,024</td></tr>
+              <tr><td><div class="cell-name">Holiday Promo — Benefits</div><div class="cell-sub">🎛 Manual</div></td><td class="num-cell">3.6%</td><td class="num-cell">436</td></tr>
+              <tr><td><div class="cell-name">Brand Awareness — Text</div><div class="cell-sub">🎛 Manual</div></td><td class="num-cell">2.9%</td><td class="num-cell">522</td></tr>
+            </tbody></table></div>
+          </div>
+          <div class="table-card">
+            <div style="padding:10px 16px;background:var(--g50);border-bottom:1px solid var(--border);"><span style="font-size:12px;font-weight:600;color:var(--muted-fg);">🧠 BRAIN INSIGHTS</span></div>
+            <div style="padding:0;">
+              <div style="padding:12px 14px;border-bottom:1px solid var(--border);"><div style="font-size:12px;font-weight:600;margin-bottom:3px;">Dynamic beats static by 31%</div><div style="font-size:11px;color:var(--muted-fg);">Asset Groups outperform Manual creatives on CVR across all campaigns this week.</div></div>
+              <div style="padding:12px 14px;border-bottom:1px solid var(--border);"><div style="font-size:12px;font-weight:600;margin-bottom:3px;">Text Hero is your best format</div><div style="font-size:11px;color:var(--muted-fg);">5.4% CVR — consider adding 1.91:1 images to all asset groups to unlock it.</div></div>
+              <div style="padding:12px 14px;"><div style="font-size:12px;font-weight:600;margin-bottom:3px;">Nurture lifts total CVR by 18%</div><div style="font-size:11px;color:var(--muted-fg);">Non-converters who enter a nurture sequence are 18% more likely to purchase within 14 days.</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- ─── EXPERIMENTS ─── -->
       <div id="view-experiments" class="view">
@@ -2341,17 +2469,30 @@ function sbToggle(section){
 }
 
 // ── NAV: navigate to a main section ──
-function navTo(section){
-  // Update sidebar sub-items
+function navTo(section, group){
+  // Clear all active states
   document.querySelectorAll('.sb-sub-item').forEach(i=>i.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  // Mark active sub-item
   const sbi = document.getElementById('sbi-'+section);
   if(sbi) sbi.classList.add('active');
-  // Expand campaigns section if navigating to a sub-item
-  const campSub = document.getElementById('sub-campaigns');
-  if(campSub) campSub.classList.remove('collapsed');
-  const campItem = document.getElementById('sb-campaigns');
-  if(campItem){ campItem.classList.add('active','expanded'); }
-  // Show view
+  // Expand correct sidebar group and mark its top-level item active
+  const grp = group || 'campaigns';
+  const grpSub = document.getElementById('sub-'+grp);
+  const grpItem = document.getElementById('sb-'+grp);
+  // Collapse all other groups first
+  ['campaigns','audiences','resources'].forEach(g=>{
+    if(g !== grp){
+      const s = document.getElementById('sub-'+g);
+      const it = document.getElementById('sb-'+g);
+      // don't auto-collapse — just set active state
+      if(it) it.classList.remove('active');
+    }
+  });
+  if(grpSub) grpSub.classList.remove('collapsed');
+  if(grpItem){ grpItem.classList.add('active','expanded'); }
+  // For top-level items with no sub (Experimentation, Insights) mark the item itself
+  if(!grpSub && grpItem) grpItem.classList.add('active');
   viewHistory = [];
   showView(section);
 }
