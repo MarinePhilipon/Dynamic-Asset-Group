@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rokt — Dynamic Asset Groups</title>
+<style>
+:root {
+  --rokt: #9B1756; --rokt-dark: #7a1244; --rokt-light: #fdf0f7; --rokt-mid: #e8d5e1;
+  --green: #16a34a; --green-light: #f0fdf4; --amber: #d97706; --amber-light: #fffbeb;
+  --red: #dc2626; --red-light: #fef2f2; --blue: #2563eb; --blue-light: #eff6ff;
+  --g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;--g300:#d1d5db;--g400:#9ca3af;
+  --g500:#6b7280;--g600:#4b5563;--g700:#374151;--g800:#1f2937;--g900:#111827;
+  --r:8px;--rlg:12px;--sh:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);
+  --shmd:0 4px 6px -1px rgba(0,0,0,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--g50);color:var(--g800);font-size:14px;line-height:1.5;}
+
+/* NAV */
+.top-nav{background:white;border-bottom:1px solid var(--g200);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.nav-logo{color:var(--rokt);font-weight:800;font-size:17px;letter-spacing:-0.5px;margin-right:16px;}
+.breadcrumb{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--g500);}
+.breadcrumb a{color:var(--g500);text-decoration:none;cursor:pointer;}
+.breadcrumb a:hover{color:var(--rokt);}
+.breadcrumb .cur{color:var(--g800);font-weight:600;}
+.breadcrumb .sep{color:var(--g300);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--rokt);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+
+/* FLOW BAR */
+.flow-bar{background:white;border-bottom:1px solid var(--g200);padding:10px 24px;display:flex;align-items:center;gap:2px;}
+.flow-step{display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:6px;font-size:13px;color:var(--g400);cursor:pointer;transition:all .15s;}
+.flow-step.done{color:var(--green);}
+.flow-step.active{color:var(--rokt);font-weight:600;background:var(--rokt-light);}
+.flow-step:hover:not(.active){background:var(--g100);}
+.step-num{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:var(--g200);color:var(--g500);flex-shrink:0;}
+.flow-step.done .step-num{background:var(--green);color:white;}
+.flow-step.active .step-num{background:var(--rokt);color:white;}
+.flow-arr{color:var(--g300);padding:0 2px;font-size:11px;}
+
+/* VIEWS */
+.view{display:none;}.view.active{display:block;}
+.view-inner{max-width:1080px;margin:0 auto;padding:28px 24px 88px;}
+.page-header{margin-bottom:24px;}
+.page-header h1{font-size:20px;font-weight:700;color:var(--g900);}
+.page-header .sub{color:var(--g500);font-size:13px;margin-top:3px;}
+.page-header .meta{display:flex;align-items:center;gap:10px;margin-top:10px;}
+.mode-badge{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:600;}
+.mode-badge.dynamic{background:var(--rokt-light);color:var(--rokt);border:1px solid var(--rokt-mid);}
+
+/* BUTTONS */
+.btn{padding:7px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--rokt);color:white;border-color:var(--rokt);}
+.btn-primary:hover{background:var(--rokt-dark);}
+.btn-outline{background:white;color:var(--g700);border-color:var(--g200);}
+.btn-outline:hover{background:var(--g50);border-color:var(--g300);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn-ghost{background:none;border:none;color:var(--g500);font-size:13px;cursor:pointer;padding:8px;}
+.btn-ghost:hover{color:var(--g800);}
+
+/* ========== PAGE 1a: MODE GATE ========== */
+.mode-gate-wrap{max-width:680px;margin:48px auto;}
+.mode-gate-wrap h2{font-size:22px;font-weight:700;color:var(--g900);margin-bottom:6px;}
+.mode-gate-wrap>p{color:var(--g500);margin-bottom:28px;font-size:13px;}
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.mode-card{background:white;border:2px solid var(--g200);border-radius:var(--rlg);padding:26px;cursor:pointer;transition:all .2s;}
+.mode-card:hover,.mode-card.recommended{border-color:var(--rokt);box-shadow:var(--shmd);}
+.mode-card:hover{transform:translateY(-2px);}
+.mode-rec-badge{display:inline-block;background:var(--rokt);color:white;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;margin-bottom:11px;letter-spacing:.5px;text-transform:uppercase;}
+.mode-card h3{font-size:16px;font-weight:700;margin-bottom:5px;}
+.mode-card>p{font-size:12px;color:var(--g500);margin-bottom:14px;line-height:1.6;}
+.mode-card ul{list-style:none;margin-bottom:18px;}
+.mode-card ul li{font-size:12px;color:var(--g600);padding:2px 0;display:flex;align-items:center;gap:7px;}
+.mode-card ul li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;}
+.mode-card .card-cta{width:100%;padding:10px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;border:2px solid var(--rokt);color:var(--rokt);background:white;}
+.mode-card.recommended .card-cta{background:var(--rokt);color:white;}
+.mode-stat{margin-top:14px;padding:10px 12px;background:var(--rokt-light);border-radius:6px;font-size:12px;color:var(--rokt);font-weight:500;text-align:center;}
+
+/* ========== PAGE 1b: AG LIST ========== */
+.coverage-banner{background:white;border:1px solid var(--g200);border-radius:var(--r);padding:16px 20px;margin-bottom:22px;display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:center;}
+.coverage-title{font-size:13px;font-weight:600;color:var(--g800);}
+.coverage-sub{font-size:11px;color:var(--g500);margin-top:2px;}
+.coverage-track{background:var(--g100);border-radius:100px;height:7px;margin-bottom:7px;overflow:hidden;}
+.coverage-fill{background:var(--green);height:100%;border-radius:100px;transition:width .5s;}
+.fmt-chips{display:flex;gap:5px;flex-wrap:wrap;}
+.fmt-chip{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;}
+.fmt-chip.eligible{background:var(--green-light);color:var(--green);}
+.fmt-chip.missing{background:var(--g100);color:var(--g400);}
+.refinement-tip{background:var(--blue-light);border:1px solid #bfdbfe;border-radius:var(--r);padding:10px 14px;margin-bottom:16px;font-size:12px;color:#1e40af;}
+.ag-list-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.ag-list-hdr h2{font-size:15px;font-weight:600;}
+.ag-card{background:white;border:1px solid var(--g200);border-radius:var(--r);padding:20px;margin-bottom:10px;transition:box-shadow .15s;}
+.ag-card:hover{box-shadow:var(--shmd);}
+.ag-card-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+.ag-card-title h3{font-size:15px;font-weight:600;color:var(--g900);}
+.ag-card-title p{font-size:12px;color:var(--g500);margin-top:2px;}
+.ag-card-actions{display:flex;gap:7px;flex-shrink:0;}
+.strength-row{display:flex;align-items:center;gap:12px;margin-bottom:13px;}
+.strength-label{font-size:11px;color:var(--g500);width:80px;flex-shrink:0;}
+.strength-track{flex:1;background:var(--g100);border-radius:100px;height:6px;overflow:hidden;}
+.strength-fill{height:100%;border-radius:100px;transition:width .5s;}
+.strength-fill.good{background:var(--blue);width:72%;}
+.strength-fill.avg{background:var(--amber);width:42%;}
+.strength-fill.excellent{background:var(--green);width:100%;}
+.strength-score{font-size:12px;font-weight:600;min-width:70px;}
+.strength-score.good{color:var(--blue);}
+.strength-score.avg{color:var(--amber);}
+.strength-score.excellent{color:var(--green);}
+.elig-label{font-size:11px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.ag-tips{margin-top:12px;border-top:1px solid var(--g100);padding-top:12px;}
+.ag-tip{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#1e40af;padding:7px 10px;background:var(--blue-light);border-radius:6px;margin-bottom:6px;}
+.ag-stats{display:flex;gap:20px;margin-top:12px;}
+.ag-stat{font-size:12px;color:var(--g500);}
+.ag-stat strong{color:var(--g800);font-weight:600;}
+.ag-card-new{background:white;border:2px dashed var(--g200);border-radius:var(--r);padding:22px;text-align:center;cursor:pointer;transition:all .15s;color:var(--g400);font-size:13px;}
+.ag-card-new:hover{border-color:var(--rokt);color:var(--rokt);background:var(--rokt-light);}
+
+/* ========== PAGE 2: EDITOR ========== */
+.editor-layout{display:grid;grid-template-columns:1fr 320px;gap:22px;}
+.editor-form{background:white;border:1px solid var(--g200);border-radius:var(--rlg);overflow:hidden;}
+.editor-panel{position:sticky;top:72px;}
+.form-section{border-bottom:1px solid var(--g100);}
+.form-sec-hdr{padding:13px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:var(--g50);user-select:none;}
+.form-sec-hdr:hover{background:var(--g100);}
+.sec-title{display:flex;align-items:center;gap:9px;}
+.sec-num{width:22px;height:22px;border-radius:50%;background:var(--rokt);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sec-name{font-size:13px;font-weight:600;color:var(--g800);}
+.sec-status{font-size:11px;font-weight:600;}
+.sec-status.done{color:var(--green);}
+.sec-status.partial{color:var(--amber);}
+.sec-status.empty{color:var(--g400);}
+.sec-toggle{color:var(--g400);font-size:12px;transition:transform .2s;}
+.sec-toggle.open{transform:rotate(180deg);}
+.form-sec-body{padding:18px 20px;}
+.form-sec-body.collapsed{display:none;}
+.form-field{margin-bottom:15px;}
+.form-field:last-child{margin-bottom:0;}
+.form-field label{display:block;font-size:12px;font-weight:600;color:var(--g700);margin-bottom:4px;}
+.req{color:var(--red);margin-left:2px;}
+.opt-tag{font-weight:400;color:var(--g400);font-size:11px;margin-left:4px;}
+.fmt-unlock{color:var(--green);font-size:11px;font-weight:500;margin-left:6px;}
+.form-field input,.form-field textarea,.form-field select{width:100%;padding:8px 12px;border:1px solid var(--g200);border-radius:6px;font-size:13px;color:var(--g800);font-family:inherit;transition:border-color .15s;}
+.form-field input:focus,.form-field textarea:focus{outline:none;border-color:var(--rokt);box-shadow:0 0 0 3px rgba(155,23,86,.08);}
+.char-count{font-size:11px;color:var(--g400);text-align:right;margin-top:2px;}
+.field-hint{font-size:11px;color:var(--g400);margin-top:3px;}
+.asset-row{display:flex;gap:7px;margin-bottom:7px;align-items:flex-start;}
+.asset-row input{flex:1;}
+.perf-badge{padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;flex-shrink:0;margin-top:9px;}
+.perf-badge.best{background:var(--green-light);color:var(--green);}
+.perf-badge.good{background:var(--blue-light);color:var(--blue);}
+.perf-badge.low{background:var(--red-light);color:var(--red);}
+.perf-badge.pending{background:var(--g100);color:var(--g400);}
+.rm-btn{width:28px;height:28px;border:none;background:none;cursor:pointer;color:var(--g400);font-size:16px;margin-top:6px;border-radius:4px;flex-shrink:0;}
+.rm-btn:hover{background:var(--g100);color:var(--red);}
+.add-asset-btn{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--rokt);font-weight:500;cursor:pointer;background:none;border:none;padding:3px 0;margin-top:2px;}
+.add-asset-btn:hover{text-decoration:underline;}
+.benefit-chips,.tag-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:7px;}
+.benefit-chip{display:inline-flex;align-items:center;gap:5px;background:var(--green-light);color:var(--green);border:1px solid #86efac;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:500;}
+.benefit-chip .rm{cursor:pointer;opacity:.7;font-size:13px;line-height:1;}
+.benefit-chip .rm:hover{opacity:1;}
+.tag-chip{display:inline-flex;align-items:center;gap:5px;background:var(--rokt-light);color:var(--rokt);border:1px solid var(--rokt-mid);border-radius:20px;padding:3px 10px;font-size:12px;}
+.tag-chip .rm{cursor:pointer;opacity:.7;font-size:13px;}
+.image-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}
+.img-slot{aspect-ratio:1;border:2px dashed var(--g200);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;font-size:10px;color:var(--g400);text-align:center;gap:3px;background:var(--g50);}
+.img-slot:hover{border-color:var(--rokt);color:var(--rokt);background:var(--rokt-light);}
+.img-slot.filled{border-style:solid;border-color:var(--g300);background:var(--g100);color:var(--g600);}
+.img-slot.filled:hover{border-color:var(--rokt);}
+.img-type{font-weight:700;text-transform:uppercase;font-size:9px;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;}
+.toggle-label{font-size:13px;color:var(--g700);}
+.toggle{position:relative;width:38px;height:20px;cursor:pointer;}
+.toggle input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{position:absolute;inset:0;background:var(--g300);border-radius:100px;transition:background .2s;}
+.toggle input:checked+.toggle-track{background:var(--rokt);}
+.toggle-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;background:white;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.toggle input:checked~.toggle-thumb{transform:translateX(18px);}
+
+/* RIGHT PANEL */
+.panel-card{background:white;border:1px solid var(--g200);border-radius:var(--rlg);overflow:hidden;margin-bottom:14px;}
+.panel-hdr{padding:11px 14px;border-bottom:1px solid var(--g100);background:var(--g50);display:flex;align-items:center;justify-content:space-between;}
+.panel-hdr h3{font-size:12px;font-weight:700;color:var(--g700);text-transform:uppercase;letter-spacing:.5px;}
+.panel-body{padding:14px;}
+.elig-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--g100);font-size:13px;}
+.elig-row:last-child{border-bottom:none;}
+.elig-fmt{font-weight:500;color:var(--g700);}
+.elig-right{display:flex;align-items:center;gap:6px;}
+.elig-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.elig-dot.on{background:var(--green);}
+.elig-dot.off{background:var(--g300);}
+.elig-text{font-size:12px;}
+.elig-text.on{color:var(--green);font-weight:500;}
+.elig-text.off{color:var(--g400);}
+.elig-unlock{font-size:11px;color:var(--amber);margin-left:4px;}
+.reach-big{font-size:28px;font-weight:800;color:var(--g900);}
+.reach-sub{font-size:12px;color:var(--g500);}
+.reach-track{background:var(--g100);border-radius:100px;height:7px;margin:10px 0;overflow:hidden;}
+.reach-fill{background:var(--green);height:100%;border-radius:100px;transition:width .4s;}
+.reach-goal{font-size:11px;color:var(--g400);}
+.combo-big{font-size:28px;font-weight:800;color:var(--rokt);}
+.combo-formula{font-size:12px;color:var(--g500);margin-top:2px;}
+.preview-tabs{display:flex;border-bottom:1px solid var(--g200);}
+.prev-tab{padding:8px 12px;font-size:12px;font-weight:500;color:var(--g500);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+.prev-tab.active{color:var(--rokt);border-bottom-color:var(--rokt);}
+.prev-tab.locked{opacity:.4;cursor:not-allowed;}
+.preview-area{padding:12px;}
+.preview-ad{background:var(--g50);border:1px solid var(--g200);border-radius:8px;padding:14px;margin-bottom:10px;}
+.prev-img{background:var(--g200);border-radius:6px;height:56px;display:flex;align-items:center;justify-content:center;color:var(--g400);font-size:11px;margin-bottom:10px;}
+.prev-title{font-size:13px;font-weight:700;color:var(--g900);margin-bottom:3px;}
+.prev-body{font-size:11px;color:var(--g600);margin-bottom:7px;}
+.prev-benefits{display:flex;flex-direction:column;gap:2px;margin-bottom:7px;}
+.prev-benefit{font-size:11px;color:var(--green);display:flex;align-items:center;gap:5px;}
+.prev-benefit::before{content:'✓';font-weight:700;}
+.prev-cta{display:inline-block;background:var(--rokt);color:white;border-radius:5px;padding:5px 12px;font-size:11px;font-weight:700;}
+.prev-tags{display:flex;gap:4px;margin-top:7px;}
+.prev-tag{background:var(--rokt-light);color:var(--rokt);border-radius:20px;padding:2px 7px;font-size:10px;}
+.prev-promo{background:var(--amber-light);color:var(--amber);border:1px solid #fcd34d;border-radius:5px;padding:4px 8px;font-size:11px;font-weight:600;margin-bottom:7px;display:inline-block;}
+.combo-nav{display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px;color:var(--g500);}
+.cnav-btn{padding:4px 10px;border:1px solid var(--g200);border-radius:4px;cursor:pointer;background:white;font-size:12px;}
+.cnav-btn:hover{background:var(--g50);}
+.prev-locked{text-align:center;padding:20px;color:var(--g400);font-size:12px;}
+.prev-locked-icon{font-size:24px;margin-bottom:6px;}
+
+/* ========== PAGE 3: REPORTING ========== */
+.report-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.report-tabs{display:flex;background:white;border:1px solid var(--g200);border-radius:var(--r);overflow:hidden;margin-bottom:24px;}
+.report-tab{padding:12px 18px;font-size:13px;font-weight:500;color:var(--g500);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;border-right:1px solid var(--g200);}
+.report-tab:last-child{border-right:none;}
+.report-tab.active{color:var(--rokt);border-bottom-color:var(--rokt);background:var(--rokt-light);}
+.report-tab:hover:not(.active){color:var(--g700);background:var(--g50);}
+.rtab-panel{display:none;}.rtab-panel.active{display:block;}
+
+/* Data table */
+.tbl-wrap{background:white;border:1px solid var(--g200);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
+.data-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.data-tbl th{background:var(--g50);padding:9px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--g200);white-space:nowrap;}
+.data-tbl td{padding:11px 14px;border-bottom:1px solid var(--g100);color:var(--g700);}
+.data-tbl tr:last-child td{border-bottom:none;}
+.data-tbl tr:hover td{background:var(--g50);}
+.type-pill{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+.tp-title{background:#ede9fe;color:#6d28d9;}
+.tp-desc{background:#fef3c7;color:#92400e;}
+.tp-cta{background:#d1fae5;color:#065f46;}
+.tp-image{background:#dbeafe;color:#1e40af;}
+.tp-benefit{background:var(--green-light);color:var(--green);}
+.rating-badge{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.rb-best{background:var(--green-light);color:var(--green);}
+.rb-good{background:var(--blue-light);color:var(--blue);}
+.rb-low{background:var(--red-light);color:var(--red);}
+.rb-pending{background:var(--g100);color:var(--g400);}
+.tbl-insight{background:var(--blue-light);border:1px solid #bfdbfe;border-radius:var(--r);padding:12px 16px;margin-bottom:16px;font-size:13px;color:#1e40af;display:flex;align-items:flex-start;gap:10px;}
+.insight-actions{margin-top:8px;display:flex;gap:8px;}
+
+/* Format matrix */
+.matrix-wrap{background:white;border:1px solid var(--g200);border-radius:var(--r);overflow:auto;margin-bottom:16px;}
+.matrix-tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:680px;}
+.matrix-tbl th,.matrix-tbl td{padding:12px 14px;border:1px solid var(--g100);}
+.matrix-tbl th{background:var(--g50);font-size:11px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.5px;text-align:center;}
+.matrix-tbl th.row-hdr{text-align:left;}
+.matrix-tbl td{text-align:center;vertical-align:middle;}
+.matrix-tbl td.row-hdr{text-align:left;font-weight:600;color:var(--g800);}
+.mc{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.mc .cvr{font-size:14px;font-weight:700;color:var(--g900);}
+.mc .rev{font-size:11px;color:var(--g500);}
+.mc.best .cvr{color:var(--green);}
+.mc.empty{color:var(--g300);font-size:18px;}
+.mc.unlock{font-size:11px;color:var(--amber);}
+.mc.star::after{content:'★';color:var(--green);font-size:11px;}
+.matrix-legend{display:flex;gap:16px;font-size:12px;color:var(--g500);margin-bottom:12px;}
+.ml-item{display:flex;align-items:center;gap:5px;}
+.matrix-insight{background:var(--rokt-light);border:1px solid var(--rokt-mid);border-radius:var(--r);padding:12px 16px;font-size:13px;color:var(--rokt);margin-bottom:16px;}
+
+/* Combo cards */
+.combo-card{background:white;border:1px solid var(--g200);border-radius:var(--r);padding:18px;margin-bottom:12px;transition:box-shadow .15s;}
+.combo-card:hover{box-shadow:var(--shmd);}
+.combo-card-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.combo-rank{font-size:12px;font-weight:700;color:var(--g400);}
+.combo-metrics{display:flex;gap:18px;}
+.combo-metric .val{font-size:17px;font-weight:700;color:var(--g900);}
+.combo-metric .lbl{font-size:11px;color:var(--g500);}
+.combo-metric.hi .val{color:var(--green);}
+.combo-detail{margin-bottom:10px;}
+.cdr{display:flex;align-items:baseline;gap:8px;margin-bottom:5px;}
+.cdl{font-size:11px;font-weight:600;color:var(--g400);width:56px;flex-shrink:0;}
+.cdv{font-size:13px;color:var(--g700);flex:1;}
+.cda{display:inline-flex;align-items:center;gap:3px;font-size:11px;margin-left:6px;}
+.combo-card-ftr{padding-top:10px;border-top:1px solid var(--g100);display:flex;gap:8px;}
+.combo-pattern{background:var(--rokt-light);border-radius:6px;padding:9px 12px;margin-bottom:12px;font-size:12px;color:var(--rokt);}
+.combo-pattern strong{font-weight:700;}
+
+/* BOTTOM BAR */
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--g200);padding:12px 24px;display:flex;justify-content:space-between;align-items:center;z-index:100;}
+.bb-left,.bb-right{display:flex;gap:10px;align-items:center;}
+.btn-save{background:white;border:1px solid var(--g200);color:var(--g700);padding:8px 16px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;}
+.btn-save:hover{background:var(--g50);}
+
+/* UTILS */
+.hidden{display:none!important;}
+.flex{display:flex;}.items-center{align-items:center;}.justify-between{justify-content:space-between;}
+.gap-8{gap:8px;}.gap-12{gap:12px;}.mt-4{margin-top:4px;}.mt-8{margin-top:8px;}.mt-12{margin-top:12px;}.mb-12{margin-bottom:12px;}
+.text-sm{font-size:12px;}.text-xs{font-size:11px;}.text-gray{color:var(--g500);}.fw-600{font-weight:600;}.fw-700{font-weight:700;}
+.divider{height:1px;background:var(--g100);margin:14px 0;}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="top-nav">
+  <div class="flex items-center gap-12">
+    <span class="nav-logo">rokt</span>
+    <div class="breadcrumb">
+      <a onclick="showView('mode-gate')">Campaigns</a><span class="sep">›</span>
+      <a onclick="showView('mode-gate')">Acme Spring Sale</a><span class="sep">›</span>
+      <a onclick="showView('ag-list')">Ad Sets</a><span class="sep">›</span>
+      <a onclick="showView('ag-list')">New Customer Acq.</a><span class="sep">›</span>
+      <span class="cur" id="bc-cur">Creatives</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <span class="text-sm text-gray">marine.philipon@rokt.com</span>
+    <div class="avatar">MP</div>
+  </div>
+</nav>
+
+<!-- FLOW BAR -->
+<div class="flow-bar">
+  <div class="flow-step done" onclick="showView('mode-gate')"><span class="step-num">✓</span>Campaign</div>
+  <span class="flow-arr">›</span>
+  <div class="flow-step done" onclick="showView('mode-gate')"><span class="step-num">✓</span>Ad Sets</div>
+  <span class="flow-arr">›</span>
+  <div class="flow-step active" id="fs-creatives" onclick="showView('ag-list')"><span class="step-num">3</span>Asset Groups</div>
+  <span class="flow-arr">›</span>
+  <div class="flow-step" id="fs-reporting" onclick="showView('reporting')"><span class="step-num">4</span>Reporting</div>
+</div>
+
+
+<!-- ============================= VIEW: MODE GATE ============================= -->
+<div id="view-mode-gate" class="view active">
+  <div class="view-inner">
+    <div class="mode-gate-wrap">
+      <h2>How do you want to manage creatives for this strategy?</h2>
+      <p>This setting determines how Rokt Brain will optimise your creative assets within this Ad Set. You can change this later.</p>
+      <div class="mode-cards">
+        <div class="mode-card recommended" onclick="selectMode('dynamic')">
+          <div class="mode-rec-badge">Recommended</div>
+          <h3>⚡ Dynamic (Asset Group)</h3>
+          <p>Upload assets once. Rokt Brain assembles and tests combinations across all eligible formats at the impression level.</p>
+          <ul>
+            <li>Multi-format reach from a single upload</li>
+            <li>Component-level optimisation by Brain</li>
+            <li>Auto-eligible for new formats on launch</li>
+            <li>Asset-level performance reporting</li>
+          </ul>
+          <div class="mode-stat">Median <strong>19.5% uplift</strong> vs single-format baseline in Rokt's network</div>
+          <button class="card-cta" style="margin-top:16px;">Select Dynamic →</button>
+        </div>
+        <div class="mode-card" onclick="selectMode('manual')">
+          <h3>🎛 Manual (Fixed format)</h3>
+          <p>Full control over layout and composition. Brain does not vary asset combinations. Choose the format you want, set it, ship it.</p>
+          <ul>
+            <li>Fixed format rendering</li>
+            <li>Exact brand and copy control</li>
+            <li>Required for regulated verticals</li>
+            <li>Controlled A/B tests with direct attribution</li>
+          </ul>
+          <div style="height:16px;"></div>
+          <button class="card-cta">Select Manual →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================= VIEW: AG LIST ============================= -->
+<div id="view-ag-list" class="view">
+  <div class="view-inner">
+    <div class="page-header">
+      <h1>New Customer Acquisition</h1>
+      <div class="sub">Ad Set · Creatives</div>
+      <div class="meta">
+        <span class="mode-badge dynamic">⚡ Dynamic mode</span>
+        <button class="btn btn-outline btn-sm" onclick="showView('mode-gate')">Change mode</button>
+      </div>
+    </div>
+
+    <!-- Coverage banner -->
+    <div class="coverage-banner">
+      <div>
+        <div class="coverage-title">Format coverage</div>
+        <div class="coverage-sub">Target: 80–100% of network inventory</div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;">
+          <span style="color:var(--g600);font-weight:500;">5 of 7 formats eligible</span>
+          <span style="color:var(--green);font-weight:700;">71%</span>
+        </div>
+        <div class="coverage-track"><div class="coverage-fill" style="width:71%"></div></div>
+        <div class="fmt-chips">
+          <span class="fmt-chip eligible">Text</span>
+          <span class="fmt-chip eligible">Text Hero</span>
+          <span class="fmt-chip eligible">Benefits</span>
+          <span class="fmt-chip eligible">Compact</span>
+          <span class="fmt-chip eligible">Savings</span>
+          <span class="fmt-chip missing">Benefits Hero ⬜</span>
+          <span class="fmt-chip missing">Product Carousel ⬜</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Refinement tip -->
+    <div class="refinement-tip">
+      <strong>New Asset Group vs Refine?</strong> &nbsp;Create a new group for a different offer or destination — each gets its own clean learning track. Refine an existing group to add assets or unlock more formats.
+    </div>
+
+    <div class="ag-list-hdr">
+      <h2>Asset Groups (2)</h2>
+      <button class="btn btn-primary btn-sm" onclick="showView('editor')">+ New Asset Group</button>
+    </div>
+
+    <!-- AG Card 1: Good -->
+    <div class="ag-card">
+      <div class="ag-card-hdr">
+        <div class="ag-card-title">
+          <h3>Free Delivery — Spring Sale</h3>
+          <p>Offer: Free delivery on orders $50+ &nbsp;·&nbsp; Destination: /checkout/spring</p>
+        </div>
+        <div class="ag-card-actions">
+          <button class="btn btn-outline btn-sm" onclick="showView('reporting')">📊 Report</button>
+          <button class="btn btn-primary btn-sm" onclick="showView('editor')">Edit</button>
+        </div>
+      </div>
+      <div class="strength-row">
+        <span class="strength-label">Asset strength</span>
+        <div class="strength-track"><div class="strength-fill good"></div></div>
+        <span class="strength-score good">Good · 72%</span>
+      </div>
+      <div class="elig-label">Format eligibility</div>
+      <div class="fmt-chips" style="margin-bottom:10px;">
+        <span class="fmt-chip eligible">✓ Text</span>
+        <span class="fmt-chip eligible">✓ Text Hero</span>
+        <span class="fmt-chip eligible">✓ Benefits</span>
+        <span class="fmt-chip eligible">✓ Compact</span>
+        <span class="fmt-chip eligible">✓ Savings</span>
+        <span class="fmt-chip missing">Benefits Hero ⬜</span>
+        <span class="fmt-chip missing">Product Carousel ⬜</span>
+      </div>
+      <div class="ag-tips">
+        <div class="ag-tip">💡 Add a Product 1.91:1 image to unlock <strong>Benefits Hero</strong> format — estimated +12% reach</div>
+        <div class="ag-tip">💡 Add a Product Image Carousel (2+) to unlock <strong>Product Carousel</strong> format — estimated +9% reach</div>
+      </div>
+      <div class="ag-stats">
+        <div class="ag-stat"><strong>720</strong> combinations</div>
+        <div class="ag-stat"><strong>5T · 3D · 3CTA · 8 Img</strong></div>
+        <div class="ag-stat">Live since <strong>Mar 12, 2026</strong></div>
+        <div class="ag-stat">CVR <strong>4.2%</strong> · Rev <strong>$18K</strong></div>
+      </div>
+    </div>
+
+    <!-- AG Card 2: Average -->
+    <div class="ag-card">
+      <div class="ag-card-hdr">
+        <div class="ag-card-title">
+          <h3>20% Off First Order</h3>
+          <p>Offer: 20% off first purchase · Destination: /landing/first-order</p>
+        </div>
+        <div class="ag-card-actions">
+          <button class="btn btn-outline btn-sm" onclick="showView('reporting')">📊 Report</button>
+          <button class="btn btn-primary btn-sm" onclick="showView('editor')">Edit</button>
+        </div>
+      </div>
+      <div class="strength-row">
+        <span class="strength-label">Asset strength</span>
+        <div class="strength-track"><div class="strength-fill avg"></div></div>
+        <span class="strength-score avg">Average · 42%</span>
+      </div>
+      <div class="elig-label">Format eligibility</div>
+      <div class="fmt-chips" style="margin-bottom:10px;">
+        <span class="fmt-chip eligible">✓ Text</span>
+        <span class="fmt-chip eligible">✓ Compact</span>
+        <span class="fmt-chip eligible">✓ Savings</span>
+        <span class="fmt-chip missing">Text Hero ⬜</span>
+        <span class="fmt-chip missing">Benefits ⬜</span>
+        <span class="fmt-chip missing">Benefits Hero ⬜</span>
+        <span class="fmt-chip missing">Product Carousel ⬜</span>
+      </div>
+      <div class="ag-tips">
+        <div class="ag-tip">⚠️ Only 3 of 7 formats eligible. Add images + benefits copy to expand reach significantly.</div>
+        <div class="ag-tip">💡 Add Benefits Copy to unlock <strong>Benefits</strong> format — estimated +15% reach</div>
+        <div class="ag-tip">💡 Add a Product 1.91:1 image to unlock <strong>Text Hero</strong> — estimated +10% reach</div>
+      </div>
+      <div class="ag-stats">
+        <div class="ag-stat"><strong>120</strong> combinations</div>
+        <div class="ag-stat"><strong>3T · 2D · 2CTA · 2 Img</strong></div>
+        <div class="ag-stat">Live since <strong>Apr 1, 2026</strong></div>
+        <div class="ag-stat">CVR <strong>2.8%</strong> · Rev <strong>$6K</strong></div>
+      </div>
+    </div>
+
+    <div class="ag-card-new" onclick="showView('editor')">
+      <div style="font-size:24px;margin-bottom:6px;">+</div>
+      <div style="font-weight:600;margin-bottom:2px;">Add a new proposition</div>
+      <div class="text-sm text-gray">Different offer or destination? Create a new Asset Group for a clean learning track.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================= VIEW: EDITOR ============================= -->
+<div id="view-editor" class="view">
+  <div class="view-inner">
+    <div class="page-header">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1>Free Delivery — Spring Sale</h1>
+          <div class="sub">Asset Group editor · Dynamic mode</div>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn btn-outline btn-sm" onclick="showView('ag-list')">← Back to groups</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="editor-layout">
+      <!-- LEFT: FORM -->
+      <div class="editor-form">
+
+        <!-- Section 1: Required -->
+        <div class="form-section">
+          <div class="form-sec-hdr" onclick="toggleSec('sec1')">
+            <div class="sec-title"><span class="sec-num">1</span><span class="sec-name">Required assets</span></div>
+            <div class="flex items-center gap-8"><span class="sec-status done" id="ss1">✓ Complete</span><span class="sec-toggle open" id="st1">▼</span></div>
+          </div>
+          <div class="form-sec-body" id="sec1">
+            <div class="form-field">
+              <label>Creative Title <span class="req">*</span> <span class="opt-tag">5–50 chars</span></label>
+              <div id="titles-list">
+                <div class="asset-row"><input type="text" value="Free delivery on all orders" oninput="updatePreview()"><span class="perf-badge best">●Best</span><button class="rm-btn" onclick="removeAsset(this)">×</button></div>
+                <div class="asset-row"><input type="text" value="Shop the spring sale" oninput="updatePreview()"><span class="perf-badge good">●Good</span><button class="rm-btn" onclick="removeAsset(this)">×</button></div>
+                <div class="asset-row"><input type="text" value="20% off today only" oninput="updatePreview()"><span class="perf-badge low">●Low</span><button class="rm-btn" onclick="removeAsset(this)">×</button></div>
+                <div class="asset-row"><input type="text" value="Exclusive member deal" oninput="updatePreview()"><span class="perf-badge pending">●Pending</span><button class="rm-btn" onclick="removeAsset(this)">×</button></div>
+                <div class="asset-row"><input type="text" value="Limited time — free shipping" oninput="updatePreview()"><span class="perf-badge pending">●Pending</span><button class="rm-btn" onclick="removeAsset(this)">×</button></div>
+              </div>
+              <button class="add-asset-btn" onclick="addTitle()">+ Add title (up to 8)</button>
+            </div>
+            <div class="form-field">
+              <label>Short Description <span class="req">*</span> <span class="opt-tag">max 50 chars</span></label>
+              <div id="short-desc-list">
+                <div class="asset-row"><input type="text" value="Fast, free shipping on $50+" oninput="updatePreview()"><span class="perf-badge best">●Best</span><button class="rm-btn" onclick="removeAsset(this)">×</button></div>
+                <div class="asset-row"><input type="text" value="Limited spring offer" oninput="updatePreview()"><span class="perf-badge good">●Good</span><button class="rm-btn" onclick="removeAsset(this)">×</button></div>
+              </div>
+              <button class="add-asset-btn" onclick="addDesc('short-desc-list')">+ Add short description</button>
+            </div>
+            <div class="form-field">
+              <label>Long Description <span class="req">*</span> <span class="opt-tag">max 175 chars</span></label>
+              <div id="long-desc-list">
+                <div class="asset-row"><textarea rows="2" oninput="updatePreview()">Get the products you love delivered fast with free standard shipping on all orders over $50. Limited time spring offer.</textarea><span class="perf-badge best" style="margin-top:8px;">●Best</span><button class="rm-btn" style="margin-top:8px;" onclick="removeAsset(this)">×</button></div>
+                <div class="asset-row"><textarea rows="2" oninput="updatePreview()">Shop thousands of products with free delivery. No minimum spend applies this week only.</textarea><span class="perf-badge good" style="margin-top:8px;">●Good</span><button class="rm-btn" style="margin-top:8px;" onclick="removeAsset(this)">×</button></div>
+              </div>
+              <button class="add-asset-btn" onclick="addDesc('long-desc-list')">+ Add long description</button>
+            </div>
+            <div class="form-field">
+              <label>Brand Name <span class="req">*</span></label>
+              <input type="text" value="Acme Co." oninput="updatePreview()">
+            </div>
+            <div class="form-field">
+              <label>Positive CTA <span class="req">*</span></label>
+              <div id="cta-list">
+                <div class="asset-row"><input type="text" value="Shop now" oninput="updatePreview()"><span class="perf-badge best">●Best</span><button class="rm-btn" onclick="removeAsset(this)">×</button></div>
+                <div class="asset-row"><input type="text" value="Get offer" oninput="updatePreview()"><span class="perf-badge good">●Good</span><button class="rm-btn" onclick="removeAsset(this)">×</button></div>
+                <div class="asset-row"><input type="text" value="Claim deal" oninput="updatePreview()"><span class="perf-badge pending">●Pending</span><button class="rm-btn" onclick="removeAsset(this)">×</button></div>
+              </div>
+              <button class="add-asset-btn" onclick="addCTA()">+ Add CTA</button>
+            </div>
+            <div class="form-field">
+              <label>Destination URL <span class="req">*</span></label>
+              <input type="text" value="https://acme.com/checkout/spring-sale" oninput="updatePreview()">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Format expanders (optional) -->
+        <div class="form-section">
+          <div class="form-sec-hdr" onclick="toggleSec('sec2')">
+            <div class="sec-title"><span class="sec-num">2</span><span class="sec-name">Format expanders <span style="font-weight:400;color:var(--g400);font-size:12px;">— optional, unlock more formats</span></span></div>
+            <div class="flex items-center gap-8"><span class="sec-status partial" id="ss2">⚠ Incomplete</span><span class="sec-toggle open" id="st2">▼</span></div>
+          </div>
+          <div class="form-sec-body" id="sec2">
+            <!-- Benefits -->
+            <div class="form-field">
+              <label>Benefits Copy <span class="opt-tag">optional</span> <span class="fmt-unlock" id="benefits-unlock">→ unlocks Benefits + Benefits Hero formats</span></label>
+              <div class="benefit-chips" id="benefit-chips">
+                <span class="benefit-chip">Free returns on all orders<span class="rm" onclick="removeChip(this)">×</span></span>
+                <span class="benefit-chip">Fast 2-day shipping<span class="rm" onclick="removeChip(this)">×</span></span>
+                <span class="benefit-chip">Secure checkout guaranteed<span class="rm" onclick="removeChip(this)">×</span></span>
+              </div>
+              <input type="text" id="benefit-input" placeholder="Add a benefit and press Enter…" onkeydown="addBenefit(event)" style="width:100%;padding:7px 12px;border:1px solid var(--g200);border-radius:6px;font-size:13px;">
+              <div class="field-hint">Up to 5 benefits · <span id="benefit-count">3</span>/5 added</div>
+            </div>
+            <!-- Promo -->
+            <div class="form-field">
+              <label>Promotion / Discount Amount <span class="opt-tag">optional</span> <span class="fmt-unlock" id="promo-unlock">→ unlocks Savings format</span></label>
+              <input type="text" id="promo-input" placeholder="e.g. 20% off, Free shipping, $10 off" oninput="updateEligibility()">
+            </div>
+            <!-- Negative CTA -->
+            <div class="form-field">
+              <label>Negative CTA <span class="opt-tag">optional</span></label>
+              <input type="text" placeholder="e.g. No thanks, Maybe later">
+            </div>
+            <!-- Callout tags -->
+            <div class="form-field">
+              <label>Callout Tags <span class="opt-tag">optional</span></label>
+              <div class="tag-chips" id="tag-chips">
+                <span class="tag-chip">#FreeShipping<span class="rm" onclick="removeChip(this)">×</span></span>
+                <span class="tag-chip">#SpringSale<span class="rm" onclick="removeChip(this)">×</span></span>
+              </div>
+              <input type="text" id="tag-input" placeholder="Type a tag and press Enter…" onkeydown="addTag(event)" style="width:100%;padding:7px 12px;border:1px solid var(--g200);border-radius:6px;font-size:13px;">
+            </div>
+            <!-- Disclaimer -->
+            <div class="form-field">
+              <label>Disclaimer <span class="opt-tag">optional</span></label>
+              <input type="text" placeholder="e.g. T&Cs apply. Offer ends 30 Apr 2026.">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Visual assets -->
+        <div class="form-section">
+          <div class="form-sec-hdr" onclick="toggleSec('sec3')">
+            <div class="sec-title"><span class="sec-num">3</span><span class="sec-name">Visual assets</span></div>
+            <div class="flex items-center gap-8"><span class="sec-status partial" id="ss3">⚠ Partial</span><span class="sec-toggle" id="st3">▼</span></div>
+          </div>
+          <div class="form-sec-body collapsed" id="sec3">
+            <div class="form-field">
+              <label>Product Images <span class="opt-tag">1.91:1 unlocks Text Hero & Benefits Hero · 1:1 for Benefits</span></label>
+              <div class="image-grid">
+                <div class="img-slot filled" onclick="toggleImage(this,'1.91:1')"><div class="img-type">1.91:1</div><div>lifestyle-1.jpg</div></div>
+                <div class="img-slot filled" onclick="toggleImage(this,'1.91:1')"><div class="img-type">1.91:1</div><div>lifestyle-2.jpg</div></div>
+                <div class="img-slot filled" onclick="toggleImage(this,'1:1')"><div class="img-type">1:1</div><div>product-sq.jpg</div></div>
+                <div class="img-slot filled" onclick="toggleImage(this,'1:1')"><div class="img-type">1:1</div><div>brand-sq.jpg</div></div>
+                <div class="img-slot" onclick="addImage(this,'1.91:1')"><div class="img-type">+ 1.91:1</div></div>
+                <div class="img-slot" onclick="addImage(this,'4:5')"><div class="img-type">+ 4:5</div></div>
+                <div class="img-slot" onclick="addImage(this,'1:1')"><div class="img-type">+ 1:1</div></div>
+                <div class="img-slot" onclick="addImage(this,'any')"><div class="img-type">+ Add</div></div>
+              </div>
+              <div class="field-hint" id="img-hint">4 images added · Add 1.91:1 to unlock Benefits Hero</div>
+            </div>
+            <div class="form-field">
+              <label>Brand Logo <span class="opt-tag">optional · 1:1 or 1.91:1</span></label>
+              <div class="image-grid" style="grid-template-columns:repeat(3,1fr);">
+                <div class="img-slot filled" onclick="toggleImage(this,'logo')"><div class="img-type">Logo 1:1</div><div>acme-logo.png</div></div>
+                <div class="img-slot" onclick="addImage(this,'logo 1.91:1')"><div class="img-type">+ Logo 1.91:1</div></div>
+                <div class="img-slot" onclick="addImage(this,'icon')"><div class="img-type">+ Brand Icon</div></div>
+              </div>
+            </div>
+            <div class="form-field">
+              <label>Product Carousel <span class="opt-tag">optional · 2+ images unlocks Product Carousel format</span></label>
+              <div class="image-grid">
+                <div class="img-slot" onclick="addImage(this,'carousel')"><div class="img-type">+ Product 1</div></div>
+                <div class="img-slot" onclick="addImage(this,'carousel')"><div class="img-type">+ Product 2</div></div>
+                <div class="img-slot" onclick="addImage(this,'carousel')"><div class="img-type">+ Product 3</div></div>
+                <div class="img-slot" onclick="addImage(this,'carousel')"><div class="img-type">+ Product 4</div></div>
+              </div>
+              <div class="field-hint">Add 2+ carousel images to unlock Product Carousel format</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 4: Offer & distribution -->
+        <div class="form-section">
+          <div class="form-sec-hdr" onclick="toggleSec('sec4')">
+            <div class="sec-title"><span class="sec-num">4</span><span class="sec-name">Offer & distribution</span></div>
+            <div class="flex items-center gap-8"><span class="sec-status done" id="ss4">✓ Complete</span><span class="sec-toggle" id="st4">▼</span></div>
+          </div>
+          <div class="form-sec-body collapsed" id="sec4">
+            <div class="form-field">
+              <label>Linked Offer</label>
+              <select>
+                <option selected>Free Delivery Q2 2026 — Spring Sale</option>
+                <option>20% Off First Order</option>
+                <option>No offer (brand awareness)</option>
+              </select>
+              <div class="field-hint">Offer Object drives the economic value; this Asset Group is the creative wrapper.</div>
+            </div>
+            <div class="form-field">
+              <label>Coupon Code <span class="opt-tag">optional</span></label>
+              <input type="text" placeholder="e.g. SPRING20">
+            </div>
+            <div class="form-field">
+              <label>Brand Domains <span class="opt-tag">optional</span></label>
+              <input type="text" placeholder="e.g. acme.com, shop.acme.com">
+            </div>
+            <div class="form-field">
+              <label>Nurture Journey <span class="opt-tag">optional</span></label>
+              <select>
+                <option>None</option>
+                <option>Spring Welcome Series</option>
+                <option>First Purchase Journey</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <div class="toggle-row">
+                <span class="toggle-label">CCE Required</span>
+                <label class="toggle"><input type="checkbox"><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+              </div>
+              <div class="field-hint">When enabled, customer consent is required before serving this creative.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 5: Ad set targeting -->
+        <div class="form-section" style="border-bottom:none;">
+          <div class="form-sec-hdr" onclick="toggleSec('sec5')">
+            <div class="sec-title"><span class="sec-num">5</span><span class="sec-name">Ad set targeting</span></div>
+            <div class="flex items-center gap-8"><span class="sec-status done" id="ss5">✓ 3 ad sets linked</span><span class="sec-toggle" id="st5">▼</span></div>
+          </div>
+          <div class="form-sec-body collapsed" id="sec5">
+            <div class="form-field">
+              <input type="text" placeholder="Search ad sets…" style="margin-bottom:10px;">
+              <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                <thead><tr style="background:var(--g50);">
+                  <th style="padding:8px 10px;text-align:left;font-weight:600;font-size:11px;color:var(--g500);border-bottom:1px solid var(--g200);">Ad Set</th>
+                  <th style="padding:8px 10px;text-align:left;font-weight:600;font-size:11px;color:var(--g500);border-bottom:1px solid var(--g200);">Format scope</th>
+                  <th style="padding:8px 10px;text-align:right;font-weight:600;font-size:11px;color:var(--g500);border-bottom:1px solid var(--g200);"></th>
+                </tr></thead>
+                <tbody>
+                  <tr><td style="padding:9px 10px;border-bottom:1px solid var(--g100);">Checkout — Desktop</td><td style="padding:9px 10px;border-bottom:1px solid var(--g100);color:var(--g500);">All eligible</td><td style="padding:9px 10px;border-bottom:1px solid var(--g100);text-align:right;"><button class="btn btn-outline btn-sm">Remove</button></td></tr>
+                  <tr><td style="padding:9px 10px;border-bottom:1px solid var(--g100);">Checkout — Mobile</td><td style="padding:9px 10px;border-bottom:1px solid var(--g100);color:var(--g500);">All eligible</td><td style="padding:9px 10px;border-bottom:1px solid var(--g100);text-align:right;"><button class="btn btn-outline btn-sm">Remove</button></td></tr>
+                  <tr><td style="padding:9px 10px;">Cart — All devices</td><td style="padding:9px 10px;color:var(--g500);">All eligible</td><td style="padding:9px 10px;text-align:right;"><button class="btn btn-outline btn-sm">Remove</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: PANEL -->
+      <div class="editor-panel">
+
+        <!-- Format eligibility -->
+        <div class="panel-card">
+          <div class="panel-hdr"><h3>Format Eligibility</h3></div>
+          <div class="panel-body" id="elig-panel">
+            <div class="elig-row"><span class="elig-fmt">Text</span><div class="elig-right"><span class="elig-dot on"></span><span class="elig-text on">Eligible</span></div></div>
+            <div class="elig-row"><span class="elig-fmt">Text Hero</span><div class="elig-right"><span class="elig-dot on"></span><span class="elig-text on">Eligible</span></div></div>
+            <div class="elig-row"><span class="elig-fmt">Benefits</span><div class="elig-right" id="elig-benefits"><span class="elig-dot on"></span><span class="elig-text on">Eligible</span></div></div>
+            <div class="elig-row"><span class="elig-fmt">Benefits Hero</span><div class="elig-right" id="elig-bh"><span class="elig-dot off"></span><span class="elig-text off">Add 1.91:1 image</span></div></div>
+            <div class="elig-row"><span class="elig-fmt">Savings</span><div class="elig-right" id="elig-savings"><span class="elig-dot off"></span><span class="elig-text off">Add promo amount</span></div></div>
+            <div class="elig-row"><span class="elig-fmt">Compact</span><div class="elig-right"><span class="elig-dot on"></span><span class="elig-text on">Eligible</span></div></div>
+            <div class="elig-row"><span class="elig-fmt">Product Carousel</span><div class="elig-right" id="elig-pc"><span class="elig-dot off"></span><span class="elig-text off">Add carousel images</span></div></div>
+          </div>
+        </div>
+
+        <!-- Reach -->
+        <div class="panel-card">
+          <div class="panel-hdr"><h3>Network Reach</h3></div>
+          <div class="panel-body">
+            <div style="display:flex;align-items:baseline;gap:8px;">
+              <div class="reach-big" id="reach-pct">71%</div>
+              <div class="reach-sub">of network<br>inventory</div>
+            </div>
+            <div class="reach-track"><div class="reach-fill" id="reach-bar" style="width:71%"></div></div>
+            <div class="reach-goal" id="reach-note">Target: 80–100% · Add Benefits Hero + Savings to reach 90%+</div>
+          </div>
+        </div>
+
+        <!-- Combinations -->
+        <div class="panel-card">
+          <div class="panel-hdr"><h3>Combinations</h3></div>
+          <div class="panel-body">
+            <div class="combo-big" id="combo-count">360</div>
+            <div class="combo-formula" id="combo-formula">5T × 3D × 3CTA × 4Img</div>
+            <div style="font-size:11px;color:var(--g500);margin-top:6px;">Brain tests all combinations per impression</div>
+          </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="panel-card">
+          <div class="panel-hdr"><h3>Live Preview</h3></div>
+          <div>
+            <div class="preview-tabs" id="preview-tabs">
+              <div class="prev-tab active" onclick="switchPreview('text',this)">Text</div>
+              <div class="prev-tab active" onclick="switchPreview('hero',this)">Text Hero</div>
+              <div class="prev-tab active" onclick="switchPreview('benefits',this)">Benefits</div>
+              <div class="prev-tab locked" id="pt-savings">Savings</div>
+            </div>
+            <div class="preview-area" id="preview-area">
+              <div class="preview-ad" id="preview-ad">
+                <div class="prev-title" id="pv-title">Free delivery on all orders</div>
+                <div class="prev-body" id="pv-body">Get the products you love delivered fast with free standard shipping.</div>
+                <div class="prev-cta" id="pv-cta">Shop now</div>
+                <div class="prev-tags"><span class="prev-tag">#FreeShipping</span><span class="prev-tag">#SpringSale</span></div>
+              </div>
+              <div class="combo-nav">
+                <button class="cnav-btn" onclick="prevCombo()">‹</button>
+                <span id="combo-index">Combo 1 of 360</span>
+                <button class="cnav-btn" onclick="nextCombo()">›</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strength -->
+        <div class="panel-card">
+          <div class="panel-hdr"><h3>Asset Strength</h3></div>
+          <div class="panel-body">
+            <div class="strength-row" style="margin-bottom:10px;">
+              <div class="strength-track" style="flex:1;"><div class="strength-fill good" id="strength-bar"></div></div>
+              <span class="strength-score good" id="strength-score">Good · 72%</span>
+            </div>
+            <div style="font-size:12px;line-height:1.8;color:var(--g600);">
+              ✓ Titles (5/5)<br>
+              ✓ Descriptions (2/2)<br>
+              ✓ CTAs (3/3)<br>
+              ✓ Benefits (3/5)<br>
+              ✓ Images (4 uploaded)<br>
+              ○ <span style="color:var(--amber);">Add 1.91:1 image for Benefits Hero</span><br>
+              ○ <span style="color:var(--amber);">Add promo amount for Savings</span>
+            </div>
+            <div style="font-size:11px;color:var(--g400);margin-top:10px;">Reach Excellent to unlock A/B testing</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================= VIEW: REPORTING ============================= -->
+<div id="view-reporting" class="view">
+  <div class="view-inner">
+    <div class="page-header">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1>Reporting — New Customer Acquisition</h1>
+          <div class="sub">Apr 1–29, 2026 · Dynamic mode · 2 Asset Groups</div>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn btn-outline btn-sm">Apr 2026 ▾</button>
+          <button class="btn btn-outline btn-sm">All formats ▾</button>
+          <button class="btn btn-outline btn-sm">⬇ Export</button>
+          <button class="btn btn-primary btn-sm" onclick="showView('ag-list')">← Asset Groups</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="report-tabs">
+      <div class="report-tab active" onclick="switchReportTab('asset-intel',this)">📊 Asset Intelligence</div>
+      <div class="report-tab" onclick="switchReportTab('format-matrix',this)">🔲 Format × Group Matrix</div>
+      <div class="report-tab" onclick="switchReportTab('combos',this)">🔗 Combination Insights</div>
+    </div>
+
+    <!-- TAB 1: Asset Intelligence -->
+    <div class="rtab-panel active" id="rtab-asset-intel">
+      <div class="tbl-insight">
+        <span style="font-size:18px;">💡</span>
+        <div>
+          <div><strong>"20% off today only"</strong> title is rated <strong>Low</strong> — it's being outcompeted by "Free delivery" messaging. Consider replacing it or adding 2 stronger alternatives to improve Asset Strength.</div>
+          <div class="insight-actions">
+            <button class="btn btn-outline btn-sm" onclick="showView('editor')">Edit Asset Group →</button>
+            <button class="btn btn-outline btn-sm">Pause this asset</button>
+          </div>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="data-tbl">
+          <thead><tr>
+            <th>Type</th><th>Asset</th><th>Impressions</th><th>CVR</th><th>Revenue</th><th>Rating</th><th></th>
+          </tr></thead>
+          <tbody>
+            <tr><td><span class="type-pill tp-title">Title</span></td><td>"Free delivery on all orders"</td><td>48,200</td><td>4.8%</td><td>$14,200</td><td><span class="rating-badge rb-best">●Best</span></td><td><button class="btn btn-outline btn-sm">Details</button></td></tr>
+            <tr><td><span class="type-pill tp-title">Title</span></td><td>"Shop the spring sale"</td><td>31,400</td><td>3.9%</td><td>$9,100</td><td><span class="rating-badge rb-good">●Good</span></td><td><button class="btn btn-outline btn-sm">Details</button></td></tr>
+            <tr style="background:#fff8f8;"><td><span class="type-pill tp-title">Title</span></td><td>"20% off today only"</td><td>9,200</td><td>1.9%</td><td>$2,100</td><td><span class="rating-badge rb-low">●Low</span></td><td><button class="btn btn-outline btn-sm" style="color:var(--red);border-color:var(--red);">Replace</button></td></tr>
+            <tr><td><span class="type-pill tp-desc">Desc</span></td><td>"Get the products you love…"</td><td>52,100</td><td>4.3%</td><td>$15,400</td><td><span class="rating-badge rb-best">●Best</span></td><td><button class="btn btn-outline btn-sm">Details</button></td></tr>
+            <tr><td><span class="type-pill tp-desc">Desc</span></td><td>"Shop thousands of products…"</td><td>28,700</td><td>3.5%</td><td>$7,800</td><td><span class="rating-badge rb-good">●Good</span></td><td><button class="btn btn-outline btn-sm">Details</button></td></tr>
+            <tr><td><span class="type-pill tp-cta">CTA</span></td><td>"Shop now"</td><td>61,000</td><td>4.2%</td><td>$17,400</td><td><span class="rating-badge rb-best">●Best</span></td><td><button class="btn btn-outline btn-sm">Details</button></td></tr>
+            <tr><td><span class="type-pill tp-cta">CTA</span></td><td>"Get offer"</td><td>22,300</td><td>3.6%</td><td>$6,200</td><td><span class="rating-badge rb-good">●Good</span></td><td><button class="btn btn-outline btn-sm">Details</button></td></tr>
+            <tr><td><span class="type-pill tp-image">Image</span></td><td>lifestyle-1.jpg (1.91:1)</td><td>38,100</td><td>4.1%</td><td>$11,400</td><td><span class="rating-badge rb-good">●Good</span></td><td><button class="btn btn-outline btn-sm">Details</button></td></tr>
+            <tr style="background:#fff8f8;"><td><span class="type-pill tp-image">Image</span></td><td>product-flat.jpg (1:1)</td><td>8,400</td><td>1.7%</td><td>$1,900</td><td><span class="rating-badge rb-low">●Low</span></td><td><button class="btn btn-outline btn-sm" style="color:var(--red);border-color:var(--red);">Replace</button></td></tr>
+            <tr><td><span class="type-pill tp-benefit">Benefit</span></td><td>"Free returns on all orders"</td><td>24,100</td><td>3.8%</td><td>$7,100</td><td><span class="rating-badge rb-good">●Good</span></td><td><button class="btn btn-outline btn-sm">Details</button></td></tr>
+            <tr><td><span class="type-pill tp-benefit">Benefit</span></td><td>"Fast 2-day shipping"</td><td>22,800</td><td>3.6%</td><td>$6,500</td><td><span class="rating-badge rb-good">●Good</span></td><td><button class="btn btn-outline btn-sm">Details</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:12px;color:var(--g400);text-align:center;margin-top:8px;">Ratings are relative — Best means top performer within this asset type. Low means being outcompeted by other assets.</div>
+    </div>
+
+    <!-- TAB 2: Format Matrix -->
+    <div class="rtab-panel" id="rtab-format-matrix">
+      <div class="matrix-legend">
+        <div class="ml-item"><span style="color:var(--green);font-weight:700;">★</span> Best performer per group</div>
+        <div class="ml-item"><span style="color:var(--amber);">⬜</span> Format not yet eligible — add assets to unlock</div>
+        <div class="ml-item"><span style="color:var(--g300);">—</span> No data yet</div>
+      </div>
+      <div class="matrix-insight">
+        💡 <strong>Free Delivery</strong> is not yet running in Benefits Hero or Product Carousel formats — both are unlockable with existing copy. Add a 1.91:1 product image to unlock Benefits Hero and capture an estimated +12% reach.
+        <div style="margin-top:8px;"><button class="btn btn-outline btn-sm" onclick="showView('editor')">Add missing assets →</button></div>
+      </div>
+      <div class="matrix-wrap">
+        <table class="matrix-tbl">
+          <thead><tr>
+            <th class="row-hdr">Asset Group</th>
+            <th>Text</th>
+            <th>Text Hero</th>
+            <th>Benefits</th>
+            <th>Benefits Hero</th>
+            <th>Savings</th>
+            <th>Compact</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td class="row-hdr">Free Delivery<br><span style="font-size:11px;color:var(--g400);">Spring Sale</span></td>
+              <td><div class="mc"><div class="cvr">4.2%</div><div class="rev">$9.1K</div></div></td>
+              <td><div class="mc best"><div class="cvr">5.1% ★</div><div class="rev">$14.2K</div></div></td>
+              <td><div class="mc"><div class="cvr">3.9%</div><div class="rev">$7.8K</div></div></td>
+              <td><div class="mc unlock">⬜ Add 1.91:1 image<br>Est. +12% reach</div></td>
+              <td><div class="mc unlock">⬜ Add promo amt<br>Est. +8% reach</div></td>
+              <td><div class="mc"><div class="cvr">3.5%</div><div class="rev">$4.2K</div></div></td>
+            </tr>
+            <tr>
+              <td class="row-hdr">20% Off<br><span style="font-size:11px;color:var(--g400);">First Order</span></td>
+              <td><div class="mc"><div class="cvr">2.8%</div><div class="rev">$3.4K</div></div></td>
+              <td><div class="mc unlock">⬜ Add 1.91:1 image</div></td>
+              <td><div class="mc unlock">⬜ Add benefits copy</div></td>
+              <td><div class="mc unlock">⬜ Add image + benefits</div></td>
+              <td><div class="mc best"><div class="cvr">4.4% ★</div><div class="rev">$6.1K</div></div></td>
+              <td><div class="mc"><div class="cvr">2.6%</div><div class="rev">$2.8K</div></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:12px;color:var(--g400);text-align:center;margin-top:8px;">Network coverage: 5 of 7 formats eligible across this Ad Set · <strong style="color:var(--g600);">71%</strong></div>
+    </div>
+
+    <!-- TAB 3: Combination Insights -->
+    <div class="rtab-panel" id="rtab-combos">
+      <div class="combo-pattern">
+        <strong>Pattern detected across top 15 combinations:</strong> "Free delivery" titles + lifestyle imagery consistently delivers 38% higher CVR than product-only imagery in Benefits format. Consider this a stable signal — add more lifestyle variants.
+      </div>
+
+      <div class="combo-card">
+        <div class="combo-card-hdr">
+          <span class="combo-rank">#1 of 360 combinations</span>
+          <div class="combo-metrics">
+            <div class="combo-metric hi"><div class="val">5.2%</div><div class="lbl">CVR</div></div>
+            <div class="combo-metric"><div class="val">$16,400</div><div class="lbl">Revenue</div></div>
+            <div class="combo-metric"><div class="val">38,100</div><div class="lbl">Impressions</div></div>
+          </div>
+        </div>
+        <div class="combo-detail">
+          <div class="cdr"><span class="cdl">Title</span><span class="cdv">"Free delivery on all orders" <span class="cda rb-best rating-badge" style="padding:2px 6px;">●Best</span></span></div>
+          <div class="cdr"><span class="cdl">Body</span><span class="cdv">"Get the products you love delivered fast…" <span class="cda rb-best rating-badge" style="padding:2px 6px;">●Best</span></span></div>
+          <div class="cdr"><span class="cdl">Benefits</span><span class="cdv">Free returns · Fast 2-day shipping · Secure checkout</span></div>
+          <div class="cdr"><span class="cdl">CTA</span><span class="cdv">"Shop now" <span class="cda rb-best rating-badge" style="padding:2px 6px;">●Best</span></span></div>
+          <div class="cdr"><span class="cdl">Image</span><span class="cdv">lifestyle-1.jpg (1.91:1)</span></div>
+          <div class="cdr"><span class="cdl">Format</span><span class="cdv">Benefits · Checkout — Desktop</span></div>
+        </div>
+        <div class="combo-card-ftr">
+          <button class="btn btn-outline btn-sm">📌 Pin as control</button>
+          <button class="btn btn-outline btn-sm" onclick="showView('editor')">Promote to Manual Creative →</button>
+        </div>
+      </div>
+
+      <div class="combo-card">
+        <div class="combo-card-hdr">
+          <span class="combo-rank">#2 of 360 combinations</span>
+          <div class="combo-metrics">
+            <div class="combo-metric hi"><div class="val">4.8%</div><div class="lbl">CVR</div></div>
+            <div class="combo-metric"><div class="val">$12,100</div><div class="lbl">Revenue</div></div>
+            <div class="combo-metric"><div class="val">31,200</div><div class="lbl">Impressions</div></div>
+          </div>
+        </div>
+        <div class="combo-detail">
+          <div class="cdr"><span class="cdl">Title</span><span class="cdv">"Free delivery on all orders" <span class="cda rb-best rating-badge" style="padding:2px 6px;">●Best</span></span></div>
+          <div class="cdr"><span class="cdl">Body</span><span class="cdv">"Get the products you love delivered fast…"</span></div>
+          <div class="cdr"><span class="cdl">CTA</span><span class="cdv">"Shop now"</span></div>
+          <div class="cdr"><span class="cdl">Image</span><span class="cdv">lifestyle-2.jpg (1.91:1)</span></div>
+          <div class="cdr"><span class="cdl">Format</span><span class="cdv">Text Hero · Checkout — Mobile</span></div>
+        </div>
+        <div class="combo-card-ftr">
+          <button class="btn btn-outline btn-sm">📌 Pin as control</button>
+          <button class="btn btn-outline btn-sm" onclick="showView('editor')">Promote to Manual Creative →</button>
+        </div>
+      </div>
+
+      <div class="combo-card">
+        <div class="combo-card-hdr">
+          <span class="combo-rank">#3 of 360 combinations</span>
+          <div class="combo-metrics">
+            <div class="combo-metric hi"><div class="val">4.1%</div><div class="lbl">CVR</div></div>
+            <div class="combo-metric"><div class="val">$9,800</div><div class="lbl">Revenue</div></div>
+            <div class="combo-metric"><div class="val">28,900</div><div class="lbl">Impressions</div></div>
+          </div>
+        </div>
+        <div class="combo-detail">
+          <div class="cdr"><span class="cdl">Title</span><span class="cdv">"Shop the spring sale" <span class="cda rb-good rating-badge" style="padding:2px 6px;">●Good</span></span></div>
+          <div class="cdr"><span class="cdl">Body</span><span class="cdv">"Shop thousands of products with free delivery…"</span></div>
+          <div class="cdr"><span class="cdl">Benefits</span><span class="cdv">Free returns · Fast 2-day shipping</span></div>
+          <div class="cdr"><span class="cdl">CTA</span><span class="cdv">"Get offer"</span></div>
+          <div class="cdr"><span class="cdl">Image</span><span class="cdv">lifestyle-1.jpg (1.91:1)</span></div>
+          <div class="cdr"><span class="cdl">Format</span><span class="cdv">Benefits · Cart — All devices</span></div>
+        </div>
+        <div class="combo-card-ftr">
+          <button class="btn btn-outline btn-sm">📌 Pin as control</button>
+          <button class="btn btn-outline btn-sm" onclick="showView('editor')">Promote to Manual Creative →</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:12px;">
+        <button class="btn btn-outline">Show all 360 combinations ranked →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar" id="bottom-bar">
+  <div class="bb-left">
+    <button class="btn btn-ghost" onclick="navBack()">← Back</button>
+  </div>
+  <div class="bb-right">
+    <button class="btn-save">Save draft</button>
+    <button class="btn btn-primary" onclick="navNext()" id="bb-next">Next →</button>
+  </div>
+</div>
+
+
+<script>
+// ─── STATE ───
+let currentView = 'mode-gate';
+let comboIndex = 0;
+let currentPreviewFmt = 'text';
+
+const titles = ['Free delivery on all orders','Shop the spring sale','20% off today only','Exclusive member deal','Limited time — free shipping'];
+const bodies = ['Get the products you love delivered fast with free standard shipping.','Shop thousands of products with free delivery. No minimum spend this week.'];
+const ctas = ['Shop now','Get offer','Claim deal'];
+const images = ['lifestyle-1.jpg','lifestyle-2.jpg','product-sq.jpg','brand-sq.jpg'];
+const benefits = ['Free returns on all orders','Fast 2-day shipping','Secure checkout guaranteed'];
+const tags = ['#FreeShipping','#SpringSale'];
+
+// ─── NAVIGATION ───
+function showView(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  currentView = v;
+  updateFlowBar(v);
+  updateBottomBar(v);
+  window.scrollTo(0,0);
+}
+
+function updateFlowBar(v) {
+  const fsC = document.getElementById('fs-creatives');
+  const fsR = document.getElementById('fs-reporting');
+  fsC.classList.remove('active','done');
+  fsR.classList.remove('active','done');
+  if (v === 'mode-gate' || v === 'ag-list' || v === 'editor') {
+    fsC.classList.add('active');
+    fsR.classList.remove('active');
+  } else if (v === 'reporting') {
+    fsC.classList.add('done');
+    fsR.classList.add('active');
+  }
+}
+
+function updateBottomBar(v) {
+  const bb = document.getElementById('bottom-bar');
+  const next = document.getElementById('bb-next');
+  if (v === 'reporting') {
+    next.textContent = '✓ Submit Campaign';
+  } else if (v === 'editor') {
+    next.textContent = 'Save Asset Group →';
+  } else if (v === 'ag-list') {
+    next.textContent = 'Next: Review →';
+  } else {
+    next.textContent = 'Next →';
+  }
+}
+
+function navBack() {
+  const map = {'reporting':'ag-list','editor':'ag-list','ag-list':'mode-gate','mode-gate':'mode-gate'};
+  showView(map[currentView] || 'mode-gate');
+}
+
+function navNext() {
+  const map = {'mode-gate':'ag-list','ag-list':'editor','editor':'reporting','reporting':'reporting'};
+  showView(map[currentView] || 'ag-list');
+}
+
+// ─── MODE GATE ───
+function selectMode(m) {
+  showView('ag-list');
+}
+
+// ─── FORM SECTIONS ───
+function toggleSec(id) {
+  const body = document.getElementById(id);
+  const toggle = document.getElementById('st'+id.replace('sec',''));
+  body.classList.toggle('collapsed');
+  toggle.classList.toggle('open');
+}
+
+// ─── ASSET MANAGEMENT ───
+function removeAsset(btn) {
+  btn.closest('.asset-row').remove();
+  updatePreview();
+  updateEligibility();
+}
+
+function addTitle() {
+  const list = document.getElementById('titles-list');
+  const row = document.createElement('div');
+  row.className = 'asset-row';
+  row.innerHTML = '<input type="text" placeholder="Enter a title…" oninput="updatePreview()"><span class="perf-badge pending">●Pending</span><button class="rm-btn" onclick="removeAsset(this)">×</button>';
+  list.appendChild(row);
+  row.querySelector('input').focus();
+  updatePreview();
+}
+
+function addDesc(listId) {
+  const list = document.getElementById(listId);
+  const isLong = listId === 'long-desc-list';
+  const row = document.createElement('div');
+  row.className = 'asset-row';
+  if (isLong) {
+    row.innerHTML = '<textarea rows="2" placeholder="Enter a description…" oninput="updatePreview()"></textarea><span class="perf-badge pending" style="margin-top:8px;">●Pending</span><button class="rm-btn" style="margin-top:8px;" onclick="removeAsset(this)">×</button>';
+  } else {
+    row.innerHTML = '<input type="text" placeholder="Enter a short description…" oninput="updatePreview()"><span class="perf-badge pending">●Pending</span><button class="rm-btn" onclick="removeAsset(this)">×</button>';
+  }
+  list.appendChild(row);
+  row.querySelector('input,textarea').focus();
+}
+
+function addCTA() {
+  const list = document.getElementById('cta-list');
+  const row = document.createElement('div');
+  row.className = 'asset-row';
+  row.innerHTML = '<input type="text" placeholder="Enter a CTA…" oninput="updatePreview()"><span class="perf-badge pending">●Pending</span><button class="rm-btn" onclick="removeAsset(this)">×</button>';
+  list.appendChild(row);
+  row.querySelector('input').focus();
+}
+
+// ─── BENEFITS ───
+function addBenefit(e) {
+  if (e.key !== 'Enter') return;
+  const input = document.getElementById('benefit-input');
+  const val = input.value.trim();
+  if (!val) return;
+  const chips = document.getElementById('benefit-chips');
+  const count = chips.querySelectorAll('.benefit-chip').length;
+  if (count >= 5) return;
+  const chip = document.createElement('span');
+  chip.className = 'benefit-chip';
+  chip.innerHTML = val + '<span class="rm" onclick="removeChip(this)">×</span>';
+  chips.appendChild(chip);
+  input.value = '';
+  updateBenefitCount();
+  updateEligibility();
+  updatePreview();
+}
+
+function removeChip(el) {
+  el.closest('.benefit-chip, .tag-chip').remove();
+  updateBenefitCount();
+  updateEligibility();
+  updatePreview();
+}
+
+function updateBenefitCount() {
+  const count = document.getElementById('benefit-chips').querySelectorAll('.benefit-chip').length;
+  const el = document.getElementById('benefit-count');
+  if (el) el.textContent = count;
+}
+
+// ─── TAGS ───
+function addTag(e) {
+  if (e.key !== 'Enter') return;
+  const input = document.getElementById('tag-input');
+  const val = input.value.trim().replace(/^#/,'');
+  if (!val) return;
+  const chips = document.getElementById('tag-chips');
+  const chip = document.createElement('span');
+  chip.className = 'tag-chip';
+  chip.innerHTML = '#'+val+'<span class="rm" onclick="removeChip(this)">×</span>';
+  chips.appendChild(chip);
+  input.value = '';
+  updatePreview();
+}
+
+// ─── IMAGES ───
+function addImage(slot, type) {
+  slot.classList.add('filled');
+  slot.innerHTML = '<div class="img-type">'+type+'</div><div>image.jpg</div>';
+  slot.onclick = function(){ toggleImage(this, type); };
+  updateEligibility();
+}
+
+function toggleImage(slot, type) {
+  // just visual feedback
+  slot.style.outline = slot.style.outline ? '' : '2px solid var(--rokt)';
+}
+
+// ─── ELIGIBILITY ───
+function updateEligibility() {
+  const promoVal = document.getElementById('promo-input') ? document.getElementById('promo-input').value.trim() : '';
+  const hasBenefits = document.getElementById('benefit-chips').querySelectorAll('.benefit-chip').length > 0;
+  const hasPromo = promoVal.length > 0;
+  const filledSlots = document.querySelectorAll('.img-slot.filled').length;
+  const has191 = filledSlots >= 2; // simplified: assume first 2 filled are 1.91:1
+
+  // Benefits
+  const eb = document.getElementById('elig-benefits');
+  if (eb) {
+    if (hasBenefits) {
+      eb.innerHTML = '<span class="elig-dot on"></span><span class="elig-text on">Eligible</span>';
+    } else {
+      eb.innerHTML = '<span class="elig-dot off"></span><span class="elig-text off">Add benefits copy</span>';
+    }
+  }
+  // Benefits Hero
+  const ebh = document.getElementById('elig-bh');
+  if (ebh) {
+    if (hasBenefits && has191) {
+      ebh.innerHTML = '<span class="elig-dot on"></span><span class="elig-text on">Eligible</span>';
+    } else {
+      ebh.innerHTML = '<span class="elig-dot off"></span><span class="elig-text off">' + (!hasBenefits ? 'Add benefits' : 'Add 1.91:1 image') + '</span>';
+    }
+  }
+  // Savings
+  const es = document.getElementById('elig-savings');
+  if (es) {
+    if (hasPromo) {
+      es.innerHTML = '<span class="elig-dot on"></span><span class="elig-text on">Eligible</span>';
+    } else {
+      es.innerHTML = '<span class="elig-dot off"></span><span class="elig-text off">Add promo amount</span>';
+    }
+  }
+
+  // Count eligible
+  let eligCount = 3; // text, text hero, compact always
+  if (hasBenefits) eligCount++;
+  if (hasBenefits && has191) eligCount++;
+  if (hasPromo) eligCount++;
+  const pct = Math.round((eligCount / 7) * 100);
+
+  const reachPct = document.getElementById('reach-pct');
+  const reachBar = document.getElementById('reach-bar');
+  const reachNote = document.getElementById('reach-note');
+  if (reachPct) reachPct.textContent = pct + '%';
+  if (reachBar) reachBar.style.width = pct + '%';
+  if (reachNote) {
+    if (pct >= 85) {
+      reachNote.textContent = 'Great coverage! Add Product Carousel for 100%.';
+      reachNote.style.color = 'var(--green)';
+    } else {
+      reachNote.textContent = 'Target: 80–100% · ' + (eligCount) + ' of 7 formats eligible';
+      reachNote.style.color = '';
+    }
+  }
+
+  // Preview tabs
+  const ptSavings = document.getElementById('pt-savings');
+  if (ptSavings) {
+    if (hasPromo) { ptSavings.classList.remove('locked'); ptSavings.classList.add('active'); }
+    else { ptSavings.classList.add('locked'); ptSavings.classList.remove('active'); }
+  }
+
+  updatePreview();
+}
+
+// ─── PREVIEW ───
+function switchPreview(fmt, tab) {
+  if (tab.classList.contains('locked')) return;
+  currentPreviewFmt = fmt;
+  document.querySelectorAll('.prev-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  renderPreview();
+}
+
+function updatePreview() { renderPreview(); }
+
+function renderPreview() {
+  const titleInputs = document.querySelectorAll('#titles-list input');
+  const bodyTextareas = document.querySelectorAll('#long-desc-list textarea');
+  const ctaInputs = document.querySelectorAll('#cta-list input');
+  const benefitChips = document.querySelectorAll('#benefit-chips .benefit-chip');
+  const tagChips = document.querySelectorAll('#tag-chips .tag-chip');
+  const promoInput = document.getElementById('promo-input');
+
+  const t = titleInputs.length > comboIndex ? titleInputs[comboIndex % titleInputs.length].value : (titles[0]);
+  const b = bodyTextareas.length > 0 ? bodyTextareas[comboIndex % bodyTextareas.length].value : bodies[0];
+  const c = ctaInputs.length > 0 ? ctaInputs[comboIndex % ctaInputs.length].value : ctas[0];
+  const promo = promoInput ? promoInput.value.trim() : '';
+
+  const benefitsArr = Array.from(benefitChips).map(ch => ch.textContent.replace('×','').trim());
+  const tagsArr = Array.from(tagChips).map(ch => ch.textContent.replace('×','').trim());
+
+  const pv = document.getElementById('preview-ad');
+  if (!pv) return;
+
+  let html = '';
+  if (currentPreviewFmt === 'hero') {
+    html += '<div class="prev-img">📷 lifestyle-1.jpg (1.91:1)</div>';
+  }
+  html += '<div class="prev-title">' + (t||'Your title here') + '</div>';
+  html += '<div class="prev-body">' + (b||'Your description here') + '</div>';
+  if (currentPreviewFmt === 'benefits' && benefitsArr.length > 0) {
+    html += '<div class="prev-benefits">' + benefitsArr.slice(0,3).map(bft => '<div class="prev-benefit">'+bft+'</div>').join('') + '</div>';
+  }
+  if (currentPreviewFmt === 'savings' && promo) {
+    html += '<div class="prev-promo">🏷 ' + promo + '</div>';
+  }
+  html += '<div class="prev-cta">' + (c||'Shop now') + '</div>';
+  if (tagsArr.length > 0) {
+    html += '<div class="prev-tags">' + tagsArr.map(tg => '<span class="prev-tag">'+tg+'</span>').join('') + '</div>';
+  }
+  pv.innerHTML = html;
+
+  // Update combo count
+  const nT = titleInputs.length || 1;
+  const nB = bodyTextareas.length || 1;
+  const nC = ctaInputs.length || 1;
+  const nI = Math.max(document.querySelectorAll('.img-slot.filled').length, 1);
+  const total = nT * nB * nC * nI;
+  const ci = document.getElementById('combo-count');
+  const cf = document.getElementById('combo-formula');
+  const cIdx = document.getElementById('combo-index');
+  if (ci) ci.textContent = total.toLocaleString();
+  if (cf) cf.textContent = nT+'T × '+nB+'D × '+nC+'CTA × '+nI+'Img';
+  if (cIdx) cIdx.textContent = 'Combo '+(comboIndex+1)+' of '+total;
+}
+
+function prevCombo() {
+  const titleInputs = document.querySelectorAll('#titles-list input');
+  const bodyTAs = document.querySelectorAll('#long-desc-list textarea');
+  const ctaInputs = document.querySelectorAll('#cta-list input');
+  const nI = Math.max(document.querySelectorAll('.img-slot.filled').length,1);
+  const total = (titleInputs.length||1)*(bodyTAs.length||1)*(ctaInputs.length||1)*nI;
+  comboIndex = (comboIndex - 1 + total) % total;
+  renderPreview();
+}
+
+function nextCombo() {
+  const titleInputs = document.querySelectorAll('#titles-list input');
+  const bodyTAs = document.querySelectorAll('#long-desc-list textarea');
+  const ctaInputs = document.querySelectorAll('#cta-list input');
+  const nI = Math.max(document.querySelectorAll('.img-slot.filled').length,1);
+  const total = (titleInputs.length||1)*(bodyTAs.length||1)*(ctaInputs.length||1)*nI;
+  comboIndex = (comboIndex + 1) % total;
+  renderPreview();
+}
+
+// ─── REPORTING TABS ───
+function switchReportTab(id, tab) {
+  document.querySelectorAll('.report-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.rtab-panel').forEach(p => p.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById('rtab-'+id).classList.add('active');
+}
+
+// ─── INIT ───
+updateEligibility();
+renderPreview();
+</script>
+</body>
+</html>
