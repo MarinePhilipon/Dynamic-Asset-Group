@@ -1461,7 +1461,16 @@ tr:hover .row-actions{opacity:1;}
                 </div>
                 <div class="form-section mt-8 hidden" id="mc-img-section">
                   <div class="fs-hdr" onclick="toggleFs('mc-img')"><div class="fs-title"><span class="fs-num">3</span>Image</div><span class="chevron" id="ch-mc-img">▼</span></div>
-                  <div class="fs-body collapsed" id="mc-img"><div class="img-upload-big"><div style="font-size:22px;margin-bottom:6px;">📷</div><p style="font-size:13px;color:var(--muted-fg);">Click to upload · 1280×672px · JPG or PNG</p></div></div>
+                  <div class="fs-body collapsed" id="mc-img">
+                    <div class="img-upload-big"><div style="font-size:22px;margin-bottom:6px;">📷</div><p style="font-size:13px;color:var(--muted-fg);">Click to upload · 1280×672px · JPG or PNG</p></div>
+                    <div class="toggle-row" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+                      <div>
+                        <span style="font-size:13px;font-weight:500;">Required to render</span>
+                        <div style="font-size:11px;color:var(--muted-fg);margin-top:2px;">Creative will not serve if this image is missing or rejected</div>
+                      </div>
+                      <label class="tgl"><input type="checkbox" checked><span class="tgl-track"></span><span class="tgl-thumb"></span></label>
+                    </div>
+                  </div>
                 </div>
                 <div class="form-section mt-8">
                   <div class="fs-hdr" onclick="toggleFs('mc-offer')"><div class="fs-title"><span class="fs-num" id="mc-offer-num">3</span>Offer & settings</div><span class="chevron" id="ch-mc-offer">▼</span></div>
@@ -1556,12 +1565,20 @@ tr:hover .row-actions{opacity:1;}
                       <button class="add-row-btn" onclick="agAddRow('ag-titles-list','title')">+ Add title</button>
                     </div>
                     <div class="form-field mb-14">
-                      <label>Descriptions <span class="req">*</span></label>
-                      <div class="asset-rows" id="ag-desc-list">
-                        <div class="asset-row"><textarea rows="2" oninput="agUpdate()">Get the products you love delivered fast with free standard shipping on all orders over $50.</textarea><span class="perf-pill perf-best" style="margin-top:8px;">●Best</span><button class="rm-btn" style="margin-top:8px;" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
-                        <div class="asset-row"><textarea rows="2" oninput="agUpdate()">Shop thousands of products with free delivery this spring.</textarea><span class="perf-pill perf-good" style="margin-top:8px;">●Good</span><button class="rm-btn" style="margin-top:8px;" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
+                      <label>Short description <span class="req">*</span> <span style="font-size:11px;color:var(--muted-fg);">max 50 chars · compact &amp; text formats</span></label>
+                      <div class="asset-rows" id="ag-sdesc-list">
+                        <div class="asset-row"><input type="text" maxlength="50" value="Free shipping on all orders over $50" oninput="agUpdate()"><span class="perf-pill perf-best">●Best</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
+                        <div class="asset-row"><input type="text" maxlength="50" value="Spring sale — free delivery this week" oninput="agUpdate()"><span class="perf-pill perf-good">●Good</span><button class="rm-btn" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
                       </div>
-                      <button class="add-row-btn" onclick="agAddDescRow()">+ Add description</button>
+                      <button class="add-row-btn" onclick="agAddRow('ag-sdesc-list','short desc')">+ Add short description</button>
+                    </div>
+                    <div class="form-field mb-14">
+                      <label>Long description <span class="req">*</span> <span style="font-size:11px;color:var(--muted-fg);">max 175 chars · text hero &amp; benefits formats</span></label>
+                      <div class="asset-rows" id="ag-desc-list">
+                        <div class="asset-row"><textarea rows="2" maxlength="175" oninput="agUpdate()">Get the products you love delivered fast with free standard shipping on all orders over $50.</textarea><span class="perf-pill perf-best" style="margin-top:8px;">●Best</span><button class="rm-btn" style="margin-top:8px;" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
+                        <div class="asset-row"><textarea rows="2" maxlength="175" oninput="agUpdate()">Shop thousands of products with free delivery this spring.</textarea><span class="perf-pill perf-good" style="margin-top:8px;">●Good</span><button class="rm-btn" style="margin-top:8px;" onclick="this.closest('.asset-row').remove();agUpdate()">×</button></div>
+                      </div>
+                      <button class="add-row-btn" onclick="agAddDescRow()">+ Add long description</button>
                     </div>
                     <div class="form-grid">
                       <div class="form-field">
@@ -1577,6 +1594,7 @@ tr:hover .row-actions{opacity:1;}
                         <div class="form-field"><label>Brand name <span class="req">*</span></label><input type="text" value="Acme Co."></div>
                         <div class="form-field mt-8"><label>Destination URL <span class="req">*</span></label><input type="text" value="https://acme.com/spring"></div>
                         <div class="form-field mt-8"><label>Negative CTA</label><input type="text" placeholder="No thanks"></div>
+                        <div class="form-field mt-8"><label>Disclaimer <span style="font-size:11px;color:var(--muted-fg);font-weight:400;">optional</span></label><input type="text" placeholder="e.g. T&amp;Cs apply. See acme.com/terms"></div>
                       </div>
                     </div>
                   </div>
@@ -1638,21 +1656,33 @@ tr:hover .row-actions{opacity:1;}
                     <div class="va-ratio-tabs">
                       <div class="va-ratio-tab active" id="va-tab-191" onclick="vaSwitch('191',this)">
                         <span class="va-tab-ratio">1.91:1</span>
-                        <span class="va-tab-label">Landscape</span>
+                        <span class="va-tab-label">Product · Landscape</span>
                         <span class="va-tab-count" id="va-cnt-191">2</span>
                         <span class="va-tab-req">Unlocks Text Hero + Benefits Hero</span>
                       </div>
                       <div class="va-ratio-tab" id="va-tab-11" onclick="vaSwitch('11',this)">
                         <span class="va-tab-ratio">1:1</span>
-                        <span class="va-tab-label">Square</span>
+                        <span class="va-tab-label">Product · Square</span>
                         <span class="va-tab-count" id="va-cnt-11">2</span>
                         <span class="va-tab-req">All formats</span>
                       </div>
                       <div class="va-ratio-tab needs" id="va-tab-45" onclick="vaSwitch('45',this)">
                         <span class="va-tab-ratio">4:5</span>
-                        <span class="va-tab-label">Portrait</span>
+                        <span class="va-tab-label">Product · Portrait</span>
                         <span class="va-tab-count" id="va-cnt-45">0</span>
                         <span class="va-tab-req">Optional · feed placements</span>
+                      </div>
+                      <div class="va-ratio-tab" id="va-tab-logo" onclick="vaSwitch('logo',this)">
+                        <span class="va-tab-ratio">Logo</span>
+                        <span class="va-tab-label">Brand Logo</span>
+                        <span class="va-tab-count" id="va-cnt-logo">0</span>
+                        <span class="va-tab-req">Optional · 1:1 + 1.91:1</span>
+                      </div>
+                      <div class="va-ratio-tab" id="va-tab-carousel" onclick="vaSwitch('carousel',this)">
+                        <span class="va-tab-ratio">🎠</span>
+                        <span class="va-tab-label">Carousel</span>
+                        <span class="va-tab-count" id="va-cnt-carousel">0</span>
+                        <span class="va-tab-req">Unlocks Prod. Carousel</span>
                       </div>
                     </div>
 
@@ -1765,6 +1795,62 @@ tr:hover .row-actions{opacity:1;}
                       </div>
                     </div>
 
+                    <!-- Panel: Logo -->
+                    <div class="va-panel" id="va-panel-logo">
+                      <div class="va-fmt-unlock">
+                        🏷 Brand Logo — used in all formats as the brand identifier. Upload both ratios for full coverage.
+                      </div>
+                      <div class="va-count-note" id="va-note-logo">0 logos uploaded</div>
+                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
+                        <div>
+                          <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--g700);">Square logo · 1:1</div>
+                          <div class="va-upload-zone" style="padding:20px 12px;" onclick="vaSimulateUpload('logo')">
+                            <span class="va-upload-icon" style="font-size:20px;">⬆️</span>
+                            <div class="va-upload-title" style="font-size:12px;">Upload 1:1 logo</div>
+                            <div class="va-upload-sub" style="font-size:11px;">400×400px min · PNG recommended</div>
+                          </div>
+                        </div>
+                        <div>
+                          <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--g700);">Landscape logo · 1.91:1</div>
+                          <div class="va-upload-zone" style="padding:20px 12px;" onclick="vaSimulateUpload('logo')">
+                            <span class="va-upload-icon" style="font-size:20px;">⬆️</span>
+                            <div class="va-upload-title" style="font-size:12px;">Upload 1.91:1 logo</div>
+                            <div class="va-upload-sub" style="font-size:11px;">1200×628px min · PNG recommended</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="va-thumb-grid" id="va-grid-logo"></div>
+                    </div>
+
+                    <!-- Panel: Carousel -->
+                    <div class="va-panel" id="va-panel-carousel">
+                      <div class="va-fmt-unlock">
+                        🔓 Unlocks format: <span class="va-fmt-chip">Product Carousel</span>
+                        <span>· Upload 2–10 product images · Recommended 1:1 square</span>
+                      </div>
+                      <div class="va-count-note" id="va-note-carousel">0 of 10 carousel images · min 2 required to unlock format</div>
+                      <div class="va-upload-zone" id="va-zone-carousel"
+                        ondragover="event.preventDefault();this.classList.add('drag-over')"
+                        ondragleave="this.classList.remove('drag-over')"
+                        ondrop="event.preventDefault();this.classList.remove('drag-over');vaSimulateUpload('carousel')">
+                        <span class="va-upload-icon">⬆️</span>
+                        <div class="va-upload-title">Drag &amp; drop product images for carousel</div>
+                        <div class="va-upload-sub">1:1 ratio · 1080×1080px recommended · upload 2–10 images</div>
+                        <div class="va-upload-actions">
+                          <button class="va-upload-btn primary" onclick="event.stopPropagation();vaSimulateUpload('carousel')">Upload images</button>
+                          <span class="va-upload-divider">or</span>
+                          <button class="va-upload-btn secondary" onclick="event.stopPropagation();openAssetLibrary('carousel')">📁 Asset Library</button>
+                        </div>
+                        <div class="va-upload-spec">JPG · PNG · WebP · Max 5 MB · Min 300 × 300 px</div>
+                      </div>
+                      <div class="va-thumb-grid" id="va-grid-carousel">
+                        <div class="va-add-thumb" onclick="vaSimulateUpload('carousel')">
+                          <div style="font-size:20px;">＋</div>
+                          <div>Add image</div>
+                        </div>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
 
@@ -1842,6 +1928,7 @@ tr:hover .row-actions{opacity:1;}
                     <div class="fmt-prev-tab" id="ag-fprev-bh" onclick="agFmtPrev('benhero',this)">Ben. Hero</div>
                     <div class="fmt-prev-tab locked" id="ag-fprev-sav">Savings</div>
                     <div class="fmt-prev-tab" onclick="agFmtPrev('compact',this)">Compact</div>
+                    <div class="fmt-prev-tab locked" id="ag-fprev-carousel">Carousel</div>
                   </div>
                   <div class="fmt-prev-wrap">
                     <div id="ag-fmt-preview"><!-- rendered by agFmtPrev() --></div>
@@ -2594,6 +2681,28 @@ tr:hover .row-actions{opacity:1;}
   </div><!-- /main-inset -->
 </div><!-- /app -->
 
+<!-- ══ NEW vs REFINE MODAL ══ -->
+<div class="lib-overlay" id="refine-overlay" onclick="closeRefineModal()" style="display:none;"></div>
+<div id="refine-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1001;background:var(--bg);border:1px solid var(--border);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.18);width:520px;max-width:95vw;padding:28px;">
+  <div style="font-size:17px;font-weight:700;margin-bottom:6px;">Updating this Asset Group?</div>
+  <div style="font-size:13px;color:var(--muted-fg);margin-bottom:20px;">How you proceed affects Brain's learning track. Choose carefully.</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="refine-card" onclick="proceedRefine()" style="border:2px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:border-color .15s;">
+      <div style="font-size:20px;margin-bottom:8px;">✏️</div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Refine this Asset Group</div>
+      <div style="font-size:12px;color:var(--muted-fg);line-height:1.5;">Same offer, same destination — you're adding or swapping assets to unlock formats or fight fatigue. Brain's history is preserved.</div>
+      <div style="margin-top:10px;font-size:11px;color:var(--green);font-weight:500;">✓ Keeps learning track intact</div>
+    </div>
+    <div class="refine-card" onclick="proceedNewAG()" style="border:2px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:border-color .15s;">
+      <div style="font-size:20px;margin-bottom:8px;">🆕</div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px;">New strategy</div>
+      <div style="font-size:12px;color:var(--muted-fg);line-height:1.5;">Different offer, destination, or intent — this needs a clean learning track so Brain can optimize independently.</div>
+      <div style="margin-top:10px;font-size:11px;color:var(--amber);font-weight:500;">⚠ Starts fresh learning track</div>
+    </div>
+  </div>
+  <button onclick="closeRefineModal()" style="margin-top:16px;width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:transparent;font-size:13px;cursor:pointer;color:var(--muted-fg);">Cancel</button>
+</div>
+
 <!-- ══ ASSET LIBRARY DRAWER (global overlay) ══ -->
 <div class="lib-overlay" id="lib-overlay" onclick="closeAssetLibrary()"></div>
 <div class="lib-drawer" id="lib-drawer">
@@ -3061,7 +3170,28 @@ function goToAGNew(){
   agUpdate();
 }
 
-function goToAGEdit(name){
+// ── NEW vs REFINE MODAL ──
+let _pendingAGEditName = null;
+function openRefineModal(name){
+  _pendingAGEditName = name;
+  document.getElementById('refine-overlay').style.display = '';
+  document.getElementById('refine-modal').style.display = '';
+}
+function closeRefineModal(){
+  document.getElementById('refine-overlay').style.display = 'none';
+  document.getElementById('refine-modal').style.display = 'none';
+  _pendingAGEditName = null;
+}
+function proceedRefine(){
+  closeRefineModal();
+  if(_pendingAGEditName) _doAGEdit(_pendingAGEditName);
+}
+function proceedNewAG(){
+  closeRefineModal();
+  goToAGNew();
+}
+
+function _doAGEdit(name){
   agMode = 'edit';
   document.getElementById('ag-page-title').textContent = name || 'Edit Asset Group';
   document.getElementById('ag-back-link').textContent = '← Asset Groups';
@@ -3071,6 +3201,9 @@ function goToAGEdit(name){
   if(banner) banner.classList.add('hidden');
   viewHistory.push(currentView);
   showView('ag-editor');
+}
+function goToAGEdit(name){
+  openRefineModal(name);
 }
 
 function agGoBack(){
@@ -3264,7 +3397,10 @@ let vaNewIdx = 0;
 function vaSwitch(ratio, tab){
   document.querySelectorAll('.va-ratio-tab').forEach(t=>t.classList.remove('active'));
   tab.classList.add('active');
-  document.querySelectorAll('.va-panel').forEach(p=>p.classList.remove('active'));
+  ['191','11','45','logo','carousel'].forEach(r=>{
+    const p = document.getElementById('va-panel-'+r);
+    if(p) p.classList.remove('active');
+  });
   const panel = document.getElementById('va-panel-'+ratio);
   if(panel) panel.classList.add('active');
 }
