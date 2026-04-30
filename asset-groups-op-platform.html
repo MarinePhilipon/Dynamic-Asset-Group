@@ -1995,49 +1995,71 @@ tr:hover .row-actions{opacity:1;}
             <div class="wstep active"><span class="wsn">4</span>Review</div>
           </div>
           <div class="wizard-body">
-            <div class="editor-layout">
+            <div class="editor-layout" style="grid-template-columns:1fr 1fr;align-items:start;">
+
+              <!-- LEFT: asset summary -->
               <div>
 
-            <!-- Required assets summary -->
-            <div class="form-section">
-              <div class="fs-hdr" onclick="toggleFs('rv-req')"><div class="fs-title"><span class="fs-num">1</span>Required assets</div><div class="flex items-center gap-8"><span class="fs-status done">✓ Complete</span><span class="chevron open" id="ch-rv-req">▼</span></div></div>
-              <div class="fs-body" id="rv-req">
-                <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Titles</span><div id="rv-titles" style="margin-top:4px;display:flex;flex-direction:column;gap:4px;"></div></div>
-                <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Short descriptions</span><div id="rv-sdesc" style="margin-top:4px;display:flex;flex-direction:column;gap:4px;"></div></div>
-                <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Long descriptions</span><div id="rv-ldesc" style="margin-top:4px;display:flex;flex-direction:column;gap:4px;"></div></div>
-                <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">CTAs</span><div id="rv-ctas" style="margin-top:4px;display:flex;flex-direction:column;gap:4px;"></div></div>
-                <div id="rv-brand-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-                  <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Brand name</span><div id="rv-brand" style="margin-top:4px;font-size:13px;"></div></div>
-                  <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Destination URL</span><div id="rv-url" style="margin-top:4px;font-size:13px;color:var(--primary);"></div></div>
+                <!-- Required assets summary -->
+                <div class="form-section">
+                  <div class="fs-hdr" onclick="toggleFs('rv-req')"><div class="fs-title"><span class="fs-num">1</span>Required assets</div><div class="flex items-center gap-8"><span class="fs-status done">✓ Complete</span><span class="chevron open" id="ch-rv-req">▼</span></div></div>
+                  <div class="fs-body" id="rv-req">
+                    <div>
+                      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                        <span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Titles</span>
+                        <span id="rv-titles-count" style="font-size:11px;font-weight:600;background:var(--g100);color:var(--g600);border-radius:10px;padding:1px 7px;"></span>
+                      </div>
+                      <div id="rv-titles" style="display:flex;flex-direction:column;gap:4px;"></div>
+                    </div>
+                    <div>
+                      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                        <span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Short descriptions</span>
+                        <span id="rv-sdesc-count" style="font-size:11px;font-weight:600;background:var(--g100);color:var(--g600);border-radius:10px;padding:1px 7px;"></span>
+                      </div>
+                      <div id="rv-sdesc" style="display:flex;flex-direction:column;gap:4px;"></div>
+                    </div>
+                    <div>
+                      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                        <span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Long descriptions</span>
+                        <span id="rv-ldesc-count" style="font-size:11px;font-weight:600;background:var(--g100);color:var(--g600);border-radius:10px;padding:1px 7px;"></span>
+                      </div>
+                      <div id="rv-ldesc" style="display:flex;flex-direction:column;gap:4px;"></div>
+                    </div>
+                    <div>
+                      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                        <span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">CTAs</span>
+                        <span id="rv-ctas-count" style="font-size:11px;font-weight:600;background:var(--g100);color:var(--g600);border-radius:10px;padding:1px 7px;"></span>
+                      </div>
+                      <div id="rv-ctas" style="display:flex;flex-direction:column;gap:4px;"></div>
+                    </div>
+                    <div id="rv-brand-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                      <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Brand name</span><div id="rv-brand" style="margin-top:4px;font-size:13px;"></div></div>
+                      <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Destination URL</span><div id="rv-url" style="margin-top:4px;font-size:13px;color:var(--primary);word-break:break-all;"></div></div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            <!-- Format expanders summary -->
-            <div class="form-section mt-8">
-              <div class="fs-hdr" onclick="toggleFs('rv-exp')"><div class="fs-title"><span class="fs-num">2</span>Format expanders</div><div class="flex items-center gap-8"><span class="chevron open" id="ch-rv-exp">▼</span></div></div>
-              <div class="fs-body" id="rv-exp">
-                <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Benefits</span><div id="rv-bens" style="margin-top:4px;font-size:13px;color:var(--muted-fg);"></div></div>
-                <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Promotion</span><div id="rv-promo" style="margin-top:4px;font-size:13px;color:var(--muted-fg);"></div></div>
-              </div>
-            </div>
-
-            <!-- Eligibility summary -->
-            <div class="form-section mt-8">
-              <div class="fs-hdr" onclick="toggleFs('rv-elig')"><div class="fs-title"><span class="fs-num">3</span>Format eligibility</div><div class="flex items-center gap-8"><span class="fs-status done" id="rv-elig-status">5 of 7 formats</span><span class="chevron open" id="ch-rv-elig">▼</span></div></div>
-              <div class="fs-body" id="rv-elig">
-                <div class="elig-row"><span class="elig-fmt">Text</span><div class="elig-status"><span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span></div></div>
-                <div class="elig-row"><span class="elig-fmt">Text Hero</span><div class="elig-status"><span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span></div></div>
-                <div class="elig-row"><span class="elig-fmt">Benefits</span><div class="elig-status" id="rv-el-ben"><span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span></div></div>
-                <div class="elig-row"><span class="elig-fmt">Benefits Hero</span><div class="elig-status" id="rv-el-bh"><span class="elig-dot off"></span><span class="elig-txt-off">Add 1.91:1 image</span></div></div>
-                <div class="elig-row"><span class="elig-fmt">Savings</span><div class="elig-status" id="rv-el-sav"><span class="elig-dot off"></span><span class="elig-txt-off">Add promotion</span></div></div>
-                <div class="elig-row"><span class="elig-fmt">Compact</span><div class="elig-status"><span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span></div></div>
-                <div class="elig-row"><span class="elig-fmt">Prod. Carousel</span><div class="elig-status" id="rv-el-car"><span class="elig-dot off"></span><span class="elig-txt-off">Add carousel images</span></div></div>
-              </div>
-            </div>
+                <!-- Format expanders summary -->
+                <div class="form-section mt-8">
+                  <div class="fs-hdr" onclick="toggleFs('rv-exp')"><div class="fs-title"><span class="fs-num">2</span>Format expanders</div><div class="flex items-center gap-8"><span class="chevron open" id="ch-rv-exp">▼</span></div></div>
+                  <div class="fs-body" id="rv-exp">
+                    <div>
+                      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                        <span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Benefits</span>
+                        <span id="rv-bens-count" style="font-size:11px;font-weight:600;background:var(--g100);color:var(--g600);border-radius:10px;padding:1px 7px;"></span>
+                      </div>
+                      <div id="rv-bens" style="font-size:13px;color:var(--muted-fg);"></div>
+                    </div>
+                    <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Promotion</span><div id="rv-promo" style="margin-top:4px;font-size:13px;color:var(--muted-fg);"></div></div>
+                  </div>
+                </div>
 
               </div>
-              <div class="right-panel">
+
+              <!-- RIGHT: preview + stats -->
+              <div style="position:sticky;top:20px;display:flex;flex-direction:column;gap:10px;">
+
+                <!-- Preview by format -->
                 <div class="panel-card" style="overflow:hidden;">
                   <div class="panel-card-hdr"><h4>Preview by format</h4></div>
                   <div class="fmt-prev-tabs" id="rv-fmt-prev-tabs">
@@ -2057,6 +2079,55 @@ tr:hover .row-actions{opacity:1;}
                     </div>
                   </div>
                 </div>
+
+                <!-- Stats row: Asset Strength + Combinations -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                  <div class="panel-card">
+                    <div class="panel-card-hdr"><h4>Asset Strength</h4></div>
+                    <div class="panel-card-body">
+                      <div class="flex items-center gap-8 mb-4"><div class="str-track" style="flex:1;"><div class="str-fill" id="rv-str-bar" style="width:72%;background:var(--blue);"></div></div><span id="rv-str-label" style="font-size:12px;font-weight:600;color:var(--blue);white-space:nowrap;">Good · 72%</span></div>
+                      <div id="rv-str-detail" style="font-size:11px;line-height:1.8;color:var(--g600);"></div>
+                    </div>
+                  </div>
+                  <div class="panel-card">
+                    <div class="panel-card-hdr"><h4>Combinations</h4></div>
+                    <div class="panel-card-body">
+                      <div id="rv-combo-total" style="font-size:22px;font-weight:700;color:var(--primary);"></div>
+                      <div id="rv-combo-formula" style="font-size:11px;color:var(--muted-fg);margin-top:2px;"></div>
+                      <div style="font-size:11px;color:var(--g500);margin-top:4px;">unique ad combinations</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Format eligibility -->
+                <div class="panel-card">
+                  <div class="panel-card-hdr" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="toggleFs('rv-elig2')">
+                    <h4>Format eligibility</h4>
+                    <div class="flex items-center gap-8"><span class="fs-status done" id="rv-elig-status">5 of 7 formats</span><span class="chevron open" id="ch-rv-elig2" style="font-size:9px;">▼</span></div>
+                  </div>
+                  <div id="rv-elig2" style="padding:8px 12px;display:flex;flex-direction:column;gap:5px;">
+                    <div class="elig-row"><span class="elig-fmt">Text</span><div class="elig-status"><span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span></div></div>
+                    <div class="elig-row"><span class="elig-fmt">Text Hero</span><div class="elig-status"><span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span></div></div>
+                    <div class="elig-row"><span class="elig-fmt">Benefits</span><div class="elig-status" id="rv-el-ben"><span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span></div></div>
+                    <div class="elig-row"><span class="elig-fmt">Benefits Hero</span><div class="elig-status" id="rv-el-bh"><span class="elig-dot off"></span><span class="elig-txt-off">Add 1.91:1 image</span></div></div>
+                    <div class="elig-row"><span class="elig-fmt">Savings</span><div class="elig-status" id="rv-el-sav"><span class="elig-dot off"></span><span class="elig-txt-off">Add promotion</span></div></div>
+                    <div class="elig-row"><span class="elig-fmt">Compact</span><div class="elig-status"><span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span></div></div>
+                    <div class="elig-row"><span class="elig-fmt">Prod. Carousel</span><div class="elig-status" id="rv-el-car"><span class="elig-dot off"></span><span class="elig-txt-off">Add carousel images</span></div></div>
+                  </div>
+                </div>
+
+                <!-- Network reach -->
+                <div class="panel-card">
+                  <div class="panel-card-hdr"><h4>Network Reach</h4></div>
+                  <div class="panel-card-body">
+                    <div class="flex items-center gap-8 mb-4">
+                      <div class="str-track" style="flex:1;"><div class="str-fill" id="rv-reach-bar" style="width:0%;background:var(--primary);"></div></div>
+                      <span id="rv-reach-pct" style="font-size:12px;font-weight:600;color:var(--primary);white-space:nowrap;">—</span>
+                    </div>
+                    <div id="rv-reach-note" style="font-size:11px;color:var(--muted-fg);"></div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
@@ -3314,33 +3385,39 @@ function goToAGNew(){
 function goToAGReview(){
   // Validate required fields
   if(!validateAG()) return;
-  // Populate titles
-  const titlesEl = document.getElementById('rv-titles');
-  if(titlesEl) titlesEl.innerHTML = Array.from(document.querySelectorAll('#ag-titles-list input')).map(i=>`<div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--g100);">${i.value||'—'}</div>`).join('') || '<div style="font-size:13px;color:var(--muted-fg);">None added</div>';
-  // Short descs
-  const sdescEl = document.getElementById('rv-sdesc');
-  if(sdescEl) sdescEl.innerHTML = Array.from(document.querySelectorAll('#ag-sdesc-list input')).map(i=>`<div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--g100);">${i.value||'—'}</div>`).join('') || '<div style="font-size:13px;color:var(--muted-fg);">None added</div>';
-  // Long descs
-  const ldescEl = document.getElementById('rv-ldesc');
-  if(ldescEl) ldescEl.innerHTML = Array.from(document.querySelectorAll('#ag-desc-list textarea')).map(t=>`<div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--g100);">${t.value||'—'}</div>`).join('') || '<div style="font-size:13px;color:var(--muted-fg);">None added</div>';
-  // CTAs
-  const ctasEl = document.getElementById('rv-ctas');
-  if(ctasEl) ctasEl.innerHTML = Array.from(document.querySelectorAll('#ag-cta-list input')).map(i=>`<div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--g100);">${i.value||'—'}</div>`).join('') || '<div style="font-size:13px;color:var(--muted-fg);">None added</div>';
-  // Brand + URL
+
+  const setEl = (id, html) => { const el=document.getElementById(id); if(el) el.innerHTML=html; };
+  const setText = (id, txt) => { const el=document.getElementById(id); if(el) el.textContent=txt; };
+  const itemRow = v => `<div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--g100);">${v||'—'}</div>`;
+  const countBadge = n => `${n} variant${n!==1?'s':''}`;
+
+  // ── Asset lists ──
+  const titleVals  = Array.from(document.querySelectorAll('#ag-titles-list input')).map(i=>i.value.trim()).filter(Boolean);
+  const sdescVals  = Array.from(document.querySelectorAll('#ag-sdesc-list input')).map(i=>i.value.trim()).filter(Boolean);
+  const ldescVals  = Array.from(document.querySelectorAll('#ag-desc-list textarea')).map(t=>t.value.trim()).filter(Boolean);
+  const ctaVals    = Array.from(document.querySelectorAll('#ag-cta-list input')).map(i=>i.value.trim()).filter(Boolean);
+  const benVals    = Array.from(document.querySelectorAll('#ag-ben-rows textarea')).map(t=>t.value.trim()).filter(Boolean);
+  const promoVal   = document.getElementById('ag-promo-inp')?.value.trim();
   const brandInputs = document.querySelectorAll('#ag-req input[type="text"]');
-  const brandEl = document.getElementById('rv-brand');
-  const urlEl = document.getElementById('rv-url');
-  if(brandEl) brandEl.textContent = brandInputs[0]?.value || '—';
-  if(urlEl) urlEl.textContent = brandInputs[1]?.value || '—';
-  // Benefits
-  const bensEl = document.getElementById('rv-bens');
-  const benVals = Array.from(document.querySelectorAll('#ag-ben-rows textarea')).map(t=>t.value.trim()).filter(Boolean);
-  if(bensEl) bensEl.innerHTML = benVals.length ? benVals.map(b=>`<span class="chip-green" style="margin:2px;">${b}</span>`).join('') : '<span style="color:var(--muted-fg);">None — Benefits format not eligible</span>';
-  // Promo
-  const promoEl = document.getElementById('rv-promo');
-  const promoVal = document.getElementById('ag-promo-inp')?.value.trim();
-  if(promoEl) promoEl.textContent = promoVal || 'None — Savings format not eligible';
-  // Sync eligibility indicators
+
+  setEl('rv-titles', titleVals.map(itemRow).join('') || itemRow(''));
+  setText('rv-titles-count', countBadge(titleVals.length));
+  setEl('rv-sdesc',  sdescVals.map(itemRow).join('') || itemRow(''));
+  setText('rv-sdesc-count', countBadge(sdescVals.length));
+  setEl('rv-ldesc',  ldescVals.map(itemRow).join('') || itemRow(''));
+  setText('rv-ldesc-count', countBadge(ldescVals.length));
+  setEl('rv-ctas',   ctaVals.map(itemRow).join('') || itemRow(''));
+  setText('rv-ctas-count', countBadge(ctaVals.length));
+  setText('rv-brand', brandInputs[0]?.value || '—');
+  setText('rv-url',   brandInputs[1]?.value || '—');
+
+  setEl('rv-bens', benVals.length
+    ? benVals.map(b=>`<span class="chip-green" style="margin:2px;">${b}</span>`).join('')
+    : '<span style="color:var(--muted-fg);">None — Benefits format not eligible</span>');
+  setText('rv-bens-count', benVals.length ? countBadge(benVals.length) : '');
+  setText('rv-promo', promoVal || 'None — Savings format not eligible');
+
+  // ── Eligibility ──
   const hasBen = benVals.length > 0;
   const has191 = vaGetCount('191') >= 1;
   const hasPromo = !!promoVal;
@@ -3350,12 +3427,48 @@ function goToAGReview(){
   setElig('rv-el-bh', hasBen&&has191, 'Eligible', hasBen?'Add 1.91:1 image':'Add benefits + image');
   setElig('rv-el-sav', hasPromo, 'Eligible', 'Add promotion');
   setElig('rv-el-car', hasCarousel, 'Eligible', 'Add 2+ carousel images');
-  let cnt = 3 + (hasBen?1:0) + (hasBen&&has191?1:0) + (hasPromo?1:0) + (hasCarousel?1:0);
-  const eligStatus = document.getElementById('rv-elig-status');
-  if(eligStatus) eligStatus.textContent = cnt+' of 7 formats';
-  // Populate and enable format preview tabs based on eligibility
+  const eligCnt = 3 + (hasBen?1:0) + (hasBen&&has191?1:0) + (hasPromo?1:0) + (hasCarousel?1:0);
+  setText('rv-elig-status', eligCnt+' of 7 formats');
+
+  // ── Combinations ──
+  const nT=titleVals.length||1, nD=ldescVals.length||1, nC=ctaVals.length||1;
+  const nI=Math.max(vaGetCount('191')+vaGetCount('11')+vaGetCount('45'),1);
+  const combos = nT*nD*nC*nI;
+  setText('rv-combo-total', combos.toLocaleString());
+  setText('rv-combo-formula', `${nT}T × ${nD}D × ${nC}CTA × ${nI}Img`);
+
+  // ── Asset Strength ──
+  let strScore = 0;
+  strScore += Math.min(titleVals.length/8, 1) * 25;
+  strScore += Math.min(ldescVals.length/3, 1) * 20;
+  strScore += Math.min(ctaVals.length/3, 1) * 15;
+  strScore += Math.min(benVals.length/3, 1) * 15;
+  strScore += Math.min((vaGetCount('191')+vaGetCount('11')+vaGetCount('45'))/4, 1) * 25;
+  const strPct = Math.round(strScore);
+  const strLabel = strPct >= 85 ? 'Excellent' : strPct >= 55 ? 'Good' : 'Low';
+  const strColor = strPct >= 85 ? 'var(--green)' : strPct >= 55 ? 'var(--blue)' : 'var(--amber)';
+  const strBar = document.getElementById('rv-str-bar');
+  if(strBar){ strBar.style.width=strPct+'%'; strBar.style.background=strColor; }
+  const strLabelEl = document.getElementById('rv-str-label');
+  if(strLabelEl){ strLabelEl.textContent=`${strLabel} · ${strPct}%`; strLabelEl.style.color=strColor; }
+  setEl('rv-str-detail',
+    `${titleVals.length>=8?'✓':'○'} Titles (${titleVals.length}/8)<br>`+
+    `${ldescVals.length>=3?'✓':'○'} Descriptions (${ldescVals.length}/3)<br>`+
+    `${ctaVals.length>=3?'<span style="color:var(--green)">✓</span>':'<span style="color:var(--amber)">○</span>'} CTAs (${ctaVals.length}/3)<br>`+
+    `${hasBen?'✓':'<span style="color:var(--amber)">○</span>'} Benefits (${benVals.length})`
+  );
+
+  // ── Network Reach ──
+  const reachPct = Math.min(Math.round(eligCnt/7*100 * 0.85 + (nI>=4?10:nI*2.5)), 100);
+  const reachBar = document.getElementById('rv-reach-bar');
+  if(reachBar) reachBar.style.width = reachPct+'%';
+  setText('rv-reach-pct', reachPct+'%');
+  setText('rv-reach-note', reachPct>=80 ? '🎉 Great reach! Add carousel for full coverage.' : `Target: 80–100% · Add more formats to increase reach.`);
+
+  // ── Preview tabs ──
   const rvSavTab = document.getElementById('rv-fprev-sav');
   if(rvSavTab) rvSavTab.classList.toggle('locked', !hasPromo);
+  if(rvSavTab && hasPromo) rvSavTab.onclick = function(){ rvFmtPrev('savings',this); };
   const rvBenTab = document.getElementById('rv-fprev-ben');
   if(rvBenTab) rvBenTab.classList.toggle('locked', !hasBen);
   const rvBhTab = document.getElementById('rv-fprev-bh');
