@@ -1533,7 +1533,7 @@ tr:hover .row-actions{opacity:1;}
             <div class="wstep done"><span class="wsn">✓</span>Campaign</div><span class="wstep-sep">›</span>
             <div class="wstep done"><span class="wsn">✓</span>Ad set</div><span class="wstep-sep">›</span>
             <div class="wstep active"><span class="wsn">3</span>Asset Group</div><span class="wstep-sep">›</span>
-            <div class="wstep"><span class="wsn">4</span>Review</div>
+            <div class="wstep" style="cursor:pointer;" onclick="goToAGReview()"><span class="wsn">4</span>Review</div>
           </div>
           <div class="wizard-body">
             <div class="editor-layout">
@@ -1964,7 +1964,74 @@ tr:hover .row-actions{opacity:1;}
           </div>
           <div class="wizard-footer">
             <button class="btn btn-ghost" onclick="goTo('creative-choice')">← Back</button>
-            <div class="flex gap-8"><button class="btn btn-secondary btn-sm">Save draft</button><button class="btn btn-primary btn-sm" onclick="navTo('creatives')">Save Asset Group →</button></div>
+            <div class="flex gap-8"><button class="btn btn-secondary btn-sm">Save draft</button><button class="btn btn-primary btn-sm" onclick="goToAGReview()">Review →</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── AG REVIEW ─── -->
+      <div id="view-ag-review" class="view">
+        <div>
+          <div class="back-link" onclick="goBack()">← Edit Asset Group</div>
+          <div class="flex justify-between items-center" style="margin-top:4px;">
+            <h1 style="font-size:18px;font-weight:600;">Review Asset Group</h1>
+            <button class="btn btn-primary btn-sm" onclick="navTo('asset-groups')">✓ Launch Asset Group</button>
+          </div>
+        </div>
+        <div class="wizard-card" style="margin-top:16px;">
+          <div class="wizard-steps-row">
+            <div class="wstep done"><span class="wsn">✓</span>Campaign</div><span class="wstep-sep">›</span>
+            <div class="wstep done"><span class="wsn">✓</span>Ad set</div><span class="wstep-sep">›</span>
+            <div class="wstep done" style="cursor:pointer;" onclick="goBack()"><span class="wsn">✓</span>Asset Group</div><span class="wstep-sep">›</span>
+            <div class="wstep active"><span class="wsn">4</span>Review</div>
+          </div>
+          <div class="wizard-body" style="max-width:680px;">
+
+            <!-- Required assets summary -->
+            <div class="form-section">
+              <div class="fs-hdr" onclick="toggleFs('rv-req')"><div class="fs-title"><span class="fs-num">1</span>Required assets</div><div class="flex items-center gap-8"><span class="fs-status done">✓ Complete</span><span class="chevron open" id="ch-rv-req">▼</span></div></div>
+              <div class="fs-body" id="rv-req" style="display:flex;flex-direction:column;gap:10px;">
+                <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Titles</span><div id="rv-titles" style="margin-top:4px;display:flex;flex-direction:column;gap:4px;"></div></div>
+                <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Short descriptions</span><div id="rv-sdesc" style="margin-top:4px;display:flex;flex-direction:column;gap:4px;"></div></div>
+                <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Long descriptions</span><div id="rv-ldesc" style="margin-top:4px;display:flex;flex-direction:column;gap:4px;"></div></div>
+                <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">CTAs</span><div id="rv-ctas" style="margin-top:4px;display:flex;flex-direction:column;gap:4px;"></div></div>
+                <div id="rv-brand-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                  <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Brand name</span><div id="rv-brand" style="margin-top:4px;font-size:13px;"></div></div>
+                  <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Destination URL</span><div id="rv-url" style="margin-top:4px;font-size:13px;color:var(--primary);"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Format expanders summary -->
+            <div class="form-section mt-8">
+              <div class="fs-hdr" onclick="toggleFs('rv-exp')"><div class="fs-title"><span class="fs-num">2</span>Format expanders</div><div class="flex items-center gap-8"><span class="chevron open" id="ch-rv-exp">▼</span></div></div>
+              <div class="fs-body" id="rv-exp" style="display:flex;flex-direction:column;gap:10px;">
+                <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Benefits</span><div id="rv-bens" style="margin-top:4px;font-size:13px;color:var(--muted-fg);"></div></div>
+                <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Promotion</span><div id="rv-promo" style="margin-top:4px;font-size:13px;color:var(--muted-fg);"></div></div>
+              </div>
+            </div>
+
+            <!-- Eligibility summary -->
+            <div class="form-section mt-8">
+              <div class="fs-hdr" onclick="toggleFs('rv-elig')"><div class="fs-title"><span class="fs-num">3</span>Format eligibility</div><div class="flex items-center gap-8"><span class="fs-status done" id="rv-elig-status">5 of 7 formats</span><span class="chevron open" id="ch-rv-elig">▼</span></div></div>
+              <div class="fs-body" id="rv-elig">
+                <div class="elig-row"><span class="elig-fmt">Text</span><div class="elig-status"><span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span></div></div>
+                <div class="elig-row"><span class="elig-fmt">Text Hero</span><div class="elig-status"><span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span></div></div>
+                <div class="elig-row"><span class="elig-fmt">Benefits</span><div class="elig-status" id="rv-el-ben"><span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span></div></div>
+                <div class="elig-row"><span class="elig-fmt">Benefits Hero</span><div class="elig-status" id="rv-el-bh"><span class="elig-dot off"></span><span class="elig-txt-off">Add 1.91:1 image</span></div></div>
+                <div class="elig-row"><span class="elig-fmt">Savings</span><div class="elig-status" id="rv-el-sav"><span class="elig-dot off"></span><span class="elig-txt-off">Add promotion</span></div></div>
+                <div class="elig-row"><span class="elig-fmt">Compact</span><div class="elig-status"><span class="elig-dot on"></span><span class="elig-txt-on">Eligible</span></div></div>
+                <div class="elig-row"><span class="elig-fmt">Prod. Carousel</span><div class="elig-status" id="rv-el-car"><span class="elig-dot off"></span><span class="elig-txt-off">Add carousel images</span></div></div>
+              </div>
+            </div>
+
+          </div>
+          <div class="wizard-footer">
+            <button class="btn btn-ghost" onclick="goBack()">← Back to editor</button>
+            <div class="flex gap-8">
+              <button class="btn btn-secondary btn-sm">Save draft</button>
+              <button class="btn btn-primary btn-sm" onclick="navTo('asset-groups')">✓ Launch Asset Group</button>
+            </div>
           </div>
         </div>
       </div>
@@ -3184,15 +3251,64 @@ function goToAGNew(){
   agUpdate();
 }
 
+// ── AG REVIEW ──
+function goToAGReview(){
+  // Populate titles
+  const titlesEl = document.getElementById('rv-titles');
+  if(titlesEl) titlesEl.innerHTML = Array.from(document.querySelectorAll('#ag-titles-list input')).map(i=>`<div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--g100);">${i.value||'—'}</div>`).join('') || '<div style="font-size:13px;color:var(--muted-fg);">None added</div>';
+  // Short descs
+  const sdescEl = document.getElementById('rv-sdesc');
+  if(sdescEl) sdescEl.innerHTML = Array.from(document.querySelectorAll('#ag-sdesc-list input')).map(i=>`<div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--g100);">${i.value||'—'}</div>`).join('') || '<div style="font-size:13px;color:var(--muted-fg);">None added</div>';
+  // Long descs
+  const ldescEl = document.getElementById('rv-ldesc');
+  if(ldescEl) ldescEl.innerHTML = Array.from(document.querySelectorAll('#ag-desc-list textarea')).map(t=>`<div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--g100);">${t.value||'—'}</div>`).join('') || '<div style="font-size:13px;color:var(--muted-fg);">None added</div>';
+  // CTAs
+  const ctasEl = document.getElementById('rv-ctas');
+  if(ctasEl) ctasEl.innerHTML = Array.from(document.querySelectorAll('#ag-cta-list input')).map(i=>`<div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--g100);">${i.value||'—'}</div>`).join('') || '<div style="font-size:13px;color:var(--muted-fg);">None added</div>';
+  // Brand + URL
+  const brandInputs = document.querySelectorAll('#ag-req input[type="text"]');
+  const brandEl = document.getElementById('rv-brand');
+  const urlEl = document.getElementById('rv-url');
+  if(brandEl) brandEl.textContent = brandInputs[0]?.value || '—';
+  if(urlEl) urlEl.textContent = brandInputs[1]?.value || '—';
+  // Benefits
+  const bensEl = document.getElementById('rv-bens');
+  const benVals = Array.from(document.querySelectorAll('#ag-ben-rows textarea')).map(t=>t.value.trim()).filter(Boolean);
+  if(bensEl) bensEl.innerHTML = benVals.length ? benVals.map(b=>`<span class="chip-green" style="margin:2px;">${b}</span>`).join('') : '<span style="color:var(--muted-fg);">None — Benefits format not eligible</span>';
+  // Promo
+  const promoEl = document.getElementById('rv-promo');
+  const promoVal = document.getElementById('ag-promo-inp')?.value.trim();
+  if(promoEl) promoEl.textContent = promoVal || 'None — Savings format not eligible';
+  // Sync eligibility indicators
+  const hasBen = benVals.length > 0;
+  const has191 = vaGetCount('191') >= 1;
+  const hasPromo = !!promoVal;
+  const hasCarousel = vaGetCount('carousel') >= 2;
+  const setElig = (id, ok, okTxt, failTxt) => { const el=document.getElementById(id); if(el) el.innerHTML=ok?`<span class="elig-dot on"></span><span class="elig-txt-on">${okTxt}</span>`:`<span class="elig-dot off"></span><span class="elig-txt-off">${failTxt}</span>`; };
+  setElig('rv-el-ben', hasBen, 'Eligible', 'Add benefits');
+  setElig('rv-el-bh', hasBen&&has191, 'Eligible', hasBen?'Add 1.91:1 image':'Add benefits + image');
+  setElig('rv-el-sav', hasPromo, 'Eligible', 'Add promotion');
+  setElig('rv-el-car', hasCarousel, 'Eligible', 'Add 2+ carousel images');
+  let cnt = 3 + (hasBen?1:0) + (hasBen&&has191?1:0) + (hasPromo?1:0) + (hasCarousel?1:0);
+  const eligStatus = document.getElementById('rv-elig-status');
+  if(eligStatus) eligStatus.textContent = cnt+' of 7 formats';
+  viewHistory.push(currentView);
+  showView('ag-review');
+}
+
 // ── NEW vs REFINE MODAL ──
 let _pendingAGEditName = null;
 function openRefineModal(name){
   _pendingAGEditName = name;
-  document.getElementById('refine-overlay').style.display = '';
+  const ov = document.getElementById('refine-overlay');
+  ov.style.display = '';
+  ov.classList.add('open');
   document.getElementById('refine-modal').style.display = '';
 }
 function closeRefineModal(){
-  document.getElementById('refine-overlay').style.display = 'none';
+  const ov = document.getElementById('refine-overlay');
+  ov.classList.remove('open');
+  ov.style.display = 'none';
   document.getElementById('refine-modal').style.display = 'none';
   _pendingAGEditName = null;
 }
