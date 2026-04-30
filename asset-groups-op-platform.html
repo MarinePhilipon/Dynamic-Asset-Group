@@ -1523,7 +1523,8 @@ tr:hover .row-actions{opacity:1;}
               <h1 style="font-size:18px;font-weight:600;" id="ag-page-title">New Asset Group</h1>
               <div style="font-size:13px;color:var(--muted-fg);margin-top:2px;" id="ag-page-sub">⚡ Dynamic · Brain tests all combinations across eligible formats</div>
             </div>
-            <div class="flex gap-8" id="ag-header-btns">
+            <div class="flex gap-8 items-center" id="ag-header-btns">
+              <span id="ag-draft-badge" style="font-size:11px;font-weight:600;color:var(--amber);background:#fffbeb;border:1px solid #fcd34d;border-radius:20px;padding:2px 8px;">Draft</span>
               <button class="btn btn-secondary btn-sm" id="ag-change-type-btn" onclick="goTo('creative-choice')">Change type</button>
             </div>
           </div>
@@ -1985,12 +1986,14 @@ tr:hover .row-actions{opacity:1;}
             <div class="wstep done" style="cursor:pointer;" onclick="goBack()"><span class="wsn">✓</span>Asset Group</div><span class="wstep-sep">›</span>
             <div class="wstep active"><span class="wsn">4</span>Review</div>
           </div>
-          <div class="wizard-body" style="max-width:680px;">
+          <div class="wizard-body">
+            <div class="editor-layout">
+              <div>
 
             <!-- Required assets summary -->
             <div class="form-section">
               <div class="fs-hdr" onclick="toggleFs('rv-req')"><div class="fs-title"><span class="fs-num">1</span>Required assets</div><div class="flex items-center gap-8"><span class="fs-status done">✓ Complete</span><span class="chevron open" id="ch-rv-req">▼</span></div></div>
-              <div class="fs-body" id="rv-req" style="display:flex;flex-direction:column;gap:10px;">
+              <div class="fs-body" id="rv-req">
                 <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Titles</span><div id="rv-titles" style="margin-top:4px;display:flex;flex-direction:column;gap:4px;"></div></div>
                 <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Short descriptions</span><div id="rv-sdesc" style="margin-top:4px;display:flex;flex-direction:column;gap:4px;"></div></div>
                 <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Long descriptions</span><div id="rv-ldesc" style="margin-top:4px;display:flex;flex-direction:column;gap:4px;"></div></div>
@@ -2005,7 +2008,7 @@ tr:hover .row-actions{opacity:1;}
             <!-- Format expanders summary -->
             <div class="form-section mt-8">
               <div class="fs-hdr" onclick="toggleFs('rv-exp')"><div class="fs-title"><span class="fs-num">2</span>Format expanders</div><div class="flex items-center gap-8"><span class="chevron open" id="ch-rv-exp">▼</span></div></div>
-              <div class="fs-body" id="rv-exp" style="display:flex;flex-direction:column;gap:10px;">
+              <div class="fs-body" id="rv-exp">
                 <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Benefits</span><div id="rv-bens" style="margin-top:4px;font-size:13px;color:var(--muted-fg);"></div></div>
                 <div><span style="font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;">Promotion</span><div id="rv-promo" style="margin-top:4px;font-size:13px;color:var(--muted-fg);"></div></div>
               </div>
@@ -2025,6 +2028,29 @@ tr:hover .row-actions{opacity:1;}
               </div>
             </div>
 
+              </div>
+              <div class="right-panel">
+                <div class="panel-card" style="overflow:hidden;">
+                  <div class="panel-card-hdr"><h4>Preview by format</h4></div>
+                  <div class="fmt-prev-tabs" id="rv-fmt-prev-tabs">
+                    <div class="fmt-prev-tab active" onclick="rvFmtPrev('text',this)">Text</div>
+                    <div class="fmt-prev-tab" onclick="rvFmtPrev('hero',this)">Text Hero</div>
+                    <div class="fmt-prev-tab" id="rv-fprev-ben" onclick="rvFmtPrev('benefits',this)">Benefits</div>
+                    <div class="fmt-prev-tab" id="rv-fprev-bh" onclick="rvFmtPrev('benhero',this)">Ben. Hero</div>
+                    <div class="fmt-prev-tab locked" id="rv-fprev-sav">Savings</div>
+                    <div class="fmt-prev-tab" onclick="rvFmtPrev('compact',this)">Compact</div>
+                  </div>
+                  <div class="fmt-prev-wrap">
+                    <div id="rv-fmt-preview"></div>
+                    <div class="combo-nav-mini">
+                      <button class="cnav-btn-mini" onclick="rvPrev()">‹</button>
+                      <span id="rv-combo-idx" style="font-size:11px;color:var(--muted-fg);">Combo 1</span>
+                      <button class="cnav-btn-mini" onclick="rvNext()">›</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="wizard-footer">
             <button class="btn btn-ghost" onclick="goBack()">← Back to editor</button>
@@ -3240,6 +3266,8 @@ function goToAGNew(){
   document.getElementById('ag-back-link').textContent = '← Choose creative type';
   document.getElementById('ag-wizard-steps').style.display = '';
   document.getElementById('ag-change-type-btn').style.display = '';
+  const draftBadge = document.getElementById('ag-draft-badge');
+  if(draftBadge) draftBadge.style.display = '';
   // Show AI fill banner
   const banner = document.getElementById('ag-ai-fill-banner');
   if(banner) banner.classList.remove('hidden');
@@ -3253,6 +3281,8 @@ function goToAGNew(){
 
 // ── AG REVIEW ──
 function goToAGReview(){
+  // Validate required fields
+  if(!validateAG()) return;
   // Populate titles
   const titlesEl = document.getElementById('rv-titles');
   if(titlesEl) titlesEl.innerHTML = Array.from(document.querySelectorAll('#ag-titles-list input')).map(i=>`<div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--g100);">${i.value||'—'}</div>`).join('') || '<div style="font-size:13px;color:var(--muted-fg);">None added</div>';
@@ -3292,8 +3322,141 @@ function goToAGReview(){
   let cnt = 3 + (hasBen?1:0) + (hasBen&&has191?1:0) + (hasPromo?1:0) + (hasCarousel?1:0);
   const eligStatus = document.getElementById('rv-elig-status');
   if(eligStatus) eligStatus.textContent = cnt+' of 7 formats';
+  // Populate and enable format preview tabs based on eligibility
+  const rvSavTab = document.getElementById('rv-fprev-sav');
+  if(rvSavTab) rvSavTab.classList.toggle('locked', !hasPromo);
+  const rvBenTab = document.getElementById('rv-fprev-ben');
+  if(rvBenTab) rvBenTab.classList.toggle('locked', !hasBen);
+  const rvBhTab = document.getElementById('rv-fprev-bh');
+  if(rvBhTab) rvBhTab.classList.toggle('locked', !(hasBen && has191));
+  rvCurrentFmtPrev = 'text';
+  rvComboIdx = 0;
+  document.querySelectorAll('#rv-fmt-prev-tabs .fmt-prev-tab').forEach((t,i)=>{ t.classList.toggle('active', i===0); });
+  renderRvPreview();
   viewHistory.push(currentView);
   showView('ag-review');
+}
+
+// ── REVIEW PREVIEW ──
+let rvCurrentFmtPrev = 'text';
+let rvComboIdx = 0;
+
+function rvFmtPrev(fmt, tab){
+  if(tab && tab.classList.contains('locked')) return;
+  rvCurrentFmtPrev = fmt;
+  document.querySelectorAll('#rv-fmt-prev-tabs .fmt-prev-tab').forEach(t=>t.classList.remove('active'));
+  if(tab) tab.classList.add('active');
+  renderRvPreview();
+}
+function rvPrev(){
+  const titles = document.querySelectorAll('#ag-titles-list input');
+  const total = Math.max(titles.length, 1);
+  rvComboIdx = (rvComboIdx - 1 + total) % total;
+  renderRvPreview();
+}
+function rvNext(){
+  const titles = document.querySelectorAll('#ag-titles-list input');
+  const total = Math.max(titles.length, 1);
+  rvComboIdx = (rvComboIdx + 1) % total;
+  renderRvPreview();
+}
+function renderRvPreview(){
+  const titles = document.querySelectorAll('#ag-titles-list input');
+  const descs  = document.querySelectorAll('#ag-desc-list textarea');
+  const ctas   = document.querySelectorAll('#ag-cta-list input');
+  const bens   = Array.from(document.querySelectorAll('#ag-ben-rows textarea')).map(t=>t.value.trim()).filter(Boolean);
+  const promo  = document.getElementById('ag-promo-inp')?.value.trim();
+  const total  = Math.max(titles.length, 1);
+  rvComboIdx   = rvComboIdx % total;
+  const t = titles.length>0 ? titles[rvComboIdx%titles.length].value : 'Your headline here';
+  const d = descs.length>0  ? descs[rvComboIdx%descs.length].value   : 'Your description here';
+  const c = ctas.length>0   ? ctas[rvComboIdx%ctas.length].value     : 'Shop now';
+  const fmt = rvCurrentFmtPrev;
+  const prev = document.getElementById('rv-fmt-preview');
+  if(!prev) return;
+  const ci = document.getElementById('rv-combo-idx');
+  if(ci) ci.textContent = 'Combo '+(rvComboIdx+1)+' of '+total;
+  const heroImg = `<div class="fad-hero">📷 1.91:1 image</div>`;
+  const bensHtml = bens.length>0
+    ? bens.slice(0,3).map(b=>`<div class="fad-ben">${b}</div>`).join('')
+    : `<div class="fad-ben" style="color:var(--muted-fg);opacity:.6;">No benefits added</div>`;
+  const footer = `<div class="fad-footer"><button class="fad-cta">${c||'Shop now'}</button><span class="fad-neg">No thanks</span></div>`;
+  if(fmt==='text'){
+    prev.innerHTML=`<div class="fad"><div class="fad-body"><div class="fad-brand">Acme Co.</div><div class="fad-title">${t||'Title'}</div><div class="fad-desc">${(d||'Desc').substring(0,90)}</div>${footer}</div></div>`;
+  } else if(fmt==='hero'){
+    prev.innerHTML=`<div class="fad">${heroImg}<div class="fad-body"><div class="fad-brand">Acme Co.</div><div class="fad-title">${t||'Title'}</div><div class="fad-desc">${(d||'Desc').substring(0,70)}</div>${footer}</div></div>`;
+  } else if(fmt==='benefits'){
+    prev.innerHTML=`<div class="fad"><div class="fad-body"><div class="fad-brand">Acme Co.</div><div class="fad-title">${t||'Title'}</div><div class="fad-bens">${bensHtml}</div>${footer}</div></div>`;
+  } else if(fmt==='benhero'){
+    const bh2 = bens.length>0 ? bens.slice(0,2).map(b=>`<div class="fad-ben">${b}</div>`).join('') : bensHtml;
+    prev.innerHTML=`<div class="fad">${heroImg}<div class="fad-body"><div class="fad-brand">Acme Co.</div><div class="fad-title">${t||'Title'}</div><div class="fad-bens">${bh2}</div>${footer}</div></div>`;
+  } else if(fmt==='savings'){
+    const promoTag = promo ? `<div class="fad-promo">🏷 ${promo}</div>` : `<div class="fad-promo" style="opacity:.35;">🏷 No promo</div>`;
+    prev.innerHTML=`<div class="fad"><div class="fad-body"><div class="fad-brand">Acme Co.</div>${promoTag}<div class="fad-title">${t||'Title'}</div><div class="fad-desc">${(d||'Desc').substring(0,70)}</div>${footer}</div></div>`;
+  } else if(fmt==='compact'){
+    prev.innerHTML=`<div class="fad-compact"><div class="fad-compact-logo">A</div><div class="fad-compact-text"><div class="fad-compact-title">${t||'Title'}</div><div class="fad-compact-brand">Acme Co.</div></div><button class="fad-compact-cta">${c||'Shop now'}</button></div>`;
+  }
+}
+
+// ── VALIDATION ──
+function validateAG(){
+  let valid = true;
+  const errors = [];
+
+  // Helper: mark field red or clear it
+  const mark = (el, bad) => {
+    if(!el) return;
+    if(bad){ el.style.borderColor='var(--red)'; el.style.boxShadow='0 0 0 2px rgba(239,68,68,.15)'; }
+    else   { el.style.borderColor=''; el.style.boxShadow=''; }
+  };
+
+  // Titles — at least 1 non-empty
+  const titleInputs = document.querySelectorAll('#ag-titles-list input');
+  const hasTitle = Array.from(titleInputs).some(i=>i.value.trim()!=='');
+  titleInputs.forEach(i=>mark(i, !i.value.trim()));
+  if(!hasTitle){ errors.push('Add at least one title'); valid=false; }
+
+  // Short descriptions — at least 1
+  const sdescInputs = document.querySelectorAll('#ag-sdesc-list input');
+  const hasSDesc = Array.from(sdescInputs).some(i=>i.value.trim()!=='');
+  sdescInputs.forEach(i=>mark(i, !i.value.trim()));
+  if(!hasSDesc){ errors.push('Add at least one short description'); valid=false; }
+
+  // Long descriptions — at least 1
+  const ldescTAs = document.querySelectorAll('#ag-desc-list textarea');
+  const hasLDesc = Array.from(ldescTAs).some(t=>t.value.trim()!=='');
+  ldescTAs.forEach(t=>mark(t, !t.value.trim()));
+  if(!hasLDesc){ errors.push('Add at least one long description'); valid=false; }
+
+  // CTAs — at least 1
+  const ctaInputs = document.querySelectorAll('#ag-cta-list input');
+  const hasCTA = Array.from(ctaInputs).some(i=>i.value.trim()!=='');
+  ctaInputs.forEach(i=>mark(i, !i.value.trim()));
+  if(!hasCTA){ errors.push('Add at least one CTA'); valid=false; }
+
+  // Brand name + Destination URL (first two text inputs in #ag-req)
+  const reqInputs = document.querySelectorAll('#ag-req input[type="text"]');
+  const brandInput = reqInputs[0]; const urlInput = reqInputs[1];
+  if(brandInput && !brandInput.value.trim()){ mark(brandInput, true); errors.push('Brand name is required'); valid=false; } else { mark(brandInput, false); }
+  if(urlInput   && !urlInput.value.trim())  { mark(urlInput, true);   errors.push('Destination URL is required'); valid=false; } else { mark(urlInput, false); }
+
+  if(!valid){
+    // Show or update validation banner
+    let banner = document.getElementById('ag-validation-banner');
+    if(!banner){
+      banner = document.createElement('div');
+      banner.id = 'ag-validation-banner';
+      banner.style.cssText = 'background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:#b91c1c;';
+      const wizBody = document.querySelector('#view-ag-editor .wizard-body');
+      if(wizBody) wizBody.insertBefore(banner, wizBody.firstChild);
+    }
+    banner.innerHTML = '<strong>Fix before reviewing:</strong><ul style="margin:6px 0 0 16px;padding:0;">' + errors.map(e=>`<li>${e}</li>`).join('') + '</ul>';
+    banner.scrollIntoView({behavior:'smooth', block:'nearest'});
+  } else {
+    const banner = document.getElementById('ag-validation-banner');
+    if(banner) banner.remove();
+  }
+  return valid;
 }
 
 // ── NEW vs REFINE MODAL ──
@@ -3327,6 +3490,8 @@ function _doAGEdit(name){
   document.getElementById('ag-back-link').textContent = '← Asset Groups';
   document.getElementById('ag-wizard-steps').style.display = 'none';
   document.getElementById('ag-change-type-btn').style.display = 'none';
+  const draftBadge = document.getElementById('ag-draft-badge');
+  if(draftBadge) draftBadge.style.display = 'none';
   const banner = document.getElementById('ag-ai-fill-banner');
   if(banner) banner.classList.add('hidden');
   viewHistory.push(currentView);
